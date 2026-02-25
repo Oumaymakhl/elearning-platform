@@ -1,0 +1,137 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql-auth:
+    image: mysql:8.0
+    container_name: mysql-auth
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-auth-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+  # --- User Service ---
+  mysql-user:
+    image: mysql:8.0
+    container_name: mysql-user
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_user
+      MYSQL_PASSWORD: user_password
+    ports:
+      - "3307:3306"   # port différent pour éviter conflit avec mysql-auth
+    volumes:
+      - mysql-user-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  user-service:
+    build:
+      context: ../../backend/user-service
+      dockerfile: Dockerfile
+    container_name: user-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/user-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-user:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-user:
+    image: nginx:alpine
+    container_name: nginx-user
+    ports:
+      - "8001:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/user-service:/var/www/html
+      - ./nginx/user.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - user-service
+    restart: unless-stopped
+
+  phpmyadmin-user:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-user
+    environment:
+      PMA_HOST: mysql-user
+      PMA_PORT: 3306
+    ports:
+      - "8081:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-user
+    restart: unless-stopped
+  # PHP-FPM Service
+  auth-service:
+    build:
+      context: ../../backend/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    volumes:
+      - ../../backend/auth-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-auth
+    ports:
+      - "8000:80"
+    volumes:
+      - ../../backend/auth-service:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - auth-service
+    restart: unless-stopped
+
+  # phpMyAdmin (optional)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-auth
+    environment:
+      PMA_HOST: mysql-auth
+      PMA_PORT: 3306
+    ports:
+      - "8080:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-auth
+    restart: unless-stopped
+
+networks:
+  elearning-network:
+    driver: bridge
+
+volumes:
+  mysql-auth-data:
+  mysql-user-data:

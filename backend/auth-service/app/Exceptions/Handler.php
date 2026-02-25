@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Exceptions;
+
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Throwable;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Request;
+
+class Handler extends ExceptionHandler
+{
+    protected $dontFlash = [
+        "current_password",
+        "password",
+        "password_confirmation",
+    ];
+
+    public function register(): void
+    {
+        $this->reportable(function (Throwable $e) {
+            //
+        });
+    }
+
+    /**
+     * Convertir une exception d'authentification en réponse JSON.
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        return response()->json(["message" => $exception->getMessage()], 401);
+    }
+}
