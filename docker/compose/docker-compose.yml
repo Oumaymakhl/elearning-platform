@@ -21,6 +21,33 @@ services:
       timeout: 20s
       retries: 10
     restart: unless-stopped
+  auth-service:
+    build:
+      context: ../../backend/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/auth-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-auth:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-auth:
+    image: nginx:alpine
+    container_name: nginx-auth
+    ports:
+      - "8000:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/auth-service:/var/www/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - auth-service
+    restart: unless-stopped
   # --- User Service ---
   mysql-user:
     image: mysql:8.0
@@ -208,6 +235,32 @@ services:
     depends_on:
       - mysql-content
     restart: unless-stopped
+  executor-service:
+    build:
+      context: ../../backend/executor-service
+      dockerfile: Dockerfile
+    container_name: executor-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/executor-service:/var/www/html
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/executor:/tmp/executor
+    networks:
+      - elearning-network
+    restart: unless-stopped
+
+  nginx-executor:
+    image: nginx:alpine
+    container_name: nginx-executor
+    ports:
+      - "8004:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/executor-service:/var/www/html
+      - ./nginx/executor.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - executor-service
+    restart: unless-stopped
   # phpMyAdmin (optional)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -216,13 +269,28 @@ services:
       PMA_HOST: mysql-auth
       PMA_PORT: 3306
     ports:
-      - "8080:80"
+      - "8085:80"
     networks:
       - elearning-network
     depends_on:
       - mysql-auth
     restart: unless-stopped
-
+  gateway:
+    image: nginx:alpine
+    container_name: gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/gateway.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - nginx-auth
+      - nginx-user
+      - nginx-course
+      - nginx-content
+      - nginx-executor
+    restart: unless-stopped
 networks:
   elearning-network:
     driver: bridge
