@@ -83,36 +83,131 @@ services:
     depends_on:
       - mysql-user
     restart: unless-stopped
-  # PHP-FPM Service
-  auth-service:
-    build:
-      context: ../../backend/auth-service
-      dockerfile: Dockerfile
-    container_name: auth-service
+  # --- Course Service ---
+    # --- Course Service ---
+  mysql-course:
+    image: mysql:8.0
+    container_name: mysql-course
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: course_db
+      MYSQL_USER: course_user
+      MYSQL_PASSWORD: course_password
+    ports:
+      - "3308:3306"
     volumes:
-      - ../../backend/auth-service:/var/www/html
+      - mysql-course-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  course-service:
+    build:
+      context: ../../backend/course-service
+      dockerfile: Dockerfile
+    container_name: course-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/course-service:/var/www/html
     networks:
       - elearning-network
     depends_on:
-      mysql-auth:
+      mysql-course:
         condition: service_healthy
     restart: unless-stopped
 
-  # Nginx Web Server
-  nginx:
+  nginx-course:
     image: nginx:alpine
-    container_name: nginx-auth
+    container_name: nginx-course
     ports:
-      - "8000:80"
+      - "8002:80"
     volumes:
-      - ../../backend/auth-service:/var/www/html
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /home/ouma/projects/elearning-platform/backend/course-service:/var/www/html
+      - ./nginx/course.conf:/etc/nginx/conf.d/default.conf
     networks:
       - elearning-network
     depends_on:
-      - auth-service
+      - course-service
     restart: unless-stopped
 
+  phpmyadmin-course:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-course
+    environment:
+      PMA_HOST: mysql-course
+      PMA_PORT: 3306
+    ports:
+      - "8082:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-course
+    restart: unless-stopped
+  # --- Content Service ---
+  mysql-content:
+    image: mysql:8.0
+    container_name: mysql-content
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: content_db
+      MYSQL_USER: content_user
+      MYSQL_PASSWORD: content_password
+    ports:
+      - "3309:3306"
+    volumes:
+      - mysql-content-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  content-service:
+    build:
+      context: ../../backend/content-service
+      dockerfile: Dockerfile
+    container_name: content-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/content-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-content:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-content:
+    image: nginx:alpine
+    container_name: nginx-content
+    ports:
+      - "8003:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/content-service:/var/www/html
+      - ./nginx/content.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - content-service
+    restart: unless-stopped
+
+  phpmyadmin-content:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-content
+    environment:
+      PMA_HOST: mysql-content
+      PMA_PORT: 3306
+    ports:
+      - "8083:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-content
+    restart: unless-stopped
   # phpMyAdmin (optional)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -135,3 +230,5 @@ networks:
 volumes:
   mysql-auth-data:
   mysql-user-data:
+  mysql-course-data:
+  mysql-content-data:
