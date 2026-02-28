@@ -261,6 +261,83 @@ services:
     depends_on:
       - executor-service
     restart: unless-stopped
+  # --- Notification Service ---
+    # --- Notification Service ---
+  mysql-notification:
+    image: mysql:8.0
+    container_name: mysql-notification
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notification_user
+      MYSQL_PASSWORD: notification_password
+    ports:
+      - "3311:3306"
+    volumes:
+      - mysql-notification-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: ../../backend/notification-service
+      dockerfile: Dockerfile
+    container_name: notification-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/notification-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+    restart: unless-stopped
+
+  notification-worker:
+    build:
+      context: ../../backend/notification-service
+      dockerfile: Dockerfile.worker
+    container_name: notification-worker
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/notification-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-notification:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-notification:
+    image: nginx:alpine
+    container_name: nginx-notification
+    ports:
+      - "8006:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/notification-service:/var/www/html
+      - ./nginx/notification.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - notification-service
+    restart: unless-stopped
+
+  phpmyadmin-notification:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-notification
+    environment:
+      PMA_HOST: mysql-notification
+      PMA_PORT: 3306
+    ports:
+      - "8086:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-notification
+    restart: unless-stopped
   # phpMyAdmin (optional)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -300,3 +377,4 @@ volumes:
   mysql-user-data:
   mysql-course-data:
   mysql-content-data:
+  mysql-notification-data:
