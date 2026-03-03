@@ -338,6 +338,68 @@ services:
     depends_on:
       - mysql-notification
     restart: unless-stopped
+  # --- Quiz Service ---
+  mysql-quiz:
+    image: mysql:8.0
+    container_name: mysql-quiz
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: quiz_db
+      MYSQL_USER: quiz_user
+      MYSQL_PASSWORD: quiz_password
+    ports:
+      - "3312:3306"
+    volumes:
+      - mysql-quiz-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  quiz-service:
+    build:
+      context: ../../backend/quiz-service
+      dockerfile: Dockerfile
+    container_name: quiz-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/quiz-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-quiz:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-quiz:
+    image: nginx:alpine
+    container_name: nginx-quiz
+    ports:
+      - "8005:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/quiz-service:/var/www/html
+      - ./nginx/quiz.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - quiz-service
+    restart: unless-stopped
+
+  phpmyadmin-quiz:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-quiz
+    environment:
+      PMA_HOST: mysql-quiz
+      PMA_PORT: 3306
+    ports:
+      - "8087:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-quiz
+    restart: unless-stopped
   # phpMyAdmin (optional)
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -378,3 +440,4 @@ volumes:
   mysql-course-data:
   mysql-content-data:
   mysql-notification-data:
+  mysql-quiz-data:

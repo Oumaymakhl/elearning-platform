@@ -26,4 +26,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/my-courses', [EnrollmentController::class, 'myCourses']);
     // Progression
     Route::post('/lessons/{lesson}/complete', [ProgressController::class, 'complete']);
+    Route::post('/internal/lessons/{lesson}/complete', [App\Http\Controllers\Internal\LessonController::class, 'complete']);
 });
