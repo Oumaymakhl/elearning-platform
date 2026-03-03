@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -18,8 +18,8 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "name" => "required|string|max:255",
-            "email" => "required|string|email|max:255|unique:users",
+            "name"     => "required|string|max:255",
+            "email"    => "required|string|email|max:255|unique:users",
             "password" => "required|string|min:6|confirmed",
         ]);
 
@@ -28,21 +28,22 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            "name" => $request->name,
-            "email" => $request->email,
-            "password" => Hash::make($request->password),
-            "role" => $request->role ?? "student",
+            "name"           => $request->name,
+            "email"          => $request->email,
+            "password"       => Hash::make($request->password),
+            "role"           => $request->role ?? "student",
+            "remember_token" => Str::random(60),
         ]);
 
         $token = auth()->login($user);
 
         return response()->json([
-            "status" => "success",
+            "status"  => "success",
             "message" => "User created successfully",
-            "user" => $user,
+            "user"    => $user,
             "authorization" => [
-                "token" => $token,
-                "type" => "bearer",
+                "token"      => $token,
+                "type"       => "bearer",
                 "expires_in" => auth()->factory()->getTTL() * 60
             ]
         ], 201);
@@ -51,8 +52,9 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "email" => "required|string|email",
-            "password" => "required|string",
+            "email"       => "required|string|email",
+            "password"    => "required|string",
+            "remember_me" => "boolean",
         ]);
 
         if ($validator->fails()) {
@@ -63,19 +65,26 @@ class AuthController extends Controller
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json([
-                "status" => "error",
+                "status"  => "error",
                 "message" => "Unauthorized",
             ], 401);
         }
 
         $user = auth()->user();
 
+        // Gérer le remember_token selon le choix de l'utilisateur
+        if ($request->boolean('remember_me')) {
+            $user->forceFill(['remember_token' => Str::random(60)])->save();
+        } else {
+            $user->forceFill(['remember_token' => null])->save();
+        }
+
         return response()->json([
             "status" => "success",
-            "user" => $user,
+            "user"   => $user,
             "authorization" => [
-                "token" => $token,
-                "type" => "bearer",
+                "token"      => $token,
+                "type"       => "bearer",
                 "expires_in" => auth()->factory()->getTTL() * 60
             ]
         ]);
@@ -83,10 +92,17 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $user = auth()->user();
+
+        // Effacer le remember_token à la déconnexion
+        if ($user) {
+            $user->forceFill(['remember_token' => null])->save();
+        }
+
         auth()->logout();
 
         return response()->json([
-            "status" => "success",
+            "status"  => "success",
             "message" => "Successfully logged out",
         ]);
     }
@@ -95,10 +111,10 @@ class AuthController extends Controller
     {
         return response()->json([
             "status" => "success",
-            "user" => auth()->user(),
+            "user"   => auth()->user(),
             "authorization" => [
-                "token" => auth()->refresh(),
-                "type" => "bearer",
+                "token"      => auth()->refresh(),
+                "type"       => "bearer",
                 "expires_in" => auth()->factory()->getTTL() * 60
             ]
         ]);
