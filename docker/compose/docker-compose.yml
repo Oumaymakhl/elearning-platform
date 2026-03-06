@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # MySQL Database
@@ -23,7 +22,7 @@ services:
     restart: unless-stopped
   auth-service:
     build:
-      context: ../../backend/auth-service
+      context: /home/ouma/projects/elearning-platform/backend/auth-service
       dockerfile: Dockerfile
     container_name: auth-service
     volumes:
@@ -71,7 +70,7 @@ services:
 
   user-service:
     build:
-      context: ../../backend/user-service
+      context: /home/ouma/projects/elearning-platform/backend/user-service
       dockerfile: Dockerfile
     container_name: user-service
     volumes:
@@ -134,7 +133,7 @@ services:
 
   course-service:
     build:
-      context: ../../backend/course-service
+      context: /home/ouma/projects/elearning-platform/backend/course-service
       dockerfile: Dockerfile
     container_name: course-service
     volumes:
@@ -183,7 +182,7 @@ services:
       MYSQL_USER: content_user
       MYSQL_PASSWORD: content_password
     ports:
-      - "3309:3306"
+      - "3310:3306"
     volumes:
       - mysql-content-data:/var/lib/mysql
     networks:
@@ -196,7 +195,7 @@ services:
 
   content-service:
     build:
-      context: ../../backend/content-service
+      context: /home/ouma/projects/elearning-platform/backend/content-service
       dockerfile: Dockerfile
     container_name: content-service
     volumes:
@@ -235,11 +234,35 @@ services:
     depends_on:
       - mysql-content
     restart: unless-stopped
+  # --- Executor DB ---
+  mysql-executor:
+    image: mysql:8.0
+    container_name: mysql-executor
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: executor_db
+      MYSQL_USER: executor_user
+      MYSQL_PASSWORD: executor_password
+    ports:
+      - "3313:3306"
+    volumes:
+      - mysql-executor-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
   executor-service:
     build:
-      context: ../../backend/executor-service
+      context: /home/ouma/projects/elearning-platform/backend/executor-service
       dockerfile: Dockerfile
     container_name: executor-service
+    depends_on:
+      mysql-executor:
+        condition: service_healthy
     volumes:
       - /home/ouma/projects/elearning-platform/backend/executor-service:/var/www/html
       - /var/run/docker.sock:/var/run/docker.sock
@@ -285,7 +308,7 @@ services:
 
   notification-service:
     build:
-      context: ../../backend/notification-service
+      context: /home/ouma/projects/elearning-platform/backend/notification-service
       dockerfile: Dockerfile
     container_name: notification-service
     volumes:
@@ -299,7 +322,7 @@ services:
 
   notification-worker:
     build:
-      context: ../../backend/notification-service
+      context: /home/ouma/projects/elearning-platform/backend/notification-service
       dockerfile: Dockerfile.worker
     container_name: notification-worker
     volumes:
@@ -361,7 +384,7 @@ services:
 
   quiz-service:
     build:
-      context: ../../backend/quiz-service
+      context: /home/ouma/projects/elearning-platform/backend/quiz-service
       dockerfile: Dockerfile
     container_name: quiz-service
     volumes:
@@ -441,3 +464,4 @@ volumes:
   mysql-content-data:
   mysql-notification-data:
   mysql-quiz-data:
+  mysql-executor-data:
