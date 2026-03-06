@@ -9,7 +9,7 @@ Route::get("/ping", function () {
 });
 
 // Routes protégées par JWT
-Route::middleware("auth:api")->group(function () {
+Route::middleware("jwt")->group(function () {
     Route::get("/users", [UserController::class, "index"]);
     Route::get("/users/{id}", [UserController::class, "show"]);
 });

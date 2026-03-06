@@ -7,6 +7,6 @@ Route::get("/ping", function () {
     return response()->json(["pong" => true]);
 });
 
-Route::middleware("auth:api")->group(function () {
+Route::middleware("jwt")->group(function () {
     Route::apiResource("contents", ContentController::class);
 });

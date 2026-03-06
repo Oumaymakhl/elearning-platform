@@ -19,7 +19,7 @@ RUN composer install --no-interaction --optimize-autoloader --no-scripts
 COPY . .
 
 COPY .env.example .env
-RUN php artisan key:generate
+RUN php artisan key:generate --no-interaction
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 RUN chmod -R 775 storage bootstrap/cache
@@ -30,3 +30,4 @@ RUN usermod -aG docker www-data
 RUN echo "www-data ALL=(ALL) NOPASSWD: /usr/bin/docker" >> /etc/sudoers
 
 CMD ["php-fpm"]
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf

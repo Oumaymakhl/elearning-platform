@@ -9,7 +9,7 @@ Route::get('/ping', function () {
     return response()->json(['pong' => true]);
 });
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('jwt')->group(function () {
     Route::apiResource('quizzes', QuizController::class);
     Route::get('/quizzes/{quiz}/questions', [QuestionController::class, 'index']);
     Route::get('/quizzes/{quiz}/questions/{question}', [QuestionController::class, 'show']);

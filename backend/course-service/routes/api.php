@@ -12,7 +12,7 @@ Route::get('/ping', function () {
 });
 
 // Routes protégées par JWT
-Route::middleware('auth:api')->group(function () {
+Route::middleware('jwt')->group(function () {
     // Cours
     Route::apiResource('courses', CourseController::class);
     // Leçons (imbriquées)

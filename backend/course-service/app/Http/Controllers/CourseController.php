@@ -29,7 +29,7 @@ class CourseController extends Controller
         ]);
 
         $course = Course::create(array_merge($validated, [
-            'teacher_id' => auth()->id(),
+            'teacher_id' => $request->get('auth_user_id'),
         ]));
 
         return response()->json($course, 201);
@@ -43,7 +43,7 @@ class CourseController extends Controller
         }
 
         // Vérifier que l'utilisateur est le professeur ou admin
-        if (auth()->id() != $course->teacher_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $course->teacher_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -63,7 +63,7 @@ class CourseController extends Controller
             return response()->json(['message' => 'Course not found'], 404);
         }
 
-        if (auth()->id() != $course->teacher_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $course->teacher_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

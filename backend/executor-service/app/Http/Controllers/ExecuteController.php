@@ -8,83 +8,138 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ExecuteController extends Controller
 {
+    private const TIMEOUT    = 10;
+    private const MAX_OUTPUT = 50000;
+
     public function run(Request $request)
     {
         $request->validate([
             'language' => 'required|in:php,python,node,java,cpp',
-            'code' => 'required|string',
-            'input' => 'nullable|string',
+            'code'     => 'required|string|max:10000',
+            'input'    => 'nullable|string|max:1000',
         ]);
 
         $language = $request->language;
-        $code = $request->code;
-        $input = $request->input ?? '';
+        $code     = $request->code;
+        $input    = $request->input ?? '';
 
-        $dockerCmd = $this->buildDockerCommand($language, $code, $input);
+        try {
+            [$cmd, $tmpFiles] = $this->buildDockerCommand($language, $code, $input);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 422);
+        }
 
-        $process = Process::fromShellCommandline($dockerCmd);
-        $process->setTimeout(30);
+        $process = Process::fromShellCommandline($cmd);
+        $process->setTimeout(self::TIMEOUT);
 
+        $output = '';
         try {
             $process->mustRun();
             $output = $process->getOutput();
         } catch (ProcessFailedException $e) {
-            $output = $e->getProcess()->getErrorOutput();
+            $output = $e->getProcess()->getErrorOutput()
+                   ?: $e->getProcess()->getOutput();
+        } catch (\Exception $e) {
+            $output = 'Erreur : ' . $e->getMessage();
+        } finally {
+            foreach ($tmpFiles as $file) {
+                if (file_exists($file)) unlink($file);
+            }
         }
 
-        $this->cleanTempFiles();
+        if (strlen($output) > self::MAX_OUTPUT) {
+            $output = substr($output, 0, self::MAX_OUTPUT) . "\n[Sortie tronquee]";
+        }
 
         return response()->json([
-            'output' => $output,
+            'output'   => $output,
             'language' => $language,
         ]);
     }
 
-    private function buildDockerCommand($language, $code, $input)
+    private function buildDockerCommand(string $language, string $code, string $input): array
     {
-        $tmpDir = '/tmp/executor';
-        if (!is_dir($tmpDir)) {
-            mkdir($tmpDir, 0777, true);
-        }
-        $tmpFile = $tmpDir . '/' . uniqid('exec_', true) . '.' . $language;
+        $tmpDir   = '/tmp/executor';
+        $tmpFiles = [];
 
-        $escapedInput = addslashes($input);
+        if (!is_dir($tmpDir)) mkdir($tmpDir, 0700, true);
+
+        $opts = '--rm --network none --memory="64m" --cpus="0.5"';
+
+        $inputFile = $tmpDir . '/' . uniqid('input_', true) . '.txt';
+        file_put_contents($inputFile, $input);
+        chmod($inputFile, 0600);
+        $tmpFiles[] = $inputFile;
 
         switch ($language) {
             case 'php':
-                $escapedCode = addslashes($code);
-                return "echo \"$escapedInput\" | sudo docker run --rm -i php:8.2-cli php -r \"$escapedCode\" 2>&1";
-            case 'python':
-                $escapedCode = addslashes($code);
-                return "echo \"$escapedInput\" | sudo docker run --rm -i python:3 python -c \"$escapedCode\" 2>&1";
-            case 'node':
-                $escapedCode = addslashes($code);
-                return "echo \"$escapedInput\" | sudo docker run --rm -i node:20 node -e \"$escapedCode\" 2>&1";
-            case 'java':
-                file_put_contents($tmpFile, "public class Main { public static void main(String[] args) { $code } }");
-                chmod($tmpFile, 0644);
-                $cmd = "echo \"$escapedInput\" | sudo docker run --rm -i -v $tmpFile:/tmp/Main.java openjdk:27-ea-trixie sh -c 'javac /tmp/Main.java && java -cp /tmp Main' 2>&1";
-                register_shutdown_function(function() use ($tmpFile) { if (file_exists($tmpFile)) unlink($tmpFile); });
-                return $cmd;
-            case 'cpp':
-                file_put_contents($tmpFile, "#include <iostream>\nusing namespace std;\nint main() { $code }");
-                chmod($tmpFile, 0644);
-                $cmd = "echo \"$escapedInput\" | sudo docker run --rm -i -v $tmpFile:/tmp/prog.cpp gcc:latest sh -c 'g++ /tmp/prog.cpp -o /tmp/prog && /tmp/prog' 2>&1";
-                register_shutdown_function(function() use ($tmpFile) { if (file_exists($tmpFile)) unlink($tmpFile); });
-                return $cmd;
-            default:
-                throw new \Exception("Langage non supporté");
-        }
-    }
+                $f = $tmpDir . '/' . uniqid('code_', true) . '.php';
+                file_put_contents($f, '<?php ' . $code);
+                chmod($f, 0600);
+                $tmpFiles[] = $f;
+                $cmd = "cat " . escapeshellarg($inputFile)
+                     . " | sudo docker run $opts"
+                     . " -v " . escapeshellarg($f) . ":/tmp/code.php:ro"
+                     . " php:8.2-cli php /tmp/code.php 2>&1";
+                break;
 
-    private function cleanTempFiles()
-    {
-        $files = glob('/tmp/executor/exec_*');
-        $now = time();
-        foreach ($files as $file) {
-            if (is_file($file) && ($now - filemtime($file)) > 3600) {
-                unlink($file);
-            }
+            case 'python':
+                $f = $tmpDir . '/' . uniqid('code_', true) . '.py';
+                file_put_contents($f, $code);
+                chmod($f, 0600);
+                $tmpFiles[] = $f;
+                $cmd = "cat " . escapeshellarg($inputFile)
+                     . " | sudo docker run $opts"
+                     . " -v " . escapeshellarg($f) . ":/tmp/code.py:ro"
+                     . " python:3 python /tmp/code.py 2>&1";
+                break;
+
+            case 'node':
+                $f = $tmpDir . '/' . uniqid('code_', true) . '.js';
+                file_put_contents($f, $code);
+                chmod($f, 0600);
+                $tmpFiles[] = $f;
+                $cmd = "cat " . escapeshellarg($inputFile)
+                     . " | sudo docker run $opts"
+                     . " -v " . escapeshellarg($f) . ":/tmp/code.js:ro"
+                     . " node:20 node /tmp/code.js 2>&1";
+                break;
+
+            case 'java':
+                $f = $tmpDir . '/' . uniqid('Main_', true) . '.java';
+                file_put_contents($f,
+                    "public class Main {\n"
+                    . "    public static void main(String[] args) {\n"
+                    . "        " . $code . "\n"
+                    . "    }\n}"
+                );
+                chmod($f, 0600);
+                $tmpFiles[] = $f;
+                $cmd = "cat " . escapeshellarg($inputFile)
+                     . " | sudo docker run $opts"
+                     . " -v " . escapeshellarg($f) . ":/tmp/Main.java:ro"
+                     . " openjdk:27-ea-trixie sh -c"
+                     . " 'cp /tmp/Main.java /home/Main.java && cd /home && javac Main.java && java Main' 2>&1";
+                break;
+
+            case 'cpp':
+                $f = $tmpDir . '/' . uniqid('prog_', true) . '.cpp';
+                file_put_contents($f,
+                    "#include <iostream>\nusing namespace std;\nint main() {\n    "
+                    . $code . "\n}"
+                );
+                chmod($f, 0600);
+                $tmpFiles[] = $f;
+                $cmd = "cat " . escapeshellarg($inputFile)
+                     . " | sudo docker run $opts"
+                     . " -v " . escapeshellarg($f) . ":/tmp/prog.cpp:ro"
+                     . " gcc:latest sh -c 'g++ /tmp/prog.cpp -o /tmp/prog && /tmp/prog' 2>&1";
+                break;
+
+            default:
+                throw new \Exception("Langage non supporte : $language");
         }
+
+        return [$cmd, $tmpFiles];
     }
 }

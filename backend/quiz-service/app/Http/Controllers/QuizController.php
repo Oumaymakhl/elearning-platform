@@ -36,7 +36,7 @@ class QuizController extends Controller
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'lesson_id' => $validated['lesson_id'],
-            'created_by' => auth()->id(),
+            'created_by' => $request->get('auth_user_id'),
             'passing_score' => $request->input('passing_score', 70),
         ]);
 
@@ -52,7 +52,7 @@ class QuizController extends Controller
             return response()->json(['message' => 'Quiz not found'], 404);
         }
 
-        if (auth()->id() != $quiz->created_by && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -74,7 +74,7 @@ class QuizController extends Controller
             return response()->json(['message' => 'Quiz not found'], 404);
         }
 
-        if (auth()->id() != $quiz->created_by && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

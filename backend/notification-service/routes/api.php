@@ -9,7 +9,7 @@ Route::get('/ping', function () {
 
 Route::post('/internal/send', [NotificationController::class, 'send']);
 
-Route::middleware('auth:api')->group(function () {
+Route::middleware('jwt')->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });

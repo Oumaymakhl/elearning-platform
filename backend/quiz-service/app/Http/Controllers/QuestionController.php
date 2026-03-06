@@ -24,7 +24,7 @@ class QuestionController extends Controller
 
     public function store(Request $request, Quiz $quiz)
     {
-        if (auth()->id() != $quiz->created_by && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -64,7 +64,7 @@ class QuestionController extends Controller
         if ($question->quiz_id != $quiz->id) {
             return response()->json(['message' => 'Question not found in this quiz'], 404);
         }
-        if (auth()->id() != $quiz->created_by && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -83,7 +83,7 @@ class QuestionController extends Controller
         if ($question->quiz_id != $quiz->id) {
             return response()->json(['message' => 'Question not found in this quiz'], 404);
         }
-        if (auth()->id() != $quiz->created_by && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

@@ -26,7 +26,7 @@ class NotificationController extends Controller
 
     public function index(Request $request)
     {
-        $userId = auth()->id();
+        $userId = $request->get('auth_user_id');
         $notifications = \App\Models\Notification::where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -39,7 +39,7 @@ class NotificationController extends Controller
         if (!$notification) {
             return response()->json(['message' => 'Not found'], 404);
         }
-        if ($notification->user_id != auth()->id()) {
+        if ($notification->user_id != $request->get('auth_user_id')) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $notification->update(['read_at' => now()]);

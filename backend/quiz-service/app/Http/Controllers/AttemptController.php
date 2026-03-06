@@ -37,7 +37,7 @@ class AttemptController extends Controller
 
     public function submit(Request $request, Attempt $attempt)
     {
-        if ($attempt->user_id != auth()->id()) {
+        if ($attempt->user_id != $request->get('auth_user_id')) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -102,7 +102,7 @@ class AttemptController extends Controller
 
     public function show(Attempt $attempt)
     {
-        if ($attempt->user_id != auth()->id() && auth()->user()->role != 'admin') {
+        if ($attempt->user_id != $request->get('auth_user_id') && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         return response()->json($attempt->load('answers.question', 'answers.option'));

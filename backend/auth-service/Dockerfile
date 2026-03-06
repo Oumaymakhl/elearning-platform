@@ -45,7 +45,7 @@ RUN chown -R www-data:www-data /var/www/html/storage
 RUN chmod -R 775 /var/www/html/storage
 
 # Générer la clé Laravel
-RUN php artisan key:generate --force
+RUN php artisan key:generate --no-interaction --force
 
 EXPOSE 9000
 

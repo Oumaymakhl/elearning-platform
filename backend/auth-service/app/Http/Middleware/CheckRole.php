@@ -9,12 +9,26 @@ use Symfony\Component\HttpFoundation\Response;
 class CheckRole
 {
     /**
-     * Handle an incoming request.
+     * Verifie que l'utilisateur possede l'un des roles autorises.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * Usage :
+     *   Route::middleware('role:admin')
+     *   Route::middleware('role:admin,teacher')
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, string ...$roles): Response
     {
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifie'], 401);
+        }
+
+        if (!in_array($user->role, $roles)) {
+            return response()->json([
+                'message' => 'Acces refuse. Role requis : ' . implode(' ou ', $roles),
+            ], 403);
+        }
+
         return $next($request);
     }
 }

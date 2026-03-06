@@ -23,7 +23,7 @@ class LessonController extends Controller
 
     public function store(Request $request, Course $course)
 {
-    if (auth()->id() != $course->teacher_id && auth()->user()->role != 'admin') {
+    if ($request->get('auth_user_id') != $course->teacher_id && auth()->user()->role != 'admin') {
         return response()->json(['message' => 'Forbidden'], 403);
     }
 
@@ -60,7 +60,7 @@ class LessonController extends Controller
         if ($lesson->course_id != $course->id) {
             return response()->json(['message' => 'Lesson not found in this course'], 404);
         }
-        if (auth()->id() != $course->teacher_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $course->teacher_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -79,7 +79,7 @@ class LessonController extends Controller
         if ($lesson->course_id != $course->id) {
             return response()->json(['message' => 'Lesson not found in this course'], 404);
         }
-        if (auth()->id() != $course->teacher_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $course->teacher_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

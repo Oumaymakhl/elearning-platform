@@ -39,7 +39,7 @@ class ContentController extends Controller
 
         $data = [
             'course_id' => $validated['course_id'],
-            'uploader_id' => auth()->id(),
+            'uploader_id' => $request->get('auth_user_id'),
             'title' => $validated['title'],
             'type' => $validated['type'],
             'description' => $validated['description'] ?? null,
@@ -65,7 +65,7 @@ class ContentController extends Controller
             return response()->json(['message' => 'Content not found'], 404);
         }
 
-        if (auth()->id() != $content->uploader_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $content->uploader_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -118,7 +118,7 @@ class ContentController extends Controller
             return response()->json(['message' => 'Content not found'], 404);
         }
 
-        if (auth()->id() != $content->uploader_id && auth()->user()->role != 'admin') {
+        if ($request->get('auth_user_id') != $content->uploader_id && auth()->user()->role != 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
