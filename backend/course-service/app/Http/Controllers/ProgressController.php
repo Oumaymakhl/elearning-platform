@@ -1,92 +1,50 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Course;
-use App\Models\Lesson;
 use App\Models\Enrollment;
-use App\Models\Progress;
+use App\Models\SubChapter;
+use App\Models\Chapter;
 use Illuminate\Http\Request;
 
 class ProgressController extends Controller
 {
-    /**
-     * Marquer une leçon comme terminée (appelé par l'étudiant).
-     * POST /api/lessons/{lesson}/complete
-     */
-    public function complete(Lesson $lesson)
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
-
-        $enrollment = Enrollment::where('user_id', $user->id)
-                                ->where('course_id', $lesson->course_id)
-                                ->first();
-
-        if (!$enrollment) {
-            return response()->json(['message' => 'Vous n\'etes pas inscrit a ce cours'], 403);
-        }
-
-        $progress = Progress::firstOrCreate(
-            [
-                'enrollment_id' => $enrollment->id,
-                'lesson_id'     => $lesson->id,
-            ],
-            ['completed' => true]
-        );
-
-        if (!$progress->wasRecentlyCreated) {
-            $progress->update(['completed' => true]);
-        }
-
-        return response()->json([
-            'message'         => 'Lecon marquee comme terminee',
-            'course_progress' => $this->calcProgress($enrollment),
+    // Mettre à jour la position de lecture
+    public function update(Request $request, $courseId) {
+        $data = $request->validate([
+            'sub_chapter_id' => 'required|integer',
         ]);
+
+        $enrollment = Enrollment::where('user_id', $request->auth_user_id)
+            ->where('course_id', $courseId)
+            ->firstOrFail();
+
+        // Calculer la progression en %
+        $totalSubs = SubChapter::whereHas('chapter', fn($q) => $q->where('course_id', $courseId))->count();
+        
+        $currentSub = SubChapter::findOrFail($data['sub_chapter_id']);
+        $passedSubs = SubChapter::whereHas('chapter', fn($q) => $q->where('course_id', $courseId))
+            ->where(function($q) use ($currentSub) {
+                $q->where('chapter_id', '<', $currentSub->chapter_id)
+                  ->orWhere(function($q2) use ($currentSub) {
+                      $q2->where('chapter_id', $currentSub->chapter_id)
+                         ->where('order', '<=', $currentSub->order);
+                  });
+            })->count();
+
+        $progress = $totalSubs > 0 ? round(($passedSubs / $totalSubs) * 100, 2) : 0;
+
+        $enrollment->update([
+            'current_sub_chapter_id' => $data['sub_chapter_id'],
+            'progress' => $progress,
+        ]);
+
+        return response()->json(['progress' => $progress, 'current_sub_chapter_id' => $data['sub_chapter_id']]);
     }
 
-    /**
-     * Retourner la progression globale de l'étudiant dans un cours.
-     * GET /api/courses/{course}/my-progress
-     */
-    public function courseProgress(Course $course)
-    {
-        $user = auth()->user();
-
-        $enrollment = Enrollment::where('user_id', $user->id)
-                                ->where('course_id', $course->id)
-                                ->first();
-
-        if (!$enrollment) {
-            return response()->json(['message' => 'Vous n\'etes pas inscrit a ce cours'], 403);
-        }
-
-        return response()->json($this->calcProgress($enrollment));
-    }
-
-    /**
-     * Calcule le pourcentage de progression d'une inscription.
-     */
-    private function calcProgress(Enrollment $enrollment): array
-    {
-        $total     = Lesson::where('course_id', $enrollment->course_id)->count();
-        $completed = Progress::where('enrollment_id', $enrollment->id)
-                             ->where('completed', true)
-                             ->count();
-
-        $percentage = $total > 0 ? round(($completed / $total) * 100) : 0;
-
-        if ($percentage === 100 && $enrollment->status !== 'completed') {
-            $enrollment->update(['status' => 'completed']);
-        }
-
-        return [
-            'total_lessons'     => $total,
-            'completed_lessons' => $completed,
-            'percentage'        => $percentage,
-            'enrollment_status' => $enrollment->fresh()->status,
-        ];
+    public function show(Request $request, $courseId) {
+        $enrollment = Enrollment::where('user_id', $request->auth_user_id)
+            ->where('course_id', $courseId)
+            ->firstOrFail();
+        return response()->json($enrollment);
     }
 }

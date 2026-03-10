@@ -1,51 +1,45 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Course;
 use App\Models\Enrollment;
+use App\Models\Course;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
+
 class EnrollmentController extends Controller
 {
-    public function store(Course $course)
-{
-    $user = auth()->user();
-    if (!$user) {
-        return response()->json(['message' => 'Unauthenticated'], 401);
-    }
-
-    $existing = Enrollment::where('user_id', $user->id)
-                          ->where('course_id', $course->id)
-                          ->first();
-    if ($existing) {
-        return response()->json(['message' => 'Already enrolled'], 400);
-    }
-
-    $enrollment = Enrollment::create([
-        'user_id' => $user->id,
-        'course_id' => $course->id,
-    ]);
-
-    // Envoi de la notification
-    Http::post('http://nginx-notification/api/internal/send', [
-        'user_id' => $user->id,
-        'type' => 'course_enrolled',
-        'data' => [
-            'email' => $user->email,
-            'course_title' => $course->title,
-        ],
-    ]);
-
-    return response()->json($enrollment, 201);
-}
-
-    public function myCourses()
-    {
-        $user = auth()->user();
-        $enrollments = Enrollment::with('course')
-                                 ->where('user_id', $user->id)
-                                 ->paginate();
+    // Liste des cours de l'apprenant connecté
+    public function myCourses(Request $request) {
+        $enrollments = Enrollment::with('course.chapters.subChapters')
+            ->where('user_id', $request->auth_user_id)
+            ->get();
         return response()->json($enrollments);
+    }
+
+    // S'inscrire à un cours
+    public function enroll(Request $request, $courseId) {
+        Course::findOrFail($courseId);
+        $enrollment = Enrollment::firstOrCreate(
+            ['user_id' => $request->auth_user_id, 'course_id' => $courseId],
+            ['progress' => 0, 'status' => 'active']
+        );
+        return response()->json($enrollment, 201);
+    }
+
+    // Liste des apprenants d'un cours (formateur/admin)
+    public function courseStudents(Request $request, $courseId) {
+        $course = Course::findOrFail($courseId);
+        if ($course->instructor_id != $request->auth_user_id && $request->auth_user_role !== 'admin') {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $enrollments = Enrollment::where('course_id', $courseId)->get();
+        return response()->json($enrollments);
+    }
+
+    // Se désinscrire
+    public function unenroll(Request $request, $courseId) {
+        Enrollment::where('user_id', $request->auth_user_id)
+            ->where('course_id', $courseId)
+            ->delete();
+        return response()->json(['message' => 'Unenrolled']);
     }
 }

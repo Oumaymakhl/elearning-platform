@@ -1,12 +1,16 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContentController;
 
-Route::get("/ping", function () {
-    return response()->json(["pong" => true]);
-});
+Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
-Route::middleware("jwt")->group(function () {
-    Route::apiResource("contents", ContentController::class);
+// Publiques
+Route::get('/contents',     [ContentController::class, 'index']);
+Route::get('/contents/{id}',[ContentController::class, 'show']);
+
+// Protégées
+Route::middleware('jwt')->group(function () {
+    Route::post('/contents',          [ContentController::class, 'store']);
+    Route::put('/contents/{id}',      [ContentController::class, 'update']);
+    Route::delete('/contents/{id}',   [ContentController::class, 'destroy']);
 });

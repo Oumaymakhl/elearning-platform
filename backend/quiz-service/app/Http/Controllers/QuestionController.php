@@ -1,93 +1,46 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Quiz;
 use App\Models\Question;
-use App\Models\Option;
+use App\Models\Quiz;
 use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
-    public function index(Quiz $quiz)
-    {
-        return response()->json($quiz->questions()->with('options')->get());
+    public function index($quizId) {
+        $questions = Question::with('options')->where('quiz_id', $quizId)->get();
+        return response()->json($questions);
     }
 
-    public function show(Quiz $quiz, Question $question)
-    {
-        if ($question->quiz_id != $quiz->id) {
-            return response()->json(['message' => 'Question not found in this quiz'], 404);
-        }
-        return response()->json($question->load('options'));
+    public function store(Request $request, $quizId) {
+        Quiz::findOrFail($quizId);
+        $data = $request->validate([
+            'text'   => 'required|string',
+            'type'   => 'nullable|in:multiple_choice,true_false',
+            'points' => 'nullable|integer|min:1',
+        ]);
+        $data['quiz_id'] = $quizId;
+        $question = Question::create($data);
+        return response()->json($question, 201);
     }
 
-    public function store(Request $request, Quiz $quiz)
-    {
-        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
-        $validated = $request->validate([
-            'text' => 'required|string',
-            'type' => 'required|in:multiple_choice,true_false',
-            'points' => 'integer|min:1',
-            'options' => 'required_if:type,multiple_choice|array|min:2',
-            'options.*.text' => 'required_with:options|string',
-            'options.*.is_correct' => 'required_with:options|boolean',
-            'correct_answer' => 'required_if:type,true_false|boolean',
-        ]);
-
-        $question = $quiz->questions()->create([
-            'text' => $validated['text'],
-            'type' => $validated['type'],
-            'points' => $validated['points'] ?? 1,
-        ]);
-
-        if ($validated['type'] == 'multiple_choice' && isset($validated['options'])) {
-            foreach ($validated['options'] as $opt) {
-                $question->options()->create($opt);
-            }
-        } elseif ($validated['type'] == 'true_false') {
-            $correct = $request->input('correct_answer', true);
-            $question->options()->createMany([
-                ['text' => 'Vrai', 'is_correct' => $correct],
-                ['text' => 'Faux', 'is_correct' => !$correct],
-            ]);
-        }
-
-        return response()->json($question->load('options'), 201);
-    }
-
-    public function update(Request $request, Quiz $quiz, Question $question)
-    {
-        if ($question->quiz_id != $quiz->id) {
-            return response()->json(['message' => 'Question not found in this quiz'], 404);
-        }
-        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-
-        $validated = $request->validate([
-            'text' => 'sometimes|string',
-            'type' => 'sometimes|in:multiple_choice,true_false',
-            'points' => 'sometimes|integer|min:1',
-        ]);
-
-        $question->update($validated);
+    public function show($quizId, $id) {
+        $question = Question::with('options')->where('quiz_id', $quizId)->findOrFail($id);
         return response()->json($question);
     }
 
-    public function destroy(Quiz $quiz, Question $question)
-    {
-        if ($question->quiz_id != $quiz->id) {
-            return response()->json(['message' => 'Question not found in this quiz'], 404);
-        }
-        if ($request->get('auth_user_id') != $quiz->created_by && auth()->user()->role != 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+    public function update(Request $request, $quizId, $id) {
+        $question = Question::where('quiz_id', $quizId)->findOrFail($id);
+        $question->update($request->validate([
+            'text'   => 'sometimes|string',
+            'type'   => 'nullable|in:multiple_choice,true_false',
+            'points' => 'nullable|integer|min:1',
+        ]));
+        return response()->json($question);
+    }
 
-        $question->delete();
+    public function destroy($quizId, $id) {
+        Question::where('quiz_id', $quizId)->findOrFail($id)->delete();
         return response()->json(['message' => 'Question deleted']);
     }
 }

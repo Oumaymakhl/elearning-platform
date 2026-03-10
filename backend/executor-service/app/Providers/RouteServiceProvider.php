@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Providers;
 
 use Illuminate\Cache\RateLimiting\Limit;
@@ -15,7 +14,6 @@ class RouteServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('api', function (Request $request) {
-            // Utilise le JWT payload au lieu de chercher l'user en DB
             $userId = $request->get('auth_user_id') ?: $request->ip();
             return Limit::perMinute(60)->by($userId);
         });

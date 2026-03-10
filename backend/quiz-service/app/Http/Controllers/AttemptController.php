@@ -1,110 +1,100 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Quiz;
 use App\Models\Attempt;
 use App\Models\Answer;
+use App\Models\Quiz;
+use App\Models\Question;
+use App\Models\Option;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class AttemptController extends Controller
 {
-    public function store(Quiz $quiz)
-    {
-        $user = auth()->user();
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
-        }
-
-        // Vérifier si l'utilisateur a déjà une tentative en cours
-        $existing = Attempt::where('quiz_id', $quiz->id)
-                          ->where('user_id', $user->id)
-                          ->whereNull('completed_at')
-                          ->first();
-        if ($existing) {
-            return response()->json($existing);
-        }
-
+    public function start(Request $request, $quizId) {
+        $quiz = Quiz::findOrFail($quizId);
         $attempt = Attempt::create([
-            'quiz_id' => $quiz->id,
-            'user_id' => $user->id,
+            'quiz_id'    => $quizId,
+            'user_id'    => (int) $request->auth_user_id,
+            'score'      => 0,
+            'max_score'  => $quiz->questions()->sum('points') ?: 0,
+            'passed'     => false,
             'started_at' => now(),
         ]);
-
-        return response()->json($attempt, 201);
+        return response()->json($attempt->load('quiz.questions.options'), 201);
     }
 
-    public function submit(Request $request, Attempt $attempt)
-    {
-        if ($attempt->user_id != $request->get('auth_user_id')) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+    public function submit(Request $request, $quizId, $attemptId) {
+        $attempt = Attempt::where('quiz_id', $quizId)
+            ->where('user_id', (int) $request->auth_user_id)
+            ->findOrFail($attemptId);
 
         if ($attempt->completed_at) {
-            return response()->json(['message' => 'Attempt already completed'], 400);
+            return response()->json(['message' => 'Already submitted'], 400);
         }
 
-        $validated = $request->validate([
-            'answers' => 'required|array',
-            'answers.*.question_id' => 'required|exists:questions,id',
-            'answers.*.option_id' => 'nullable|exists:options,id',
+        $data = $request->validate([
+            'answers'               => 'required|array',
+            'answers.*.question_id' => 'required|integer',
+            'answers.*.option_id'   => 'nullable|integer',
+            'answers.*.text_answer' => 'nullable|string',
         ]);
 
-        $quiz = $attempt->quiz;
-        $totalPoints = 0;
-        $earnedPoints = 0;
-
-        foreach ($validated['answers'] as $ans) {
-            $question = $quiz->questions()->find($ans['question_id']);
+        $score = 0;
+        foreach ($data['answers'] as $ans) {
+            $question = Question::find($ans['question_id']);
             if (!$question) continue;
 
             $isCorrect = false;
-            if (isset($ans['option_id'])) {
-                $option = $question->options()->find($ans['option_id']);
-                $isCorrect = $option ? $option->is_correct : false;
+            if (!empty($ans['option_id'])) {
+                $option = Option::find($ans['option_id']);
+                $isCorrect = $option && $option->is_correct;
+                if ($isCorrect) $score += $question->points ?? 1;
             }
 
             Answer::create([
-                'attempt_id' => $attempt->id,
+                'attempt_id'  => $attempt->id,
                 'question_id' => $ans['question_id'],
-                'option_id' => $ans['option_id'] ?? null,
-                'is_correct' => $isCorrect,
+                'option_id'   => $ans['option_id'] ?? null,
+                'text_answer' => $ans['text_answer'] ?? null,
+                'is_correct'  => $isCorrect,
             ]);
-
-            $totalPoints += $question->points;
-            if ($isCorrect) {
-                $earnedPoints += $question->points;
-            }
         }
 
-        $scorePercent = $totalPoints > 0 ? round(($earnedPoints / $totalPoints) * 100) : 0;
-        $passed = $scorePercent >= $quiz->passing_score;
+        $quiz = Quiz::findOrFail($quizId);
+        $maxScore = (int) $attempt->max_score;
+
+        // passed_score est un pourcentage (ex: 50 = 50%)
+        if ($quiz->passing_score && $maxScore > 0) {
+            $percentage = ($score / $maxScore) * 100;
+            $passed = $percentage >= $quiz->passing_score;
+        } else {
+            $passed = true;
+        }
 
         $attempt->update([
-            'score' => $earnedPoints,
-            'max_score' => $totalPoints,
-            'passed' => $passed,
+            'score'        => $score,
+            'passed'       => $passed,
             'completed_at' => now(),
         ]);
 
-        // Si réussi, notifier le course-service pour débloquer la leçon suivante
-        if ($passed) {
-            // On suppose que le quiz a un champ lesson_id
-            Http::post('http://nginx-course/api/internal/lessons/' . $quiz->lesson_id . '/complete', [
-                'user_id' => $attempt->user_id,
-                'score' => $scorePercent,
-            ]);
-        }
-
-        return response()->json($attempt->load('answers'));
+        return response()->json([
+            'score'      => $score,
+            'max_score'  => $maxScore,
+            'percentage' => $maxScore > 0 ? round(($score / $maxScore) * 100, 1) : 0,
+            'passed'     => $passed,
+            'answers'    => $attempt->answers,
+        ]);
     }
 
-    public function show(Attempt $attempt)
-    {
-        if ($attempt->user_id != $request->get('auth_user_id') && auth()->user()->role != 'admin') {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
-        return response()->json($attempt->load('answers.question', 'answers.option'));
+    public function myAttempts(Request $request, $quizId) {
+        $attempts = Attempt::where('quiz_id', $quizId)
+            ->where('user_id', (int) $request->auth_user_id)
+            ->with('answers')
+            ->get();
+        return response()->json($attempts);
+    }
+
+    public function allAttempts($quizId) {
+        return response()->json(Attempt::where('quiz_id', $quizId)->get());
     }
 }

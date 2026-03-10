@@ -1,15 +1,16 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NotificationController;
 
-Route::get('/ping', function () {
-    return response()->json(['pong' => true]);
-});
+Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
+// Route interne (appelée par les autres services sans JWT)
 Route::post('/internal/send', [NotificationController::class, 'send']);
 
+// Protégées
 Route::middleware('jwt')->group(function () {
-    Route::get('/notifications', [NotificationController::class, 'index']);
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::get('/notifications',              [NotificationController::class, 'index']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/read-all',    [NotificationController::class, 'markAllAsRead']);
+    Route::post('/notifications/{id}/read',   [NotificationController::class, 'markAsRead']);
 });

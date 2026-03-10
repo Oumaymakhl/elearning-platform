@@ -1,15 +1,28 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
-// Route de test sans authentification
-Route::get("/ping", function () {
-    return response()->json(["pong" => true]);
-});
+Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
-// Routes protégées par JWT
-Route::middleware("jwt")->group(function () {
-    Route::get("/users", [UserController::class, "index"]);
-    Route::get("/users/{id}", [UserController::class, "show"]);
+// Publiques
+Route::get('/teachers',    [UserController::class, 'teachers']);
+Route::get('/users/{id}',  [UserController::class, 'show']);
+
+// Protégées
+Route::middleware('jwt')->group(function () {
+    // Profil personnel
+    Route::get('/me',  [UserController::class, 'me']);
+    Route::put('/me',  [UserController::class, 'updateMe']);
+
+    // Sync inter-services
+    Route::post('/users/sync', [UserController::class, 'sync']);
+
+    // Admin - gestion utilisateurs
+    Route::get('/admin/stats',              [AdminController::class, 'stats']);
+    Route::get('/admin/users',              [AdminController::class, 'users']);
+    Route::post('/admin/users',             [AdminController::class, 'createUser']);
+    Route::put('/admin/users/{id}',         [AdminController::class, 'updateUser']);
+    Route::delete('/admin/users/{id}',      [AdminController::class, 'deleteUser']);
+    Route::patch('/admin/users/{id}/toggle',[AdminController::class, 'toggleActive']);
 });
