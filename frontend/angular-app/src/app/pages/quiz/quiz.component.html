@@ -1,0 +1,87 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item">📚 Cours</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="loading" *ngIf="loading">Chargement...</div>
+
+    <!-- INTRO -->
+    <div class="intro-card" *ngIf="!loading && step === 'intro'">
+      <div class="quiz-icon">🧠</div>
+      <h1>{{ quiz.title }}</h1>
+      <p>{{ quiz.description }}</p>
+      <div class="meta">
+        <span>📊 Score requis : {{ quiz.passing_score }}%</span>
+      </div>
+      <div class="past-attempts" *ngIf="pastAttempts.length > 0">
+        <h3>Mes tentatives précédentes</h3>
+        <div class="attempt" *ngFor="let a of pastAttempts">
+          <span>Score : <strong>{{ a.score }}%</strong></span>
+          <span [class]="a.passed ? 'pass' : 'fail'">{{ a.passed ? '✅ Réussi' : '❌ Échoué' }}</span>
+        </div>
+      </div>
+      <button class="btn-start" (click)="startQuiz()">Commencer le quiz</button>
+    </div>
+
+    <!-- QUIZ -->
+    <div class="quiz-container" *ngIf="step === 'quiz'">
+      <div class="quiz-header">
+        <h2>{{ quiz.title }}</h2>
+        <span class="progress-text">{{ answeredCount }} / {{ questions.length }} répondues</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width]="(answeredCount / questions.length * 100) + '%'"></div>
+      </div>
+      <div class="question-card" *ngFor="let q of questions; let i = index">
+        <div class="question-num">Question {{ i + 1 }}</div>
+        <div class="question-text">{{ q.text }}</div>
+        <img *ngIf="q.image_path" [src]="'http://localhost:8005/storage/' + q.image_path" class="question-img">
+        <div class="options">
+          <div class="option" *ngFor="let opt of q.options"
+            [class]="answers[q.id] === opt.id ? 'selected' : ''"
+            (click)="selectOption(q.id, opt.id)">
+            {{ opt.text }}
+          </div>
+        </div>
+      </div>
+      <button class="btn-submit" (click)="submitQuiz()" [disabled]="answeredCount < questions.length || submitting">
+        {{ submitting ? 'Correction...' : 'Soumettre le quiz' }}
+      </button>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result-card" *ngIf="step === 'result' && result">
+      <div class="result-icon">{{ result.passed ? '🏆' : '😔' }}</div>
+      <h1>{{ result.passed ? 'Félicitations !' : 'Pas encore...' }}</h1>
+      <div class="score-circle" [class]="result.passed ? 'pass' : 'fail'">
+        {{ result.score }}%
+      </div>
+      <p>{{ result.passed ? 'Vous avez réussi ce quiz !' : 'Continuez à vous entraîner !' }}</p>
+      <div class="corrections">
+        <h3>Corrections</h3>
+        <div class="question-card" *ngFor="let q of questions; let i = index">
+          <div class="question-num">Question {{ i + 1 }}</div>
+          <div class="question-text">{{ q.text }}</div>
+          <div class="options">
+            <div class="option" *ngFor="let opt of q.options"
+              [class.correct]="opt.is_correct"
+              [class.wrong]="answers[q.id] === opt.id && !opt.is_correct">
+              <span *ngIf="opt.is_correct">✅ </span>
+              <span *ngIf="answers[q.id] === opt.id && !opt.is_correct">❌ </span>
+              {{ opt.text }}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-retry" (click)="retry()">🔄 Réessayer</button>
+        <a routerLink="/courses" class="btn-back">← Retour aux cours</a>
+      </div>
+    </div>
+  </main>
+</div>

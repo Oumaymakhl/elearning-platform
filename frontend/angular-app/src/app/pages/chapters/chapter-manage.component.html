@@ -1,0 +1,94 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item">📚 Cours</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="loading" *ngIf="loading">Chargement...</div>
+    <div *ngIf="!loading && course">
+      <div class="header">
+        <div>
+          <a [routerLink]="['/courses', course.id]" class="back">← Retour au cours</a>
+          <h1>📖 Gestion : {{ course.title }}</h1>
+        </div>
+        <button class="btn-primary" (click)="showChapterForm = !showChapterForm">
+          {{ showChapterForm ? 'Annuler' : '+ Ajouter un chapitre' }}
+        </button>
+      </div>
+
+      <!-- Formulaire nouveau chapitre -->
+      <div class="form-card" *ngIf="showChapterForm">
+        <h3>Nouveau chapitre</h3>
+        <form [formGroup]="chapterForm" (ngSubmit)="addChapter()">
+          <div class="field">
+            <label>Titre *</label>
+            <input type="text" formControlName="title" placeholder="Ex: Introduction">
+          </div>
+          <div class="field">
+            <label>Objectif</label>
+            <input type="text" formControlName="objective" placeholder="Objectif du chapitre">
+          </div>
+          <button type="submit" [disabled]="chapterForm.invalid || saving">
+            {{ saving ? 'Ajout...' : 'Ajouter le chapitre' }}
+          </button>
+        </form>
+      </div>
+
+      <!-- Liste chapitres -->
+      <div class="empty" *ngIf="chapters.length === 0">Aucun chapitre. Ajoutez-en un !</div>
+
+      <div class="chapter-card" *ngFor="let chapter of chapters">
+        <div class="chapter-header">
+          <div>
+            <span class="chapter-title">📖 {{ chapter.title }}</span>
+            <span class="chapter-obj" *ngIf="chapter.objective">— {{ chapter.objective }}</span>
+          </div>
+          <div class="chapter-actions">
+            <button class="btn-add-sub" (click)="showSubForm[chapter.id] = !showSubForm[chapter.id]">
+              {{ showSubForm[chapter.id] ? 'Annuler' : '+ Sous-chapitre' }}
+            </button>
+            <button class="btn-del" (click)="deleteChapter(chapter.id)">🗑️</button>
+          </div>
+        </div>
+
+        <!-- Formulaire sous-chapitre -->
+        <div class="sub-form" *ngIf="showSubForm[chapter.id]">
+          <form [formGroup]="subForms[chapter.id]" (ngSubmit)="addSubChapter(chapter.id)">
+            <div class="sub-fields">
+              <div class="field">
+                <label>Titre *</label>
+                <input type="text" formControlName="title" placeholder="Titre du sous-chapitre">
+              </div>
+              <div class="field">
+                <label>Contenu</label>
+                <textarea formControlName="content" rows="3" placeholder="Contenu..."></textarea>
+              </div>
+              <div class="field-check">
+                <input type="checkbox" formControlName="is_lab" id="lab-{{chapter.id}}">
+                <label for="lab-{{chapter.id}}">🔬 C'est un TD/Lab</label>
+              </div>
+              <button type="submit" [disabled]="subForms[chapter.id].invalid || saving">
+                {{ saving ? 'Ajout...' : 'Ajouter' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Liste sous-chapitres -->
+        <div class="subchapters">
+          <div class="subchapter" *ngFor="let sub of chapter.sub_chapters || chapter.subChapters || []">
+            <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>
+            <button class="btn-del-sm" (click)="deleteSubChapter(chapter.id, sub.id)">🗑️</button>
+          </div>
+          <div class="no-sub" *ngIf="!(chapter.subChapters?.length || chapter.sub_chapters?.length)">
+            Aucun sous-chapitre
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

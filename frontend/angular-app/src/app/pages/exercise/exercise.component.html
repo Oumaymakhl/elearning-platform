@@ -1,0 +1,71 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item">📚 Cours</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="loading" *ngIf="loading">Chargement...</div>
+    <div class="exercise-layout" *ngIf="!loading && exercise">
+      <!-- Liste des questions -->
+      <div class="questions-panel">
+        <h2>{{ exercise.title }}</h2>
+        <div class="question-item"
+          *ngFor="let q of questions; let i = index"
+          [class.active]="currentQuestion?.id === q.id"
+          (click)="selectQuestion(q)">
+          <span class="q-num">{{ i + 1 }}</span>
+          <span class="q-title">{{ q.title }}</span>
+          <span class="q-points">{{ q.points }}pts</span>
+        </div>
+      </div>
+
+      <!-- Editeur de code -->
+      <div class="editor-panel" *ngIf="currentQuestion">
+        <div class="editor-header">
+          <h3>{{ currentQuestion.title }}</h3>
+          <select [(ngModel)]="language" class="lang-select">
+            <option *ngFor="let l of languages" [value]="l.value">{{ l.label }}</option>
+          </select>
+        </div>
+        <div class="question-desc">{{ currentQuestion.description }}</div>
+        <div class="editor-container">
+          <textarea [(ngModel)]="code" class="code-editor" spellcheck="false" placeholder="Écrivez votre code ici..."></textarea>
+        </div>
+        <button class="btn-submit" (click)="submit()" [disabled]="submitting || !code.trim()">
+          {{ submitting ? '⏳ Exécution...' : '▶ Exécuter & Soumettre' }}
+        </button>
+
+        <!-- Résultat -->
+        <div class="result-panel" *ngIf="result">
+          <div class="result-header" [class]="result.passed ? 'pass' : 'fail'">
+            <span>{{ result.passed ? '✅ Tous les tests passés !' : '❌ Certains tests échoués' }}</span>
+            <span>Score : {{ result.score }}/{{ currentQuestion.points }}</span>
+          </div>
+          <div class="tests-list">
+            <div class="test-item" *ngFor="let test of result.results" [class]="getTestClass(test)">
+              <span>{{ test.passed ? '✅' : '❌' }} Test {{ test.test_case_id }}</span>
+              <span *ngIf="!test.is_hidden">
+                Attendu : <code>{{ test.expected }}</code> | Obtenu : <code>{{ test.output }}</code>
+              </span>
+              <span *ngIf="test.is_hidden">Test caché</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Historique soumissions -->
+        <div class="submissions" *ngIf="submissions.length > 0">
+          <h4>Mes soumissions</h4>
+          <div class="submission" *ngFor="let s of submissions">
+            <span>{{ s.executed_at | date:'dd/MM HH:mm' }}</span>
+            <span>{{ s.tests_passed }}/{{ s.tests_total }} tests</span>
+            <span [class]="s.passed ? 'pass' : 'fail'">{{ s.score }}pts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

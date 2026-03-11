@@ -1,0 +1,37 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item active">📚 Cours</a>
+      <a routerLink="/my-courses" class="nav-item" *ngIf="isStudent">📖 Mes cours</a>
+      <a routerLink="/courses/create" class="nav-item" *ngIf="isTeacher || isAdmin">➕ Créer un cours</a>
+      <a routerLink="/admin" class="nav-item" *ngIf="isAdmin">⚙️ Administration</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <div class="header">
+      <h1>📚 Catalogue des cours</h1>
+      <a routerLink="/courses/create" class="btn-primary" *ngIf="isTeacher || isAdmin">+ Nouveau cours</a>
+    </div>
+    <div class="search-bar">
+      <input type="text" [(ngModel)]="search" placeholder="Rechercher un cours..." (input)="filterCourses()">
+    </div>
+    <div class="loading" *ngIf="loading">Chargement...</div>
+    <div class="course-grid" *ngIf="!loading">
+      <div class="course-card" *ngFor="let course of filteredCourses">
+        <div class="course-img">📘</div>
+        <div class="course-body">
+          <h3>{{ course.title }}</h3>
+          <p>{{ (course.description || '').slice(0,100) }}...</p>
+          <div class="course-footer">
+            <a [routerLink]="['/courses', course.id]" class="btn-view">Voir le cours</a>
+            <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse(course.id, $event)">🗑️ Supprimer</button>
+          </div>
+        </div>
+      </div>
+      <div class="empty" *ngIf="filteredCourses.length === 0">Aucun cours trouvé.</div>
+    </div>
+  </main>
+</div>

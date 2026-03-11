@@ -1,1 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+a { text-decoration: none; }
+pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: .5rem 0; }
+code { font-family: 'Courier New', monospace; font-size: .9rem; }

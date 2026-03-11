@@ -1,0 +1,46 @@
+<div class="layout" *ngIf="course">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item active">📚 Cours</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <a routerLink="/courses" class="back">← Retour aux cours</a>
+    <div class="course-header">
+      <h1>{{ course.title }}</h1>
+      <p>{{ course.description }}</p>
+      <div class="actions">
+        <button class="btn-enroll" *ngIf="isStudent && !enrolled" (click)="enroll()">S'inscrire au cours</button>
+        <button class="btn-unenroll" *ngIf="isStudent && enrolled" (click)="unenroll()">Se désinscrire</button>
+        <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer les chapitres</a>
+        <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
+      </div>
+    </div>
+    <div class="progress-section" *ngIf="isStudent && enrolled && progress">
+      <div class="progress-label">Progression : {{ progress.percentage }}%</div>
+      <div class="progress-bar"><div class="progress-fill" [style.width]="progress.percentage + '%'"></div></div>
+    </div>
+    <div class="chapters-section">
+      <h2>Contenu du cours</h2>
+      <div class="chapter" *ngFor="let chapter of chapters">
+        <div class="chapter-header" (click)="chapter.expanded = !chapter.expanded">
+          <span>📖 {{ chapter.title }}</span>
+          <span>{{ chapter.expanded ? '▲' : '▼' }}</span>
+        </div>
+        <div class="subchapters" *ngIf="chapter.expanded">
+          <div class="subchapter" *ngFor="let sub of chapter.sub_chapters || chapter.subChapters || []"
+            [class.clickable]="enrolled || isTeacher || isAdmin">
+            <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>
+            <span class="lock" *ngIf="!enrolled && isStudent">🔒</span>
+          </div>
+          <div class="empty-sub" *ngIf="!(chapter.sub_chapters?.length || chapter.subChapters?.length)">Aucun sous-chapitre</div>
+        </div>
+      </div>
+      <div class="empty" *ngIf="chapters.length === 0">Aucun chapitre disponible.</div>
+    </div>
+  </main>
+</div>
+<div class="loading" *ngIf="!course">Chargement...</div>

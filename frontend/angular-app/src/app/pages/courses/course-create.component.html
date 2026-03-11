@@ -1,0 +1,40 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="logo">🎓 E-Learning</div>
+    <nav>
+      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
+      <a routerLink="/courses" class="nav-item">📚 Cours</a>
+      <a routerLink="/courses/create" class="nav-item active">➕ Créer un cours</a>
+      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
+    </nav>
+  </aside>
+  <main class="main">
+    <a routerLink="/courses" class="back">← Retour</a>
+    <h1>➕ Créer un nouveau cours</h1>
+    <div class="form-card">
+      <form [formGroup]="form" (ngSubmit)="submit()">
+        <div class="field">
+          <label>Titre du cours *</label>
+          <input type="text" formControlName="title" placeholder="Ex: Introduction à Python">
+        </div>
+        <div class="field">
+          <label>Description *</label>
+          <textarea formControlName="description" rows="4" placeholder="Décrivez votre cours..."></textarea>
+        </div>
+        <div class="field">
+          <label>Niveau</label>
+          <select formControlName="level">
+            <option value="beginner">Débutant</option>
+            <option value="intermediate">Intermédiaire</option>
+            <option value="advanced">Avancé</option>
+          </select>
+        </div>
+        <div class="error" *ngIf="error">{{ error }}</div>
+        <div class="success" *ngIf="success">{{ success }}</div>
+        <button type="submit" [disabled]="loading || form.invalid">
+          {{ loading ? 'Création...' : 'Créer le cours' }}
+        </button>
+      </form>
+    </div>
+  </main>
+</div>

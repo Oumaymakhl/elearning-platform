@@ -1,0 +1,17 @@
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:#1E3A5F;color:white;position:fixed;height:100vh;display:flex;flex-direction:column}
+.logo{padding:1.5rem;font-size:1.3rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1)}
+nav{flex:1;padding:1rem 0}
+.nav-item{display:block;padding:.75rem 1.5rem;color:rgba(255,255,255,.8);text-decoration:none}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:white}
+.main{margin-left:260px;flex:1;padding:2rem;background:#f8f9fa}
+.back{color:#1E3A5F;text-decoration:none;display:inline-block;margin-bottom:1rem}
+h1{color:#1E3A5F;margin-bottom:1.5rem}
+.form-card{background:white;padding:2rem;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);max-width:600px}
+.field{margin-bottom:1.25rem}
+label{display:block;margin-bottom:.4rem;color:#555;font-weight:500}
+input,textarea,select{width:100%;padding:.75rem;border:1px solid #ddd;border-radius:8px;font-size:1rem;font-family:inherit}
+button{width:100%;padding:.85rem;background:#1E3A5F;color:white;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:.5rem}
+button:disabled{opacity:.6;cursor:not-allowed}
+.error{color:#e53e3e;margin-bottom:1rem}
+.success{background:#c6f6d5;color:#276749;padding:1rem;border-radius:8px;margin-bottom:1rem}
