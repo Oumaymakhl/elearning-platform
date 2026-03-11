@@ -18,10 +18,15 @@ class QuestionController extends Controller
             'text'   => 'required|string',
             'type'   => 'nullable|in:multiple_choice,true_false',
             'points' => 'nullable|integer|min:1',
+            'image'  => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('quiz-images', 'public');
+        }
+        unset($data['image']);
         $data['quiz_id'] = $quizId;
         $question = Question::create($data);
-        return response()->json($question, 201);
+        return response()->json($question->load('options'), 201);
     }
 
     public function show($quizId, $id) {
@@ -31,16 +36,29 @@ class QuestionController extends Controller
 
     public function update(Request $request, $quizId, $id) {
         $question = Question::where('quiz_id', $quizId)->findOrFail($id);
-        $question->update($request->validate([
+        $data = $request->validate([
             'text'   => 'sometimes|string',
             'type'   => 'nullable|in:multiple_choice,true_false',
             'points' => 'nullable|integer|min:1',
-        ]));
-        return response()->json($question);
+            'image'  => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+        if ($request->hasFile('image')) {
+            if ($question->image_path) {
+                \Storage::disk('public')->delete($question->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('quiz-images', 'public');
+        }
+        unset($data['image']);
+        $question->update($data);
+        return response()->json($question->load('options'));
     }
 
     public function destroy($quizId, $id) {
-        Question::where('quiz_id', $quizId)->findOrFail($id)->delete();
+        $question = Question::where('quiz_id', $quizId)->findOrFail($id);
+        if ($question->image_path) {
+            \Storage::disk('public')->delete($question->image_path);
+        }
+        $question->delete();
         return response()->json(['message' => 'Question deleted']);
     }
 }

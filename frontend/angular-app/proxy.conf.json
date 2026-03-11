@@ -1,0 +1,38 @@
+{
+  "/api/auth": {
+    "target": "http://localhost:8000",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": { "^/api/auth": "/api" }
+  },
+  "/api/users": {
+    "target": "http://localhost:8001",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/courses": {
+    "target": "http://localhost:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/contents": {
+    "target": "http://localhost:8003",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/executor": {
+    "target": "http://localhost:8004",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/quizzes": {
+    "target": "http://localhost:8005",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/notifications": {
+    "target": "http://localhost:8006",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

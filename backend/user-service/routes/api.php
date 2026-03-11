@@ -25,4 +25,5 @@ Route::middleware('jwt')->group(function () {
     Route::put('/admin/users/{id}',         [AdminController::class, 'updateUser']);
     Route::delete('/admin/users/{id}',      [AdminController::class, 'deleteUser']);
     Route::patch('/admin/users/{id}/toggle',[AdminController::class, 'toggleActive']);
+    Route::get('/admin/report',             [AdminController::class, 'globalReport']);
 });

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
 
 class AuthController extends Controller
 {
@@ -36,20 +37,14 @@ class AuthController extends Controller
             'email_verified_at'  => null,
         ]);
 
-        // TODO: envoyer email avec lien /api/verify-email?token=$verificationToken
-        // Pour l'instant on auto-vérifie en dev
-        $user->forceFill(['email_verified_at' => now()])->save();
+        // Envoyer email de vérification
+        $verificationUrl = config('app.url') . '/api/verify-email?token=' . $verificationToken;
+        \Mail::to($user->email)->send(new \App\Mail\VerificationEmail($verificationUrl, $user->name));
 
-        $token = auth()->login($user);
         return response()->json([
             'status'  => 'success',
-            'message' => 'User created successfully',
+            'message' => 'User created successfully. Please check your email to verify your account.',
             'user'    => $user,
-            'authorization' => [
-                'token'      => $token,
-                'type'       => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60,
-            ]
         ], 201);
     }
 

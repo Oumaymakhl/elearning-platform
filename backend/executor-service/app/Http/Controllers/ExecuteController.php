@@ -7,7 +7,8 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ExecuteController extends Controller
 {
-    private const TIMEOUT    = 15;
+    private const TIMEOUT        = 15;
+    private const TIMEOUT_JUNIT  = 120;
     private const MAX_OUTPUT = 50000;
 
     public function run(Request $request)
@@ -29,15 +30,17 @@ class ExecuteController extends Controller
         try {
             if ($isLab && $testCode && $language === 'java') {
                 [$cmd, $tmpFiles] = $this->buildJUnitCommand($code, $testCode);
+                $timeout = self::TIMEOUT_JUNIT;
             } else {
                 [$cmd, $tmpFiles] = $this->buildCommand($language, $code, $input);
+                $timeout = self::TIMEOUT;
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
 
         $process = Process::fromShellCommandline($cmd);
-        $process->setTimeout(self::TIMEOUT);
+        $process->setTimeout($timeout);
 
         $output = '';
         $exitCode = 0;
@@ -155,18 +158,50 @@ class ExecuteController extends Controller
         $tmpFiles[] = $mainFile;
         $tmpFiles[] = $testFile;
 
-        $opts = '--rm --network none --memory="256m" --cpus="1"';
+        $opts = '--rm --memory="256m" --cpus="1"';
 
         // Image avec JUnit 5 + Maven
+        $pom = '<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.elearning</groupId>
+    <artifactId>lab</artifactId>
+    <version>1.0</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>';
+        $pomFile = $tmpDir . '/' . uniqid('pom_') . '.xml';
+        file_put_contents($pomFile, $pom);
+        $tmpFiles[] = $pomFile;
+
         $cmd = "docker run $opts"
-             . " -v " . escapeshellarg($mainFile) . ":/workspace/src/Main.java:ro"
-             . " -v " . escapeshellarg($testFile)  . ":/workspace/src/MainTest.java:ro"
+             . " -v " . escapeshellarg($mainFile) . ":/workspace/src/main/java/Main.java:ro"
+             . " -v " . escapeshellarg($testFile)  . ":/workspace/src/test/java/MainTest.java:ro"
+             . " -v " . escapeshellarg($pomFile)   . ":/workspace/pom.xml:ro"
+             . " -e MAVEN_OPTS='-Dmaven.repo.local=/root/.m2'"
              . " maven:3.9-eclipse-temurin-17 sh -c '"
-             . "cd /workspace && "
-             . "mkdir -p src/main/java src/test/java && "
-             . "cp src/Main.java src/main/java/ && "
-             . "cp src/MainTest.java src/test/java/ && "
-             . "mvn -q test 2>&1 | tail -20"
+             . "cd /workspace && mvn -q test 2>&1"
              . "' 2>&1";
 
         return [$cmd, $tmpFiles];

@@ -161,10 +161,22 @@ class ExerciseController extends Controller
         $score      = $testsTotal > 0 ? round(($testsPassed / $testsTotal) * $question->points) : 0;
         $passed     = $testsPassed === $testsTotal;
 
+        // Sauvegarde du fichier de code
+        $ext = match($language) {
+            'python' => 'py', 'java' => 'java', 'cpp' => 'cpp',
+            'php' => 'php', 'node' => 'js', default => 'txt'
+        };
+        $dir = storage_path("app/submissions/{$exerciseId}/{$questionId}/{$userId}");
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        $filename = now()->format('Y-m-d_H-i-s') . '.' . $ext;
+        file_put_contents("{$dir}/{$filename}", $data['code']);
+        $filePath = "submissions/{$exerciseId}/{$questionId}/{$userId}/{$filename}";
+
         $submission = Submission::create([
             'question_id'  => $questionId,
             'user_id'      => $userId,
             'code'         => $data['code'],
+            'file_path'    => $filePath,
             'output'       => json_encode($results),
             'tests_passed' => $testsPassed,
             'tests_total'  => $testsTotal,

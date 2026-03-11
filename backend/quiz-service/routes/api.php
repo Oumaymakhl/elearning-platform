@@ -7,6 +7,7 @@ use App\Http\Controllers\AttemptController;
 use App\Http\Controllers\QuizResultsController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
+Route::get('/quiz-stats', [QuizResultsController::class, 'globalStats']);
 
 // Publiques
 Route::get('/quizzes', [QuizController::class, 'index']);
