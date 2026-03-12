@@ -1,18 +1,11 @@
 <?php
-
 namespace App\Models;
-
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SubChapter extends Model
-{
-    use HasFactory;
+class SubChapter extends Model {
+    protected $fillable = ['chapter_id', 'title', 'content', 'order', 'is_lab', 'quiz_id', 'passing_score'];
 
-    protected $fillable = ['chapter_id', 'title', 'content', 'order', 'is_lab'];
-
-    public function chapter()
-    {
+    public function chapter() {
         return $this->belongsTo(Chapter::class);
     }
 }

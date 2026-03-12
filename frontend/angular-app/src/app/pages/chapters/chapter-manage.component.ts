@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CourseService } from '../../services/course.service';
@@ -8,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-chapter-manage',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule],
   templateUrl: './chapter-manage.component.html',
   styleUrls: ['./chapter-manage.component.scss']
 })
@@ -64,7 +65,9 @@ export class ChapterManageComponent implements OnInit {
         this.subForms[chapter.id] = this.fb.group({
           title: ['', Validators.required],
           content: [''],
-          is_lab: [false]
+          is_lab: [false],
+          quiz_id: [null],
+          passing_score: [70]
         });
         this.chapterForm.reset();
         this.showChapterForm = false;
@@ -85,7 +88,7 @@ export class ChapterManageComponent implements OnInit {
           if (!chapter.subChapters) chapter.sub_chapters = [];
           chapter.sub_chapters.push(sub);
         }
-        form.reset({ is_lab: false });
+        form.reset({ is_lab: false, passing_score: 70 });
         this.showSubForm[chapterId] = false;
         this.saving = false;
       },

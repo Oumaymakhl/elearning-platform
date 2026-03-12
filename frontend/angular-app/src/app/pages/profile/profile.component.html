@@ -1,0 +1,75 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+
+  <main class="main">
+    <div class="loading" *ngIf="!user">Chargement...</div>
+    <ng-container *ngIf="user">
+
+      <!-- Success -->
+      <div class="alert-success" *ngIf="success">✅ Profil mis à jour avec succès !</div>
+
+      <!-- Profile Header -->
+      <div class="profile-hero">
+        <div class="avatar-circle">{{ getInitials() }}</div>
+        <div class="profile-info">
+          <h1>{{ user.name }}</h1>
+          <span class="role-badge">{{ getRoleLabel() }}</span>
+          <p class="email">📧 {{ user.email }}</p>
+        </div>
+        <button class="btn-edit" (click)="editMode = !editMode">
+          {{ editMode ? '✕ Annuler' : '✏️ Modifier' }}
+        </button>
+      </div>
+
+      <!-- Edit Form -->
+      <div class="profile-card" *ngIf="editMode">
+        <h2>✏️ Modifier le profil</h2>
+        <div class="field">
+          <label>Nom complet</label>
+          <input type="text" [(ngModel)]="form.name" placeholder="Votre nom">
+        </div>
+        <div class="field">
+          <label>Bio</label>
+          <textarea [(ngModel)]="form.bio" placeholder="Parlez de vous..." rows="3"></textarea>
+        </div>
+        <div class="field" *ngIf="user.role === 'teacher'">
+          <label>Spécialité</label>
+          <input type="text" [(ngModel)]="form.speciality" placeholder="Ex: Python, Machine Learning">
+        </div>
+        <button class="btn-save" (click)="saveProfile()" [disabled]="saving">
+          {{ saving ? 'Sauvegarde...' : '💾 Sauvegarder' }}
+        </button>
+      </div>
+
+      <!-- Profile Details -->
+      <div class="profile-card" *ngIf="!editMode">
+        <h2>📋 Informations</h2>
+        <div class="info-row">
+          <span class="info-label">👤 Nom</span>
+          <span class="info-value">{{ user.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">📧 Email</span>
+          <span class="info-value">{{ user.email }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">🎭 Rôle</span>
+          <span class="info-value">{{ getRoleLabel() }}</span>
+        </div>
+        <div class="info-row" *ngIf="user.bio">
+          <span class="info-label">📝 Bio</span>
+          <span class="info-value">{{ user.bio }}</span>
+        </div>
+        <div class="info-row" *ngIf="user.speciality">
+          <span class="info-label">🎯 Spécialité</span>
+          <span class="info-value">{{ user.speciality }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">📅 Membre depuis</span>
+          <span class="info-value">{{ user.created_at | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+    </ng-container>
+  </main>
+</div>

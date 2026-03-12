@@ -1,5 +1,6 @@
 import { Component, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ChatService } from '../../services/chat.service';
@@ -9,17 +10,10 @@ interface Message { role: 'user'|'assistant'; content: string; time: Date; }
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, SidebarComponent, FormsModule, RouterLink],
   template: `
     <div class="layout">
-      <aside class="sidebar">
-        <div class="logo">🎓 E-Learning</div>
-        <nav>
-          <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-          <a routerLink="/courses" class="nav-item">📚 Cours</a>
-          <a routerLink="/chatbot" class="nav-item active">🤖 Assistant IA</a>
-        </nav>
-      </aside>
+      <app-sidebar></app-sidebar>
       <main class="main">
         <div class="chat-header">
           <h1>🤖 Assistant IA</h1>

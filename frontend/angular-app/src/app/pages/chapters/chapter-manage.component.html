@@ -1,12 +1,5 @@
 <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">🎓 E-Learning</div>
-    <nav>
-      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-      <a routerLink="/courses" class="nav-item">📚 Cours</a>
-      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-    </nav>
-  </aside>
+  <app-sidebar></app-sidebar>
   <main class="main">
     <div class="loading" *ngIf="loading">Chargement...</div>
     <div *ngIf="!loading && course">
@@ -70,6 +63,14 @@
               <div class="field-check">
                 <input type="checkbox" formControlName="is_lab" id="lab-{{chapter.id}}">
                 <label for="lab-{{chapter.id}}">🔬 C'est un TD/Lab</label>
+              </div>
+              <div class="field">
+                <label>🧠 Quiz lié (ID du quiz)</label>
+                <input type="number" formControlName="quiz_id" placeholder="Ex: 1 (laisser vide si aucun)">
+              </div>
+              <div class="field">
+                <label>Score minimum pour débloquer le suivant (%)</label>
+                <input type="number" formControlName="passing_score" placeholder="70">
               </div>
               <button type="submit" [disabled]="subForms[chapter.id].invalid || saving">
                 {{ saving ? 'Ajout...' : 'Ajouter' }}

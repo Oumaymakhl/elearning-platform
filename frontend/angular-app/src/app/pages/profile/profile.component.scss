@@ -1,0 +1,39 @@
+.layout{display:flex;min-height:100vh}
+.sidebar{width:260px;background:linear-gradient(180deg,#0f2544,#1E3A5F);color:white;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+.logo{padding:1.75rem 1.5rem;font-size:1.3rem;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08)}
+nav{flex:1;padding:1.25rem 0}
+.nav-item{display:block;padding:.85rem 1.5rem;color:rgba(255,255,255,.7);text-decoration:none;transition:.25s;border-left:3px solid transparent;font-size:.95rem}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:white;border-left-color:#4A90D9;padding-left:1.75rem}
+.main{margin-left:260px;flex:1;padding:2.5rem;background:#f0f4f8;min-height:100vh}
+.loading{text-align:center;padding:3rem;color:#666}
+.alert-success{background:#c6f6d5;color:#276749;padding:1rem 1.5rem;border-radius:12px;margin-bottom:1.5rem;font-weight:600;border:1px solid #9ae6b4}
+
+/* Hero */
+.profile-hero{background:linear-gradient(135deg,#0f2544,#1E3A5F,#4A90D9);border-radius:20px;padding:2.5rem;color:white;display:flex;align-items:center;gap:2rem;margin-bottom:1.5rem;box-shadow:0 8px 30px rgba(30,58,95,.3);position:relative}
+.avatar-circle{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;border:3px solid rgba(255,255,255,.3);flex-shrink:0;backdrop-filter:blur(8px)}
+.profile-info{flex:1}
+.profile-info h1{font-size:1.75rem;font-weight:900;margin:0 0 .5rem}
+.role-badge{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);padding:.3rem .9rem;border-radius:20px;font-size:.85rem;font-weight:600}
+.email{margin:.75rem 0 0;opacity:.75;font-size:.9rem}
+.btn-edit{padding:.7rem 1.5rem;background:rgba(255,255,255,.15);color:white;border:2px solid rgba(255,255,255,.3);border-radius:10px;cursor:pointer;font-weight:600;transition:.2s;backdrop-filter:blur(8px);white-space:nowrap}
+.btn-edit:hover{background:rgba(255,255,255,.25)}
+
+/* Cards */
+.profile-card{background:white;border-radius:20px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.profile-card h2{color:#1E3A5F;margin:0 0 1.5rem;font-size:1.15rem;font-weight:800;padding-bottom:.75rem;border-bottom:2px solid #f0f4f8}
+
+/* Info rows */
+.info-row{display:flex;align-items:flex-start;gap:1rem;padding:.85rem 0;border-bottom:1px solid #f7fafc}
+.info-row:last-child{border-bottom:none}
+.info-label{min-width:150px;color:#888;font-size:.9rem;font-weight:600}
+.info-value{color:#2d3748;font-size:.95rem;flex:1}
+
+/* Form */
+.field{margin-bottom:1.25rem}
+.field label{display:block;margin-bottom:.4rem;color:#555;font-size:.9rem;font-weight:600}
+.field input,.field textarea{width:100%;padding:.75rem 1rem;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.95rem;transition:.2s;font-family:inherit}
+.field input:focus,.field textarea:focus{outline:none;border-color:#4A90D9;box-shadow:0 0 0 3px rgba(74,144,217,.1)}
+.field textarea{resize:vertical}
+.btn-save{padding:.8rem 2rem;background:linear-gradient(135deg,#1E3A5F,#4A90D9);color:white;border:none;border-radius:10px;cursor:pointer;font-weight:700;font-size:1rem;transition:.2s}
+.btn-save:hover{opacity:.9;transform:translateY(-1px)}
+.btn-save:disabled{opacity:.6;cursor:not-allowed;transform:none}

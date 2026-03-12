@@ -1,12 +1,5 @@
 <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">🎓 E-Learning</div>
-    <nav>
-      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-      <a routerLink="/courses" class="nav-item">📚 Cours</a>
-      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-    </nav>
-  </aside>
+  <app-sidebar></app-sidebar>
   <main class="main">
     <div class="loading" *ngIf="loading">Chargement...</div>
     <div class="exercise-layout" *ngIf="!loading && exercise">

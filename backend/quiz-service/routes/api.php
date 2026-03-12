@@ -45,4 +45,5 @@ Route::middleware('jwt')->group(function () {
 
     // Stats admin
     Route::get('/stats', [QuizResultsController::class, 'globalStats']);
+    Route::get('/attempts/mine', [AttemptController::class, 'allMyAttempts']);
 });

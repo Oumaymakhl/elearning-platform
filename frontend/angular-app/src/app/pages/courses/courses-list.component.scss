@@ -1,25 +1,51 @@
 .layout{display:flex;min-height:100vh}
-.sidebar{width:260px;background:#1E3A5F;color:white;position:fixed;height:100vh;display:flex;flex-direction:column}
-.logo{padding:1.5rem;font-size:1.3rem;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1)}
-nav{flex:1;padding:1rem 0}
-.nav-item{display:block;padding:.75rem 1.5rem;color:rgba(255,255,255,.8);text-decoration:none}
-.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.1);color:white}
-.main{margin-left:260px;flex:1;padding:2rem;background:#f8f9fa}
-.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}
-.header h1{color:#1E3A5F}
-.btn-primary{padding:.75rem 1.5rem;background:#1E3A5F;color:white;border-radius:8px;text-decoration:none}
-.search-bar{margin-bottom:1.5rem}
-.search-bar input{width:100%;padding:.75rem 1rem;border:1px solid #ddd;border-radius:8px;font-size:1rem}
-.course-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
-.course-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:transform .2s}
-.course-card:hover{transform:translateY(-3px)}
-.course-img{height:120px;background:linear-gradient(135deg,#1E3A5F,#4A90D9);display:flex;align-items:center;justify-content:center;font-size:3rem}
-.course-body{padding:1.25rem}
-.course-body h3{color:#1E3A5F;margin-bottom:.5rem}
-.course-body p{color:#666;font-size:.9rem;margin-bottom:1rem}
-.course-footer{display:flex;justify-content:space-between;align-items:center}
-.btn-view{padding:.5rem 1rem;background:#1E3A5F;color:white;border-radius:6px;text-decoration:none;font-size:.9rem}
-.loading{text-align:center;padding:3rem;color:#666}
-.empty{text-align:center;padding:3rem;color:#666;grid-column:1/-1}
-.btn-delete{padding:.4rem .75rem;background:#e53e3e;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem}
-.btn-delete:hover{background:#c53030}
+.sidebar{width:260px;background:linear-gradient(180deg,#0f2544,#1E3A5F);color:white;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+.logo{padding:1.75rem 1.5rem;font-size:1.3rem;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08)}
+nav{flex:1;padding:1.25rem 0}
+.nav-item{display:block;padding:.85rem 1.5rem;color:rgba(255,255,255,.7);text-decoration:none;transition:.25s;border-left:3px solid transparent;font-size:.95rem}
+.nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:white;border-left-color:#4A90D9;padding-left:1.75rem}
+.main{margin-left:260px;flex:1;padding:2.5rem;background:#f4f6fb;min-height:100vh}
+
+/* Header */
+.page-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem}
+.header-left h1{font-size:2rem;font-weight:900;color:#1E3A5F;margin:0 0 .3rem}
+.header-left p{color:#888;font-size:.95rem;margin:0}
+.btn-create{padding:.7rem 1.5rem;background:linear-gradient(135deg,#1E3A5F,#4A90D9);color:white;border-radius:10px;text-decoration:none;font-weight:700;font-size:.9rem;transition:.2s;box-shadow:0 4px 12px rgba(30,58,95,.25)}
+.btn-create:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(30,58,95,.35)}
+
+/* Filters */
+.filters{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:250px;position:relative}
+.search-icon{position:absolute;left:1rem;top:50%;transform:translateY(-50%);font-size:1rem}
+.search-box input{width:100%;padding:.75rem 1rem .75rem 2.75rem;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.95rem;background:white;transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.search-box input:focus{outline:none;border-color:#4A90D9;box-shadow:0 0 0 3px rgba(74,144,217,.1)}
+.filter-tabs{display:flex;gap:.5rem;flex-wrap:wrap}
+.filter-tabs button{padding:.6rem 1.1rem;border:1.5px solid #e2e8f0;border-radius:20px;background:white;cursor:pointer;font-size:.85rem;font-weight:600;color:#666;transition:.2s}
+.filter-tabs button:hover{border-color:#4A90D9;color:#1E3A5F}
+.filter-tabs button.active{background:#1E3A5F;color:white;border-color:#1E3A5F}
+
+/* Grid */
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
+.course-card{background:white;border-radius:18px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,.06);transition:.3s;border:1.5px solid transparent}
+.course-card:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,.12);border-color:#bee3f8}
+.card-cover{height:160px;display:flex;align-items:center;justify-content:center;position:relative}
+.cover-icon{font-size:4rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.15))}
+.level-tag{position:absolute;top:.75rem;left:.75rem;padding:.25rem .75rem;border-radius:20px;font-size:.75rem;font-weight:700;backdrop-filter:blur(8px)}
+.level-tag.level-debutant{background:rgba(198,246,213,.9);color:#276749}
+.level-tag.level-intermediaire{background:rgba(254,252,191,.9);color:#744210}
+.level-tag.level-avance{background:rgba(254,215,215,.9);color:#c53030}
+.btn-delete-card{position:absolute;top:.75rem;right:.75rem;background:rgba(0,0,0,.3);color:white;border:none;border-radius:8px;padding:.3rem .6rem;cursor:pointer;font-size:.85rem;transition:.2s;backdrop-filter:blur(4px)}
+.btn-delete-card:hover{background:rgba(220,53,69,.7)}
+.card-body{padding:1.25rem 1.5rem 1.5rem}
+.card-body h3{color:#1E3A5F;font-size:1.1rem;font-weight:800;margin:0 0 .5rem}
+.card-body p{color:#718096;font-size:.88rem;line-height:1.6;margin:0 0 1.25rem;min-height:2.8rem}
+.card-footer{display:flex;justify-content:space-between;align-items:center}
+.lang-tag{font-size:.8rem;color:#999;background:#f7fafc;padding:.25rem .6rem;border-radius:8px;border:1px solid #e2e8f0}
+.btn-view{padding:.55rem 1.25rem;background:linear-gradient(135deg,#1E3A5F,#4A90D9);color:white;border-radius:8px;text-decoration:none;font-size:.85rem;font-weight:700;transition:.2s}
+.btn-view:hover{opacity:.9;transform:translateX(2px)}
+
+/* Empty */
+.empty-state{text-align:center;padding:5rem 2rem;color:#aaa}
+.empty-icon{font-size:4rem;margin-bottom:1rem}
+.empty-state h3{color:#555;font-size:1.3rem;margin-bottom:.5rem}
+.empty-state p{font-size:.95rem}

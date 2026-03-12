@@ -1,12 +1,5 @@
 <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">🎓 E-Learning</div>
-    <nav>
-      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-      <a routerLink="/courses" class="nav-item">📚 Cours</a>
-      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-    </nav>
-  </aside>
+  <app-sidebar></app-sidebar>
   <main class="main">
     <div class="loading" *ngIf="loading">Chargement...</div>
 
@@ -21,7 +14,7 @@
       <div class="past-attempts" *ngIf="pastAttempts.length > 0">
         <h3>Mes tentatives précédentes</h3>
         <div class="attempt" *ngFor="let a of pastAttempts">
-          <span>Score : <strong>{{ a.score }}%</strong></span>
+          <span>Score : <strong>{{ a.max_score > 0 ? ((a.score / a.max_score) * 100).toFixed(0) : 0 }}%</strong></span>
           <span [class]="a.passed ? 'pass' : 'fail'">{{ a.passed ? '✅ Réussi' : '❌ Échoué' }}</span>
         </div>
       </div>

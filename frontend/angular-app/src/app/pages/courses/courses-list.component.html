@@ -1,37 +1,58 @@
 <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">🎓 E-Learning</div>
-    <nav>
-      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-      <a routerLink="/courses" class="nav-item active">📚 Cours</a>
-      <a routerLink="/my-courses" class="nav-item" *ngIf="isStudent">📖 Mes cours</a>
-      <a routerLink="/courses/create" class="nav-item" *ngIf="isTeacher || isAdmin">➕ Créer un cours</a>
-      <a routerLink="/admin" class="nav-item" *ngIf="isAdmin">⚙️ Administration</a>
-      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-    </nav>
-  </aside>
+  <app-sidebar></app-sidebar>
+
   <main class="main">
-    <div class="header">
-      <h1>📚 Catalogue des cours</h1>
-      <a routerLink="/courses/create" class="btn-primary" *ngIf="isTeacher || isAdmin">+ Nouveau cours</a>
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>Explorez nos cours</h1>
+        <p>{{ filteredCourses.length }} cours disponibles</p>
+      </div>
+      <a routerLink="/courses/create" class="btn-create" *ngIf="isTeacher || isAdmin">
+        + Créer un cours
+      </a>
     </div>
-    <div class="search-bar">
-      <input type="text" [(ngModel)]="search" placeholder="Rechercher un cours..." (input)="filterCourses()">
+
+    <!-- Filtres -->
+    <div class="filters">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" [(ngModel)]="searchTerm" (input)="filterCourses()" placeholder="Rechercher un cours...">
+      </div>
+      <div class="filter-tabs">
+        <button [class.active]="selectedLevel === ''" (click)="filterByLevel('')">Tous</button>
+        <button [class.active]="selectedLevel === 'debutant'" (click)="filterByLevel('debutant')">🟢 Débutant</button>
+        <button [class.active]="selectedLevel === 'intermediaire'" (click)="filterByLevel('intermediaire')">🟡 Intermédiaire</button>
+        <button [class.active]="selectedLevel === 'avance'" (click)="filterByLevel('avance')">🔴 Avancé</button>
+      </div>
     </div>
-    <div class="loading" *ngIf="loading">Chargement...</div>
-    <div class="course-grid" *ngIf="!loading">
+
+    <!-- Grid -->
+    <div class="courses-grid">
       <div class="course-card" *ngFor="let course of filteredCourses">
-        <div class="course-img">📘</div>
-        <div class="course-body">
+        <div class="card-cover" [style.background]="getCourseColor(course.id)">
+          <div class="cover-icon">{{ getCourseIcon(course.title) }}</div>
+          <span class="level-tag level-{{course.level}}">
+            {{ course.level === 'debutant' ? '🟢 Débutant' : course.level === 'intermediaire' ? '🟡 Intermédiaire' : '🔴 Avancé' }}
+          </span>
+          <button class="btn-delete-card" *ngIf="isTeacher || isAdmin" (click)="deleteCourse(course.id, $event)">🗑️</button>
+        </div>
+        <div class="card-body">
           <h3>{{ course.title }}</h3>
-          <p>{{ (course.description || '').slice(0,100) }}...</p>
-          <div class="course-footer">
-            <a [routerLink]="['/courses', course.id]" class="btn-view">Voir le cours</a>
-            <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse(course.id, $event)">🗑️ Supprimer</button>
+          <p>{{ (course.description || '').slice(0, 80) }}{{ course.description?.length > 80 ? '...' : '' }}</p>
+          <div class="card-footer">
+            <span class="lang-tag">🌐 {{ course.language || 'FR' }}</span>
+            <a [routerLink]="['/courses', course.id]" class="btn-view">Voir le cours →</a>
           </div>
         </div>
       </div>
-      <div class="empty" *ngIf="filteredCourses.length === 0">Aucun cours trouvé.</div>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="filteredCourses.length === 0">
+      <div class="empty-icon">📭</div>
+      <h3>Aucun cours trouvé</h3>
+      <p>Essayez un autre mot-clé ou filtre</p>
     </div>
   </main>
 </div>

@@ -1,37 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http';
 import { CourseService } from '../../services/course.service';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, SidebarComponent, RouterLink],
   template: `
     <div class="layout">
       <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="logo">🎓 E-Learning</div>
-        <nav>
-          <a routerLink="/dashboard" class="nav-item active">🏠 Tableau de bord</a>
-          <a routerLink="/courses" class="nav-item">📚 Cours</a>
-          <a routerLink="/my-courses" class="nav-item" *ngIf="isStudent">📖 Mes cours</a>
-          <a routerLink="/courses/create" class="nav-item" *ngIf="isTeacher">➕ Créer un cours</a>
-          <a routerLink="/admin" class="nav-item" *ngIf="isAdmin">⚙️ Administration</a>
-          <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-        </nav>
-        <div class="sidebar-footer">
-          <div class="user-info">
-            <div class="avatar">{{ userInitial }}</div>
-            <div>
-              <div class="user-name">{{ user?.name }}</div>
-              <div class="user-role">{{ roleLabel }}</div>
-            </div>
-          </div>
-          <button class="logout-btn" (click)="logout()">Déconnexion</button>
-        </div>
-      </aside>
+      <app-sidebar></app-sidebar>
 
       <!-- Main content -->
       <main class="main">
@@ -40,11 +22,31 @@ import { CourseService } from '../../services/course.service';
           <p>Bienvenue sur votre tableau de bord</p>
         </div>
 
-        <div class="stats">
+        <!-- Stats Admin -->
+        <div class="stats" *ngIf="isAdmin">
+          <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <div class="stat-value">{{ adminStats?.users?.total_users || 0 }}</div>
+            <div class="stat-label">Utilisateurs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-value">{{ adminStats?.courses?.total_courses || 0 }}</div>
+            <div class="stat-label">Cours total</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">🧠</div>
+            <div class="stat-value">{{ adminStats?.quizzes?.total_attempts || 0 }}</div>
+            <div class="stat-label">Tentatives quiz</div>
+          </div>
+        </div>
+
+        <!-- Stats Teacher/Student -->
+        <div class="stats" *ngIf="!isAdmin">
           <div class="stat-card">
             <div class="stat-icon">📚</div>
             <div class="stat-value">{{ stats.courses }}</div>
-            <div class="stat-label">{{ isStudent ? 'Mes cours' : 'Cours créés' }}</div>
+            <div class="stat-label">{{ isStudent ? 'Mes cours' : 'Mes cours créés' }}</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon">✅</div>
@@ -58,7 +60,7 @@ import { CourseService } from '../../services/course.service';
           </div>
         </div>
 
-        <div class="recent">
+        <div class="recent" *ngIf="!isAdmin">
           <h2>Cours récents</h2>
           <div class="course-grid">
             <div class="course-card" *ngFor="let course of recentCourses" [routerLink]="['/courses', course.id]">
@@ -127,27 +129,57 @@ export class DashboardComponent implements OnInit {
   get userInitial() { return this.user?.name?.charAt(0).toUpperCase() || 'U'; }
   get roleLabel() { const roles: Record<string, string> = { student: 'Étudiant', teacher: 'Formateur', admin: 'Administrateur' }; return roles[this.user?.role] || ''; }
 
-  constructor(private auth: AuthService, private courseService: CourseService, private router: Router) {}
+  constructor(private auth: AuthService, private courseService: CourseService, private router: Router, private http: HttpClient) {}
 
   ngOnInit() {
     this.user = this.auth.getCurrentUser();
     this.loadData();
   }
 
+  adminStats: any = null;
+
   loadData() {
-    if (this.isStudent) {
+    if (this.isAdmin) {
+      console.log('Loading admin stats, isAdmin=', this.isAdmin);
+      this.http.get('http://localhost:8001/api/admin/stats').subscribe({
+        next: (s: any) => {
+          console.log('Admin stats:', s);
+          this.adminStats = s;
+          this.stats.courses = s.courses?.total || 0;
+        },
+        error: (e) => { console.error('Stats error:', e); }
+      });
+      this.courseService.getCourses().subscribe({
+        next: (courses) => { this.recentCourses = courses.slice(0, 6); },
+        error: () => {}
+      });
+    } else if (this.isStudent) {
       this.courseService.myCourses().subscribe({
-        next: (courses) => {
-          this.recentCourses = courses.slice(0, 6);
-          this.stats.courses = courses.length;
+        next: (enrollments) => {
+          this.recentCourses = enrollments.slice(0, 3).map((e: any) => ({
+            ...e.course,
+            progress: parseFloat(e.progress || 0)
+          }));
+          this.stats.courses = enrollments.length;
+          this.stats.completed = enrollments.filter((e: any) => parseFloat(e.progress) === 100).length;
+        },
+        error: () => {}
+      });
+      // Charger score moyen depuis quiz
+      this.http.get<any[]>('http://localhost:8005/api/attempts/mine').subscribe({
+        next: (attempts) => {
+          if (attempts.length > 0) {
+            const scores = attempts.map((a: any) => a.max_score > 0 ? Math.round((a.score / a.max_score) * 100) : 0);
+            this.stats.score = Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
+          }
         },
         error: () => {}
       });
     } else {
       this.courseService.getCourses().subscribe({
         next: (courses) => {
-          this.recentCourses = courses.slice(0, 6);
-          this.stats.courses = courses.length;
+          this.recentCourses = courses.filter((c: any) => c.instructor_id === this.user?.id).slice(0, 6);
+          this.stats.courses = this.recentCourses.length;
         },
         error: () => {}
       });

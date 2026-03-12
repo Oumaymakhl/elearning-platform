@@ -5,7 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Course extends Model
 {
-    protected $fillable = ['title', 'description', 'language', 'image_path', 'instructor_id'];
+    protected $fillable = ['title', 'description', 'language', 'image_path', 'instructor_id', 'level'];
 
     public function chapters() {
         return $this->hasMany(Chapter::class)->orderBy('order');

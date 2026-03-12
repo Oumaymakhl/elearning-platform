@@ -1,13 +1,5 @@
 <div class="layout">
-  <aside class="sidebar">
-    <div class="logo">🎓 E-Learning</div>
-    <nav>
-      <a routerLink="/dashboard" class="nav-item">🏠 Tableau de bord</a>
-      <a routerLink="/courses" class="nav-item">📚 Cours</a>
-      <a routerLink="/courses/create" class="nav-item active">➕ Créer un cours</a>
-      <a routerLink="/chatbot" class="nav-item">🤖 Assistant IA</a>
-    </nav>
-  </aside>
+  <app-sidebar></app-sidebar>
   <main class="main">
     <a routerLink="/courses" class="back">← Retour</a>
     <h1>➕ Créer un nouveau cours</h1>
@@ -34,7 +26,15 @@
         <button type="submit" [disabled]="loading || form.invalid">
           {{ loading ? 'Création...' : 'Créer le cours' }}
         </button>
-      </form>
+        <div class="field">
+    <label>Niveau</label>
+    <select formControlName="level">
+      <option value="debutant">🟢 Débutant</option>
+      <option value="intermediaire">🟡 Intermédiaire</option>
+      <option value="avance">🔴 Avancé</option>
+    </select>
+  </div>
+</form>
     </div>
   </main>
 </div>

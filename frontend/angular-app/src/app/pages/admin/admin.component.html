@@ -1,0 +1,115 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <main class="main">
+    <h1>⚙️ Administration</h1>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button [class.active]="activeTab === 'stats'" (click)="activeTab = 'stats'">📊 Statistiques</button>
+      <button [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">👥 Utilisateurs</button>
+    </div>
+
+    <!-- STATS -->
+    <div *ngIf="activeTab === 'stats'">
+      <div class="loading" *ngIf="loading">Chargement...</div>
+      <div class="stats-grid" *ngIf="!loading && stats">
+        <div class="stat-card blue">
+          <div class="stat-icon">👥</div>
+          <div class="stat-value">{{ adminStats.users?.total_users || 0 }}</div>
+          <div class="stat-label">Utilisateurs total</div>
+          <div class="stat-sub">
+            {{ adminStats.users?.students || 0 }} étudiants • {{ adminStats.users?.teachers || 0 }} formateurs
+          </div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">📚</div>
+          <div class="stat-value">{{ adminStats.courses?.total_courses || 0 }}</div>
+          <div class="stat-label">Cours total</div>
+        </div>
+        <div class="stat-card purple">
+          <div class="stat-icon">🧠</div>
+          <div class="stat-value">{{ adminStats.quizzes?.total_attempts || 0 }}</div>
+          <div class="stat-label">Tentatives quiz</div>
+          <div class="stat-sub">Taux réussite : {{ adminStats.quizzes?.pass_rate || 0 }}%</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value">{{ adminStats.quizzes?.completed || 0 }}</div>
+          <div class="stat-label">Quiz complétés</div>
+        </div>
+      </div>
+
+      <!-- Top formateurs -->
+      <div class="section" *ngIf="stats?.top_teachers?.length">
+        <h2>🏆 Top formateurs</h2>
+        <div class="table-card">
+          <table>
+            <thead>
+              <tr><th>Formateur</th><th>Cours</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let t of stats.top_teachers">
+                <td>{{ t.name || 'ID: ' + t.instructor_id }}</td>
+                <td><span class="badge">{{ t.courses_count }}</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div *ngIf="activeTab === 'users'">
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr><th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Actions</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <span [class]="getRoleClass(user.role)" class="role-badge">
+                  {{ user.role === 'admin' ? 'Admin' : user.role === 'teacher' ? 'Formateur' : 'Étudiant' }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="btn-edit" (click)="openEdit(user)">✏️</button>
+                <button class="btn-del" (click)="deleteUser(user.id)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+<!-- Modal édition -->
+<div class="modal-overlay" *ngIf="editUser" (click)="closeEdit()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <h3>✏️ Modifier l'utilisateur</h3>
+    <div class="field">
+      <label>Nom</label>
+      <input type="text" [(ngModel)]="editUser.name">
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="editUser.email">
+    </div>
+    <div class="field">
+      <label>Rôle</label>
+      <select [(ngModel)]="editUser.role">
+        <option value="student">Étudiant</option>
+        <option value="teacher">Formateur</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-save" (click)="saveEdit()">💾 Sauvegarder</button>
+      <button class="btn-cancel" (click)="closeEdit()">Annuler</button>
+    </div>
+  </div>
+</div>
+</div>

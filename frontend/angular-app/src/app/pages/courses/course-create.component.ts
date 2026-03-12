@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterLink, Router } from '@angular/router';
 import { CourseService } from '../../services/course.service';
@@ -7,7 +8,7 @@ import { CourseService } from '../../services/course.service';
 @Component({
   selector: 'app-course-create',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, SidebarComponent, ReactiveFormsModule, RouterLink],
   templateUrl: './course-create.component.html',
   styleUrls: ['./course-create.component.scss']
 })

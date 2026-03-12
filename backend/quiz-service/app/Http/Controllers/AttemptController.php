@@ -97,4 +97,9 @@ class AttemptController extends Controller
     public function allAttempts($quizId) {
         return response()->json(Attempt::where('quiz_id', $quizId)->get());
     }
+
+    public function allMyAttempts(Request $request) {
+        $attempts = Attempt::where("user_id", (int) $request->auth_user_id)->get();
+        return response()->json($attempts);
+    }
 }
