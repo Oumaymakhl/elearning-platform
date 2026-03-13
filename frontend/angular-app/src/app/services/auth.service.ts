@@ -44,6 +44,7 @@ export class AuthService {
   }
 
   getToken(): string | null { if (typeof localStorage === 'undefined') return null; return localStorage.getItem('token'); }
+  getUserId(): number | null { const u = this.getCurrentUser(); return u ? u.id : null; }
   getCurrentUser(): any { return this.currentUserSubject.value; }
   isLoggedIn(): boolean { return !!this.getToken(); }
   isAdmin(): boolean { return this.getCurrentUser()?.role === 'admin'; }

@@ -16,9 +16,9 @@
         <div class="field">
           <label>Niveau</label>
           <select formControlName="level">
-            <option value="beginner">Débutant</option>
-            <option value="intermediate">Intermédiaire</option>
-            <option value="advanced">Avancé</option>
+            <option value="debutant">🟢 Débutant</option>
+            <option value="intermediaire">🟡 Intermédiaire</option>
+            <option value="avance">🔴 Avancé</option>
           </select>
         </div>
         <div class="error" *ngIf="error">{{ error }}</div>
@@ -26,15 +26,7 @@
         <button type="submit" [disabled]="loading || form.invalid">
           {{ loading ? 'Création...' : 'Créer le cours' }}
         </button>
-        <div class="field">
-    <label>Niveau</label>
-    <select formControlName="level">
-      <option value="debutant">🟢 Débutant</option>
-      <option value="intermediaire">🟡 Intermédiaire</option>
-      <option value="avance">🔴 Avancé</option>
-    </select>
-  </div>
-</form>
+      </form>
     </div>
   </main>
 </div>

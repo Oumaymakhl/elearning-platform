@@ -23,6 +23,9 @@ export class ChapterManageComponent implements OnInit {
   subForms: Record<number, FormGroup> = {};
   saving = false;
   error = '';
+  showCourseEdit = false;
+  courseForm!: FormGroup;
+  savingCourse = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -43,6 +46,11 @@ export class ChapterManageComponent implements OnInit {
       next: (course) => {
         this.course = course;
         this.chapters = course.chapters || [];
+        this.courseForm = this.fb.group({
+          title: [course.title, Validators.required],
+          description: [course.description || ''],
+          level: [course.level || 'debutant']
+        });
         this.chapters.forEach(ch => {
           this.subForms[ch.id] = this.fb.group({
             title: ['', Validators.required],
@@ -112,6 +120,19 @@ export class ChapterManageComponent implements OnInit {
         if (chapter) chapter.sub_chapters = chapter.sub_chapters.filter((s: any) => s.id !== subId);
       },
       error: (e) => { alert(e.error?.message || 'Erreur'); }
+    });
+  }
+
+  saveCourse() {
+    if (this.courseForm.invalid) return;
+    this.savingCourse = true;
+    this.courseService.updateCourse(this.course.id, this.courseForm.value).subscribe({
+      next: (updated: any) => {
+        this.course = { ...this.course, ...this.courseForm.value };
+        this.savingCourse = false;
+        this.showCourseEdit = false;
+      },
+      error: () => { this.savingCourse = false; }
     });
   }
 }

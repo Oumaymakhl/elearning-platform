@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private api = 'http://localhost:8007/api';
-
   constructor(private http: HttpClient) {}
 
-  sendMessage(message: string, history: any[] = []): Observable<any> {
-    return this.http.post(`${this.api}/chat`, { message, history });
+  sendMessage(message: string, conversationId: number | null = null) {
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
+    const body: any = { message };
+    if (conversationId) body.conversation_id = conversationId;
+    return this.http.post('http://localhost:8007/api/chat', body, { headers });
   }
 }

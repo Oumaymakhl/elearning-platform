@@ -6,7 +6,35 @@
       <div class="header">
         <div>
           <a [routerLink]="['/courses', course.id]" class="back">← Retour au cours</a>
-          <h1>📖 Gestion : {{ course.title }}</h1>
+          <div class="course-manage-header">
+            <h1>📖 Gestion : {{ course.title }}</h1>
+            <button class="btn-edit-course" (click)="showCourseEdit = !showCourseEdit">✏️ Modifier le cours</button>
+          </div>
+          <!-- Formulaire édition cours -->
+          <div class="course-edit-form" *ngIf="showCourseEdit" [formGroup]="courseForm">
+            <div class="form-row">
+              <label>Titre</label>
+              <input type="text" formControlName="title" placeholder="Titre du cours">
+            </div>
+            <div class="form-row">
+              <label>Description</label>
+              <textarea formControlName="description" placeholder="Description du cours" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+              <label>Niveau</label>
+              <select formControlName="level">
+                <option value="debutant">🟢 Débutant</option>
+                <option value="intermediaire">🟡 Intermédiaire</option>
+                <option value="avance">🔴 Avancé</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button class="btn-save" (click)="saveCourse()" [disabled]="savingCourse">
+                {{ savingCourse ? "Sauvegarde..." : "💾 Sauvegarder" }}
+              </button>
+              <button class="btn-cancel" (click)="showCourseEdit = false">Annuler</button>
+            </div>
+          </div>
         </div>
         <button class="btn-primary" (click)="showChapterForm = !showChapterForm">
           {{ showChapterForm ? 'Annuler' : '+ Ajouter un chapitre' }}

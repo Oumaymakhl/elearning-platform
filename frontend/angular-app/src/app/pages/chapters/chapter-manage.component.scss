@@ -33,3 +33,28 @@ input[type=text],textarea,select{width:100%;padding:.65rem;border:1px solid #ddd
 .no-sub{color:#aaa;font-size:.85rem;padding:.5rem}
 .empty{text-align:center;padding:3rem;color:#666;background:white;border-radius:12px}
 .loading{text-align:center;padding:3rem;color:#666}
+.course-manage-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+.btn-edit-course { background:#4361ee; color:#fff; border:none; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-edit-course:hover { background:#3451d1; }
+.course-edit-form { background:#f8fafc; border:1px solid #e8ecf3; border-radius:12px; padding:1.2rem; margin-bottom:1.5rem; }
+.form-row { margin-bottom:.75rem; }
+.form-row label { display:block; font-size:.82rem; font-weight:600; color:#2d3a52; margin-bottom:.3rem; }
+.form-row input, .form-row textarea, .form-row select { width:100%; padding:.45rem .75rem; border:1px solid #d5dcf9; border-radius:8px; font-size:.85rem; outline:none; background:#fff; }
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color:#4361ee; }
+.form-actions { display:flex; gap:.5rem; margin-top:1rem; }
+.btn-save { background:#22c55e; color:#fff; border:none; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-save:disabled { opacity:.5; cursor:not-allowed; }
+.btn-cancel { background:#f0f4ff; color:#4361ee; border:1px solid #d5dcf9; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; }
+
+.course-manage-header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem; margin-bottom:1rem; }
+.btn-edit-course { background:#4361ee; color:#fff; border:none; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-edit-course:hover { background:#3451d1; }
+.course-edit-form { background:#f8fafc; border:1px solid #e8ecf3; border-radius:12px; padding:1.2rem; margin-bottom:1.5rem; }
+.form-row { margin-bottom:.75rem; }
+.form-row label { display:block; font-size:.82rem; font-weight:600; color:#2d3a52; margin-bottom:.3rem; }
+.form-row input, .form-row textarea, .form-row select { width:100%; padding:.45rem .75rem; border:1px solid #d5dcf9; border-radius:8px; font-size:.85rem; outline:none; background:#fff; }
+.form-row input:focus, .form-row textarea:focus, .form-row select:focus { border-color:#4361ee; }
+.form-actions { display:flex; gap:.5rem; margin-top:1rem; }
+.btn-save { background:#22c55e; color:#fff; border:none; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-save:disabled { opacity:.5; cursor:not-allowed; }
+.btn-cancel { background:#f0f4ff; color:#4361ee; border:1px solid #d5dcf9; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; }

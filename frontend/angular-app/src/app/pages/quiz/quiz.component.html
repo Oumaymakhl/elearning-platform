@@ -74,6 +74,12 @@
       <div class="result-actions">
         <button class="btn-retry" (click)="retry()">🔄 Réessayer</button>
         <a routerLink="/courses" class="btn-back">← Retour aux cours</a>
+        <button class="btn-prev" *ngIf="quiz.course_id" (click)="goToPrev()" [disabled]="result.score < 70">
+          ← Leçon précédente
+        </button>
+        <button class="btn-next" *ngIf="quiz.course_id" (click)="goToNext()">
+          Leçon suivante →
+        </button>
       </div>
     </div>
   </main>

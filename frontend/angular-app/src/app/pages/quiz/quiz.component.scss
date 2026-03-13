@@ -47,3 +47,8 @@ nav{flex:1;padding:1rem 0}
 .result-actions{display:flex;gap:1rem;justify-content:center;margin-top:1.5rem}
 .btn-retry{padding:.75rem 1.5rem;background:#1E3A5F;color:white;border:none;border-radius:8px;cursor:pointer}
 .btn-back{padding:.75rem 1.5rem;background:#f0f4f8;color:#1E3A5F;border-radius:8px;text-decoration:none}
+.btn-prev { background:#f0f4ff; color:#4361ee; border:1px solid #d5dcf9; border-radius:8px; padding:.5rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-prev:disabled { opacity:.4; cursor:not-allowed; }
+.btn-prev:hover:not(:disabled) { background:#4361ee; color:#fff; }
+.btn-next { background:#4361ee; color:#fff; border:none; border-radius:8px; padding:.5rem 1rem; cursor:pointer; font-size:.85rem; font-weight:600; }
+.btn-next:hover { background:#3451d1; }

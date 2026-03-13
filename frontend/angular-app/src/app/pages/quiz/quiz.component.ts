@@ -32,6 +32,10 @@ export class QuizComponent implements OnInit {
 
   constructor(private route: ActivatedRoute, private quizService: QuizService, private auth: AuthService, private router: Router, private http: HttpClient) {}
 
+  courseId: number | null = null;
+  subId: number | null = null;
+  subIndex: number = -1;
+
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
     this.quizService.getQuiz(id).subscribe({
@@ -104,4 +108,22 @@ export class QuizComponent implements OnInit {
   }
 
   retry() { this.answers = {}; this.result = null; this.step = 'intro'; }
+
+  goToNext() {
+    const cid = this.courseId || this.quiz.course_id;
+    if (cid) {
+      this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex + 1 } });
+    } else {
+      this.router.navigate(['/courses']);
+    }
+  }
+
+  goToPrev() {
+    if (this.result?.score >= 70) {
+      const cid = this.courseId || this.quiz.course_id;
+      if (cid) {
+        this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex - 1 } });
+      }
+    }
+  }
 }

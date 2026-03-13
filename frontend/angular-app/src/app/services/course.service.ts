@@ -33,6 +33,12 @@ export class CourseService {
   enroll(courseId: number): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/enroll`, {}); }
   unenroll(courseId: number): Observable<any> { return this.http.delete(`${this.api}/courses/${courseId}/unenroll`); }
   myCourses(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/my-courses`); }
+  getVisitedSubs(courseId: number): Observable<number[]> {
+    return this.http.get<number[]>(`${this.api}/courses/${courseId}/visited-subs`);
+  }
+  markSubVisited(courseId: number, subId: number): Observable<any> {
+    return this.http.post(`${this.api}/courses/${courseId}/visited-subs/${subId}`, {});
+  }
   updateProgress(courseId: number, data: any): Observable<any> {
     return this.http.post(`${this.api}/courses/${courseId}/progress`, data);
   }

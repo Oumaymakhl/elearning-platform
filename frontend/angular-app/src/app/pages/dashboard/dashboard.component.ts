@@ -156,20 +156,28 @@ export class DashboardComponent implements OnInit {
     } else if (this.isStudent) {
       this.courseService.myCourses().subscribe({
         next: (enrollments) => {
+          this.stats.courses = enrollments.length;
           this.recentCourses = enrollments.slice(0, 3).map((e: any) => ({
             ...e.course,
             progress: parseFloat(e.progress || 0)
           }));
-          this.stats.courses = enrollments.length;
           this.stats.completed = enrollments.filter((e: any) => parseFloat(e.progress) === 100).length;
         },
         error: () => {}
       });
-      // Charger score moyen depuis quiz
+      // Charger score moyen depuis quiz (meilleur score par quiz)
       this.http.get<any[]>('http://localhost:8005/api/attempts/mine').subscribe({
         next: (attempts) => {
           if (attempts.length > 0) {
-            const scores = attempts.map((a: any) => a.max_score > 0 ? Math.round((a.score / a.max_score) * 100) : 0);
+            // Grouper par quiz_id, garder le meilleur score
+            const bestByQuiz: Record<number, number> = {};
+            for (const a of attempts) {
+              const pct = a.max_score > 0 ? Math.round((a.score / a.max_score) * 100) : 0;
+              if (!bestByQuiz[a.quiz_id] || pct > bestByQuiz[a.quiz_id]) {
+                bestByQuiz[a.quiz_id] = pct;
+              }
+            }
+            const scores = Object.values(bestByQuiz);
             this.stats.score = Math.round(scores.reduce((a: number, b: number) => a + b, 0) / scores.length);
           }
         },
