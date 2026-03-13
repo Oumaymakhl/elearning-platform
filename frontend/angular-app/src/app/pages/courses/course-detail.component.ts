@@ -6,11 +6,12 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
+import { LessonContentComponent } from '../../shared/lesson-content/lesson-content.component';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent, RouterLink],
+  imports: [CommonModule, FormsModule, SidebarComponent, RouterLink, LessonContentComponent],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
 })

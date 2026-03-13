@@ -110,7 +110,7 @@
                   <button class="nav-btn primary" (click)="goToNext()" [disabled]="!hasNext()">Suivant →</button>
                 </div>
               </div>
-              <div class="lesson-body" [innerHTML]="activeSubChapter.content || 'Aucun contenu disponible pour cette leçon.'"></div>
+              <app-lesson-content [html]="activeSubChapter.content || ''"></app-lesson-content>
             </div>
 
             <!-- Éditeur de code -->
