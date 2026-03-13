@@ -30,13 +30,22 @@
     <!-- Grid -->
     <div class="courses-grid">
       <div class="course-card" *ngFor="let course of filteredCourses">
-        <div class="card-cover" [style.background]="getCourseColor(course.id)">
-          <div class="cover-icon">{{ getCourseIcon(course.title) }}</div>
+
+        <!-- Cover : image si dispo, sinon couleur + icône -->
+        <div class="card-cover"
+             [style.background]="course.image_path ? 'none' : getCourseColor(course.id)"
+             [style.padding]="course.image_path ? '0' : null">
+          <img *ngIf="course.image_path"
+               [src]="course.image_path"
+               alt="{{ course.title }}"
+               class="cover-img">
+          <div class="cover-icon" *ngIf="!course.image_path">{{ getCourseIcon(course.title) }}</div>
           <span class="level-tag level-{{course.level}}">
             {{ course.level === 'debutant' ? '🟢 Débutant' : course.level === 'intermediaire' ? '🟡 Intermédiaire' : '🔴 Avancé' }}
           </span>
           <button class="btn-delete-card" *ngIf="isTeacher || isAdmin" (click)="deleteCourse(course.id, $event)">🗑️</button>
         </div>
+
         <div class="card-body">
           <h3>{{ course.title }}</h3>
           <p>{{ (course.description || '').slice(0, 80) }}{{ course.description?.length > 80 ? '...' : '' }}</p>

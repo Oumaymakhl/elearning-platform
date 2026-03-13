@@ -17,7 +17,7 @@
                 <line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
               <span>Cliquez pour choisir une image</span>
-              <small>PNG, JPG — max 2MB</small>
+              <small>PNG, JPG — max 10MB</small>
             </label>
             <input id="imgInput" type="file" accept="image/*" (change)="onImageSelected($event)" hidden>
           </div>
@@ -48,7 +48,6 @@
         </div>
 
         <div class="error" *ngIf="error">{{ error }}</div>
-        <div style="font-size:.75rem;color:#94a3b8">Debug: {{ form.status }} — {{ form.value | json }}</div>
         <div class="success" *ngIf="success">{{ success }}</div>
         <button type="submit" [disabled]="loading || form.invalid">
           {{ loading ? 'Création...' : 'Créer le cours' }}

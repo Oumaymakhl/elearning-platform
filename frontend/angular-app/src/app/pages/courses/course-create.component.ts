@@ -32,10 +32,11 @@ export class CourseCreateComponent {
   onImageSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      this.error = 'Image trop lourde (max 2MB)';
+    if (file.size > 10 * 1024 * 1024) {
+      this.error = 'Image trop lourde (max 10MB)';
       return;
     }
+    this.error = '';
     this.imageName = file.name;
     const reader = new FileReader();
     reader.onload = () => {
@@ -57,12 +58,12 @@ export class CourseCreateComponent {
     this.error = '';
     this.courseService.createCourse(this.form.value).subscribe({
       next: (course) => {
-        this.success = 'Cours cree avec succes !';
+        this.success = 'Cours créé avec succès !';
         this.loading = false;
         setTimeout(() => this.router.navigate(['/courses', course.id]), 1500);
       },
       error: (e) => {
-        this.error = e.error?.message || 'Erreur lors de la creation';
+        this.error = e.error?.message || 'Erreur lors de la création';
         this.loading = false;
       }
     });
