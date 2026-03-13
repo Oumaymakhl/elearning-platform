@@ -68,3 +68,24 @@ Route::middleware('jwt')->group(function () {
     Route::get('/exercises/{exerciseId}/participation', [ExerciseController::class, 'participation']);
     Route::get('/exercises/{exerciseId}/my-submissions', [ExerciseController::class, 'mySubmissions']);
 });
+
+// Sous-chapitres visités
+Route::middleware("jwt")->group(function () {
+    Route::get('/courses/{courseId}/visited-subs', function($courseId) {
+        $userId = request()->auth_user_id;
+        $ids = \DB::table('visited_sub_chapters')
+            ->where('user_id', $userId)
+            ->where('course_id', $courseId)
+            ->pluck('sub_chapter_id');
+        return response()->json($ids);
+    });
+    Route::post('/courses/{courseId}/visited-subs/{subId}', function($courseId, $subId) {
+        $userId = request()->auth_user_id;
+        \DB::table('visited_sub_chapters')->insertOrIgnore([
+            'user_id' => $userId,
+            'course_id' => $courseId,
+            'sub_chapter_id' => $subId
+        ]);
+        return response()->json(['ok' => true]);
+    });
+});
