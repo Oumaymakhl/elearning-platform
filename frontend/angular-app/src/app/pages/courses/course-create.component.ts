@@ -17,13 +17,38 @@ export class CourseCreateComponent {
   loading = false;
   error = '';
   success = '';
+  imagePreview: string | null = null;
+  imageName: string = '';
 
   constructor(private fb: FormBuilder, private courseService: CourseService, private router: Router) {
     this.form = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(3)]],
+      title:       ['', [Validators.required, Validators.minLength(3)]],
       description: ['', Validators.required],
-      level: ['beginner']
+      level:       ['debutant'],
+      image_path:  ['']
     });
+  }
+
+  onImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      this.error = 'Image trop lourde (max 2MB)';
+      return;
+    }
+    this.imageName = file.name;
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.imagePreview = reader.result as string;
+      this.form.patchValue({ image_path: reader.result as string });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage(): void {
+    this.imagePreview = null;
+    this.imageName = '';
+    this.form.patchValue({ image_path: '' });
   }
 
   submit() {
@@ -32,11 +57,14 @@ export class CourseCreateComponent {
     this.error = '';
     this.courseService.createCourse(this.form.value).subscribe({
       next: (course) => {
-        this.success = 'Cours créé avec succès !';
+        this.success = 'Cours cree avec succes !';
         this.loading = false;
         setTimeout(() => this.router.navigate(['/courses', course.id]), 1500);
       },
-      error: (e) => { this.error = e.error?.message || 'Erreur lors de la création'; this.loading = false; }
+      error: (e) => {
+        this.error = e.error?.message || 'Erreur lors de la creation';
+        this.loading = false;
+      }
     });
   }
 }

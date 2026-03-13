@@ -31,7 +31,7 @@ export class CourseService {
     return this.http.delete(`${this.api}/courses/${courseId}/chapters/${chapterId}/subchapters/${subId}`);
   }
   enroll(courseId: number): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/enroll`, {}); }
-  unenroll(courseId: number): Observable<any> { return this.http.delete(`${this.api}/courses/${courseId}/unenroll`); }
+  unenroll(courseId: number): Observable<any> { return this.http.delete(`${this.api}/courses/${courseId}/enroll`); }
   myCourses(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/my-courses`); }
   getVisitedSubs(courseId: number): Observable<number[]> {
     return this.http.get<number[]>(`${this.api}/courses/${courseId}/visited-subs`);

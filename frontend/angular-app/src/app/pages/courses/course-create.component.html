@@ -5,6 +5,31 @@
     <h1>➕ Créer un nouveau cours</h1>
     <div class="form-card">
       <form [formGroup]="form" (ngSubmit)="submit()">
+
+        <!-- IMAGE UPLOAD -->
+        <div class="field">
+          <label>Image du cours</label>
+          <div class="upload-area" *ngIf="!imagePreview">
+            <label class="upload-label" for="imgInput">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span>Cliquez pour choisir une image</span>
+              <small>PNG, JPG — max 2MB</small>
+            </label>
+            <input id="imgInput" type="file" accept="image/*" (change)="onImageSelected($event)" hidden>
+          </div>
+          <div class="img-preview" *ngIf="imagePreview">
+            <img [src]="imagePreview" alt="Preview">
+            <div class="img-overlay">
+              <span class="img-name">{{ imageName }}</span>
+              <button type="button" class="img-remove" (click)="removeImage()">✕ Supprimer</button>
+            </div>
+          </div>
+        </div>
+
         <div class="field">
           <label>Titre du cours *</label>
           <input type="text" formControlName="title" placeholder="Ex: Introduction à Python">
@@ -21,7 +46,9 @@
             <option value="avance">🔴 Avancé</option>
           </select>
         </div>
+
         <div class="error" *ngIf="error">{{ error }}</div>
+        <div style="font-size:.75rem;color:#94a3b8">Debug: {{ form.status }} — {{ form.value | json }}</div>
         <div class="success" *ngIf="success">{{ success }}</div>
         <button type="submit" [disabled]="loading || form.invalid">
           {{ loading ? 'Création...' : 'Créer le cours' }}

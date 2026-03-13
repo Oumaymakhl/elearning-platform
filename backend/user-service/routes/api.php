@@ -27,3 +27,6 @@ Route::middleware('jwt')->group(function () {
     Route::patch('/admin/users/{id}/toggle',[AdminController::class, 'toggleActive']);
     Route::get('/admin/report',             [AdminController::class, 'globalReport']);
 });
+
+// Route interne - récupérer tous les étudiants
+Route::get('/internal/students', [UserController::class, 'allStudents']);
