@@ -10,7 +10,6 @@
             <h1>📖 Gestion : {{ course.title }}</h1>
             <button class="btn-edit-course" (click)="showCourseEdit = !showCourseEdit">✏️ Modifier le cours</button>
           </div>
-          <!-- Formulaire édition cours -->
           <div class="course-edit-form" *ngIf="showCourseEdit" [formGroup]="courseForm">
             <div class="form-row">
               <label>Titre</label>
@@ -23,9 +22,9 @@
             <div class="form-row">
               <label>Niveau</label>
               <select formControlName="level">
-                <option value="debutant">🟢 Débutant</option>
-                <option value="intermediaire">🟡 Intermédiaire</option>
-                <option value="avance">🔴 Avancé</option>
+                <option value="debutant">🟢 Debutant</option>
+                <option value="intermediaire">🟡 Intermediaire</option>
+                <option value="avance">🔴 Avance</option>
               </select>
             </div>
             <div class="form-actions">
@@ -41,7 +40,6 @@
         </button>
       </div>
 
-      <!-- Formulaire nouveau chapitre -->
       <div class="form-card" *ngIf="showChapterForm">
         <h3>Nouveau chapitre</h3>
         <form [formGroup]="chapterForm" (ngSubmit)="addChapter()">
@@ -59,7 +57,6 @@
         </form>
       </div>
 
-      <!-- Liste chapitres -->
       <div class="empty" *ngIf="chapters.length === 0">Aucun chapitre. Ajoutez-en un !</div>
 
       <div class="chapter-card" *ngFor="let chapter of chapters">
@@ -76,7 +73,6 @@
           </div>
         </div>
 
-        <!-- Formulaire sous-chapitre -->
         <div class="sub-form" *ngIf="showSubForm[chapter.id]">
           <form [formGroup]="subForms[chapter.id]" (ngSubmit)="addSubChapter(chapter.id)">
             <div class="sub-fields">
@@ -86,19 +82,26 @@
               </div>
               <div class="field">
                 <label>Contenu</label>
-                <textarea formControlName="content" rows="3" placeholder="Contenu..."></textarea>
+                <app-rich-editor formControlName="content"></app-rich-editor>
               </div>
               <div class="field-check">
                 <input type="checkbox" formControlName="is_lab" id="lab-{{chapter.id}}">
                 <label for="lab-{{chapter.id}}">🔬 C'est un TD/Lab</label>
               </div>
-              <div class="field">
-                <label>🧠 Quiz lié (ID du quiz)</label>
-                <input type="number" formControlName="quiz_id" placeholder="Ex: 1 (laisser vide si aucun)">
+              <div class="field-check">
+                <input type="checkbox" id="has-quiz-{{chapter.id}}"
+                       (change)="toggleQuiz(chapter.id, $event)">
+                <label for="has-quiz-{{chapter.id}}">🧠 Lier un quiz</label>
               </div>
-              <div class="field">
-                <label>Score minimum pour débloquer le suivant (%)</label>
-                <input type="number" formControlName="passing_score" placeholder="70">
+              <div *ngIf="showQuiz[chapter.id]">
+                <div class="field">
+                  <label>ID du quiz</label>
+                  <input type="number" formControlName="quiz_id" placeholder="Ex: 1">
+                </div>
+                <div class="field">
+                  <label>Score minimum pour debloquer le suivant (%)</label>
+                  <input type="number" formControlName="passing_score" placeholder="70">
+                </div>
               </div>
               <button type="submit" [disabled]="subForms[chapter.id].invalid || saving">
                 {{ saving ? 'Ajout...' : 'Ajouter' }}
@@ -107,7 +110,6 @@
           </form>
         </div>
 
-        <!-- Liste sous-chapitres -->
         <div class="subchapters">
           <div class="subchapter" *ngFor="let sub of chapter.sub_chapters || chapter.subChapters || []">
             <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>

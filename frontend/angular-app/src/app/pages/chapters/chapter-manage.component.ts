@@ -5,11 +5,12 @@ import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
+import { RichEditorComponent } from '../../shared/rich-editor/rich-editor.component';
 
 @Component({
   selector: 'app-chapter-manage',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule],
+  imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule, RichEditorComponent],
   templateUrl: './chapter-manage.component.html',
   styleUrls: ['./chapter-manage.component.scss']
 })
@@ -22,6 +23,7 @@ export class ChapterManageComponent implements OnInit {
   chapterForm: FormGroup;
   subForms: Record<number, FormGroup> = {};
   saving = false;
+  showQuiz: Record<number, boolean> = {};
   error = '';
   showCourseEdit = false;
   courseForm!: FormGroup;
@@ -123,11 +125,18 @@ export class ChapterManageComponent implements OnInit {
     });
   }
 
+  toggleQuiz(chapterId: number, event: any): void {
+    this.showQuiz[chapterId] = event.target.checked;
+    if (!event.target.checked) {
+      this.subForms[chapterId]?.patchValue({ quiz_id: null, passing_score: 70 });
+    }
+  }
+
   saveCourse() {
     if (this.courseForm.invalid) return;
     this.savingCourse = true;
     this.courseService.updateCourse(this.course.id, this.courseForm.value).subscribe({
-      next: (updated: any) => {
+      next: () => {
         this.course = { ...this.course, ...this.courseForm.value };
         this.savingCourse = false;
         this.showCourseEdit = false;
