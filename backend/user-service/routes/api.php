@@ -30,3 +30,4 @@ Route::middleware('jwt')->group(function () {
 
 // Route interne - récupérer tous les étudiants
 Route::get('/internal/students', [UserController::class, 'allStudents']);
+Route::post('/internal/students-by-ids', [UserController::class, 'studentsByIds']);

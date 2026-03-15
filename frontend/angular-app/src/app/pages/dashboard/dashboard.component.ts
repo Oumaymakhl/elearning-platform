@@ -64,7 +64,10 @@ import { CourseService } from '../../services/course.service';
           <h2>Cours récents</h2>
           <div class="course-grid">
             <div class="course-card" *ngFor="let course of recentCourses" [routerLink]="['/courses', course.id]">
-              <div class="course-img">📘</div>
+              <div class="course-img">
+                <img *ngIf="course.image_path" [src]="course.image_path" alt="{{ course.title }}" class="course-img-photo">
+                <span *ngIf="!course.image_path">📘</span>
+              </div>
               <div class="course-info">
                 <h3>{{ course.title }}</h3>
                 <p>{{ course.description | slice:0:80 }}...</p>
@@ -108,7 +111,8 @@ import { CourseService } from '../../services/course.service';
     .course-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; }
     .course-card { background:white; border-radius:12px; overflow:hidden; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.06); transition:transform .2s; }
     .course-card:hover { transform:translateY(-2px); }
-    .course-img { height:100px; background:linear-gradient(135deg,#1E3A5F,#4A90D9); display:flex; align-items:center; justify-content:center; font-size:3rem; }
+    .course-img { height:100px; background:linear-gradient(135deg,#1E3A5F,#4A90D9); display:flex; align-items:center; justify-content:center; font-size:3rem; overflow:hidden; padding:0; }
+    .course-img-photo { width:100%; height:100%; object-fit:cover; display:block; }
     .course-info { padding:1rem; }
     .course-info h3 { margin:0 0 .5rem; color:#1E3A5F; }
     .course-info p { color:#666; font-size:.85rem; margin:0 0 .75rem; }

@@ -15,6 +15,8 @@
 .btn-enroll { background:#4361ee; color:#fff; border:none; border-radius:8px; padding:.4rem .9rem; cursor:pointer; font-size:.82rem; font-weight:600; }
 .btn-unenroll { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2); border-radius:8px; padding:.4rem .9rem; cursor:pointer; font-size:.82rem; }
 .btn-manage { background:rgba(255,255,255,.15); color:#fff; border:none; border-radius:8px; padding:.4rem .9rem; font-size:.82rem; text-decoration:none; }
+.btn-students { background:rgba(255,255,255,.25); color:#fff; border:none; border-radius:8px; padding:.4rem .9rem; font-size:.82rem; text-decoration:none; }
+.btn-students:hover { background:rgba(255,255,255,.4); }
 .btn-delete { background:#ef4444; color:#fff; border:none; border-radius:8px; padding:.4rem .9rem; cursor:pointer; font-size:.82rem; }
 .hero-stats { display:flex; gap:1.5rem; margin-top:.6rem; }
 .hero-stat { display:flex; flex-direction:column; }

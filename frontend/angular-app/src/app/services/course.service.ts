@@ -43,4 +43,5 @@ export class CourseService {
     return this.http.post(`${this.api}/courses/${courseId}/progress`, data);
   }
   getProgress(courseId: number): Observable<any> { return this.http.get(`${this.api}/courses/${courseId}/progress`); }
+  getCourseStudents(courseId: number): Observable<any[]> { return this.http.get<any[]>(`${this.api}/courses/${courseId}/students`); }
 }

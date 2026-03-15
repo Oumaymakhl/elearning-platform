@@ -86,6 +86,12 @@ class UserController extends Controller
         $user->update(["is_active" => !$user->is_active]);
         return response()->json(["is_active" => $user->is_active]);
     }
+    public function studentsByIds(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $students = User::whereIn('auth_id', $ids)->get(['auth_id', 'name', 'email', 'avatar', 'role']);
+        return response()->json($students);
+    }
     public function allStudents()
     {
         $students = User::where("role", "student")

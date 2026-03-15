@@ -17,6 +17,7 @@
             <button class="btn-enroll" *ngIf="isStudent && !enrolled" (click)="enroll()">🚀 S'inscrire gratuitement</button>
             <button class="btn-unenroll" *ngIf="isStudent && enrolled" (click)="unenroll()">Se désinscrire</button>
             <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer</a>
+            <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
           </div>
           <div class="hero-stats" *ngIf="isStudent && enrolled">
@@ -121,6 +122,13 @@
                   <option value="python">Python 3</option>
                   <option value="php">PHP 8</option>
                   <option value="node">JavaScript</option>
+                  <option value="cpp">C++</option>
+                  <option value="bash">Bash</option>
+                  <option value="c">C</option>
+                  <option value="perl">Perl</option>
+                  <option value="java">Java</option>
+                  <option value="go">Go</option>
+                  <option value="ruby">Ruby</option>
                 </select>
                 <button class="run-btn" (click)="runCode()" [disabled]="codeRunning">
                   {{ codeRunning ? "⏳..." : "▶ Exécuter" }}

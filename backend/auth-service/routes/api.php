@@ -7,6 +7,7 @@ Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 Route::post('/register',     [AuthController::class, 'register']);
 Route::post('/login',        [AuthController::class, 'login']);
 Route::get('/verify-email',  [AuthController::class, 'verifyEmail']);
+Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout',         [AuthController::class, 'logout']);

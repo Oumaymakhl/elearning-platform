@@ -49,7 +49,28 @@ class EnrollmentController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $enrollments = Enrollment::where('course_id', $courseId)->get();
-        return response()->json($enrollments);
+        // Récupérer les infos des étudiants depuis user-service
+        $userIds = $enrollments->pluck('user_id')->toArray();
+        $usersData = [];
+        try {
+            $response = Http::post('http://nginx-user/api/internal/students-by-ids', ['ids' => $userIds]);
+            $users = $response->json();
+            foreach ($users as $user) {
+                $usersData[$user['auth_id']] = $user;
+            }
+        } catch (\Exception $e) {}
+        $result = $enrollments->map(function($e) use ($usersData) {
+            return [
+                'id'         => $e->id,
+                'user_id'    => $e->user_id,
+                'course_id'  => $e->course_id,
+                'progress'   => $e->progress,
+                'status'     => $e->status,
+                'created_at' => $e->created_at,
+                'student'    => $usersData[$e->user_id] ?? ['name' => 'Étudiant #' . $e->user_id, 'email' => ''],
+            ];
+        });
+        return response()->json($result);
     }
 
     public function unenroll(Request $request, $courseId) {

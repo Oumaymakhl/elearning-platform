@@ -33,12 +33,12 @@ class AuthController extends Controller
             'email'              => $request->email,
             'password'           => Hash::make($request->password),
             'role'               => $request->role ?? 'student',
-            'remember_token'     => $verificationToken,
+            'verification_token' => $verificationToken,
             'email_verified_at'  => null,
         ]);
 
         // Envoyer email de vérification
-        $verificationUrl = config('app.url') . '/api/verify-email?token=' . $verificationToken;
+        $verificationUrl = 'http://localhost:4200/verify-email?token=' . $verificationToken;
         \Mail::to($user->email)->send(new \App\Mail\VerificationEmail($verificationUrl, $user->name));
 
         return response()->json([
@@ -90,8 +90,8 @@ class AuthController extends Controller
 
     public function verifyEmail(Request $request)
     {
-        $token = $request->query('token');
-        $user = User::where('remember_token', $token)
+        $token = $request->query('token') ?? $request->input('token');
+        $user = User::where('verification_token', $token)
             ->whereNull('email_verified_at')
             ->first();
 
@@ -101,7 +101,7 @@ class AuthController extends Controller
 
         $user->forceFill([
             'email_verified_at' => now(),
-            'remember_token'    => null,
+            'verification_token' => null,
         ])->save();
 
         return response()->json(['message' => 'Email verified successfully']);

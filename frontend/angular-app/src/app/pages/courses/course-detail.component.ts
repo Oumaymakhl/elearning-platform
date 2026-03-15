@@ -35,7 +35,14 @@ export class CourseDetailComponent implements OnInit {
   starterCodes: Record<string, string> = {
     python: '# Écrivez votre code ici\nprint("Hello, World!")',
     php: '// Écrivez votre code ici\necho "Hello, World!";',
-    node: '// Écrivez votre code ici\nconsole.log("Hello, World!")'
+    node: '// Écrivez votre code ici\nconsole.log("Hello, World!")',
+    cpp: '// C++\n#include <iostream>\nusing namespace std;\nint main() {\n    cout << "Hello, World!" << endl;\n    return 0;\n}',
+    bash: '#!/bin/bash\necho "Hello, World!"',
+    c: '// C\n#include <stdio.h>\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}',
+    perl: '# Perl\nprint "Hello, World!\\n";',
+    java: '// Java\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}',
+    go:   '// Go\npackage main\nimport "fmt"\nfunc main() {\n    fmt.Println("Hello, World!")\n}',
+    ruby: '# Ruby\nputs "Hello, World!"'
   };
 
   constructor(private route: ActivatedRoute, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient) {}
