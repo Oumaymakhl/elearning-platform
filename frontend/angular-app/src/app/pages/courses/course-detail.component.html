@@ -18,6 +18,7 @@
             <button class="btn-unenroll" *ngIf="isStudent && enrolled" (click)="unenroll()">Se désinscrire</button>
             <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer</a>
             <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
+            <a [routerLink]="['/courses', course.id, 'certificate']" class="btn-cert" *ngIf="isStudent && enrolled">🏆 Mon Certificat</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
           </div>
           <div class="hero-stats" *ngIf="isStudent && enrolled">
@@ -79,7 +80,7 @@
                 [class.active-sub]="activeSubChapter?.id === sub.id"
                 (click)="openSubChapter(sub, i, chapter.sub_chapters || [])">
                 <div class="sub-info">
-                  <span class="sub-icon">{{ sub.is_lab ? '🔬' : '📄' }}</span>
+                  <span class="sub-icon">{{ sub.is_lab ? (completedLabs.has(sub.exercise_id) ? '✅' : '🔬') : '📄' }}</span>
                   <span class="sub-title">{{ sub.title }}</span>
                   <span class="quiz-badge" *ngIf="sub.quiz_id">🧠 Quiz</span>
                 </div>

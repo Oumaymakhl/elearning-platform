@@ -270,6 +270,8 @@ services:
     networks:
       - elearning-network
     restart: unless-stopped
+    command: >
+      sh -c "chmod 777 /tmp/executor && docker-php-entrypoint php-fpm" 
 
   nginx-executor:
     image: nginx:alpine

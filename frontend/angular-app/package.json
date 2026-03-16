@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:angular-app": "node dist/angular-app/server/server.mjs"
+    "serve:ssr:angular-app": "node dist/angular-app/server/server.mjs",
+    "prestart": "sudo chmod 777 /tmp/executor && sudo mkdir -p /tmp/go-cache /tmp/gopath && sudo chmod 777 /tmp/go-cache /tmp/gopath"
   },
   "private": true,
   "dependencies": {

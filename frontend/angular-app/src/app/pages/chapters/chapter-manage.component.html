@@ -113,6 +113,7 @@
         <div class="subchapters">
           <div class="subchapter" *ngFor="let sub of chapter.sub_chapters || chapter.subChapters || []">
             <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>
+              <a *ngIf="sub.is_lab" [routerLink]="['/courses', course.id, 'td', sub.id]" class="btn-td">⚙️ TD</a>
             <button class="btn-del-sm" (click)="deleteSubChapter(chapter.id, sub.id)">🗑️</button>
           </div>
           <div class="no-sub" *ngIf="!(chapter.subChapters?.length || chapter.sub_chapters?.length)">

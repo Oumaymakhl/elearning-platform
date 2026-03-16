@@ -13,6 +13,8 @@ export const routes: Routes = [
   { path: 'courses/:id', loadComponent: () => import('./pages/courses/course-detail.component').then(m => m.CourseDetailComponent), canActivate: [authGuard] },
   { path: 'courses/:id/manage', loadComponent: () => import('./pages/chapters/chapter-manage.component').then(m => m.ChapterManageComponent), canActivate: [authGuard] },
   { path: 'verify-email', loadComponent: () => import('./pages/auth/verify-email.component').then(m => m.VerifyEmailComponent) },
+  { path: 'courses/:courseId/td/:subId', loadComponent: () => import('./pages/td/td-manage.component').then(m => m.TdManageComponent), canActivate: [authGuard] },
+  { path: 'courses/:id/certificate', loadComponent: () => import('./pages/certificate/certificate.component').then(m => m.CertificateComponent), canActivate: [authGuard] },
   { path: 'students', loadComponent: () => import('./pages/students/students.component').then(m => m.StudentsComponent), canActivate: [authGuard] },
   { path: 'courses/:id/students', loadComponent: () => import('./pages/courses/course-students.component').then(m => m.CourseStudentsComponent), canActivate: [authGuard] },
   { path: 'quiz/:id', loadComponent: () => import('./pages/quiz/quiz.component').then(m => m.QuizComponent), canActivate: [authGuard] },

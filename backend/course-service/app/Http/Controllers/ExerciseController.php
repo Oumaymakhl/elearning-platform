@@ -182,6 +182,7 @@ class ExerciseController extends Controller
             'tests_total'  => $testsTotal,
             'passed'       => $passed,
             'score'        => $score,
+            'max_score'    => $question->points,
             'error'        => $globalError,
             'executed_at'  => now(),
         ]);

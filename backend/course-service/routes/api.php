@@ -6,6 +6,7 @@ use App\Http\Controllers\SubChapterController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ExerciseController;
+use App\Http\Controllers\CertificateController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
@@ -79,6 +80,11 @@ Route::middleware("jwt")->group(function () {
             ->pluck('sub_chapter_id');
         return response()->json($ids);
     });
+    // Certificats
+    Route::get('/certificates', [CertificateController::class, 'myCertificates']);
+    Route::get('/courses/{courseId}/certificate', [CertificateController::class, 'get']);
+    Route::post('/courses/{courseId}/certificate/check', [CertificateController::class, 'check']);
+
     Route::post('/courses/{courseId}/visited-subs/{subId}', function($courseId, $subId) {
         $userId = request()->auth_user_id;
         \DB::table('visited_sub_chapters')->insertOrIgnore([

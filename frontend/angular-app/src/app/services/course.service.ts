@@ -44,4 +44,15 @@ export class CourseService {
   }
   getProgress(courseId: number): Observable<any> { return this.http.get(`${this.api}/courses/${courseId}/progress`); }
   getCourseStudents(courseId: number): Observable<any[]> { return this.http.get<any[]>(`${this.api}/courses/${courseId}/students`); }
+  checkCertificate(courseId: number): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/certificate/check`, {}); }
+  getCertificate(courseId: number): Observable<any> { return this.http.get(`${this.api}/courses/${courseId}/certificate`); }
+  getMyCertificates(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/certificates`); }
+  createExercise(data: any): Observable<any> { return this.http.post(`${this.api}/exercises`, data); }
+  updateExercise(id: number, data: any): Observable<any> { return this.http.put(`${this.api}/exercises/${id}`, data); }
+  deleteExercise(id: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${id}`); }
+  getExercise(id: number): Observable<any> { return this.http.get(`${this.api}/exercises/${id}`); }
+  createQuestion(exerciseId: number, data: any): Observable<any> { return this.http.post(`${this.api}/exercises/${exerciseId}/questions`, data); }
+  deleteQuestion(exerciseId: number, questionId: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${exerciseId}/questions/${questionId}`); }
+  createTestCase(exerciseId: number, questionId: number, data: any): Observable<any> { return this.http.post(`${this.api}/exercises/${exerciseId}/questions/${questionId}/test-cases`, data); }
+  deleteTestCase(exerciseId: number, questionId: number, testCaseId: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${exerciseId}/questions/${questionId}/test-cases/${testCaseId}`); }
 }

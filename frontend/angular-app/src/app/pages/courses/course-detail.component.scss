@@ -99,3 +99,6 @@
 .clear-output:hover { color:#8a9bbf; }
 .output-text { color:#e2e8f0; font-family:monospace; font-size:.79rem; line-height:1.5; padding:.4rem .9rem; margin:0; white-space:pre-wrap; word-break:break-word; }
 .output-placeholder { display:block; color:#4a5568; font-size:.79rem; font-style:italic; padding:.4rem .9rem; }
+
+.btn-cert { background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:8px; padding:.4rem .9rem; font-size:.82rem; text-decoration:none; font-weight:600; }
+.btn-cert:hover { opacity:.9; }

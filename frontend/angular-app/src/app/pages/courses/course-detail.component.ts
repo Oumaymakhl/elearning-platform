@@ -66,6 +66,7 @@ export class CourseDetailComponent implements OnInit {
               }
               this.visitedSubs.clear();
               this.loadQuizScores();
+              this.loadCompletedLabs();
               // Charger visited-subs puis ouvrir sous-chapitre
               this.courseService.getVisitedSubs(this.course.id).subscribe({
                 next: (ids: number[]) => {
@@ -111,8 +112,28 @@ export class CourseDetailComponent implements OnInit {
   activeSubChapter: any = null;
   chaptersCollapsed = false;
   visitedSubs: Set<number> = new Set();
+  completedLabs: Set<number> = new Set();
   activeSubIndex: number = -1;
   allSubChapters: any[] = []; // liste plate de tous les sous-chapitres
+
+  loadCompletedLabs() {
+    const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : "";
+    const headers = new HttpHeaders({ Authorization: `Bearer \${token}` });
+    for (const chapter of this.chapters) {
+      for (const sub of chapter.sub_chapters || []) {
+        if (sub.is_lab && sub.exercise_id) {
+          this.http.get<any>(`http://localhost:8002/api/exercises/${sub.exercise_id}/my-submissions`, { headers }).subscribe({
+            next: (res) => {
+              const passed = (res.best || []).some((s: any) => s.passed);
+              console.log('Lab check', sub.exercise_id, passed, res);
+              if (passed) this.completedLabs.add(sub.exercise_id);
+            },
+            error: () => {}
+          });
+        }
+      }
+    }
+  }
 
   loadQuizScores() {
     const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : "";
@@ -259,7 +280,13 @@ export class CourseDetailComponent implements OnInit {
       error: () => {}
     });
     if (sub.is_lab && sub.exercise_id) {
-      this.router.navigate(['/exercise', sub.exercise_id]);
+      // Bloquer si TD déjà réussi
+      if (this.completedLabs.has(sub.exercise_id)) return;
+      const allSubs = this.getAllSubs();
+      const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
+      this.router.navigate(['/exercise', sub.exercise_id], {
+        queryParams: { course_id: this.course.id, sub_index: subIdx }
+      });
     } else if (sub.quiz_id) {
       const allSubs = this.getAllSubs();
       const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
