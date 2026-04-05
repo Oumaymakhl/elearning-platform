@@ -38,6 +38,7 @@ class SubChapterController extends Controller {
             'is_lab'        => 'nullable|boolean',
             'quiz_id'       => 'nullable|integer',
             'passing_score' => 'nullable|integer|min:0|max:100',
+            'exercise_id'   => 'nullable|integer',
         ]);
         $sub->update($data);
         return response()->json($sub);

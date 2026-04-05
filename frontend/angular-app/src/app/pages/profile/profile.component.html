@@ -1,26 +1,66 @@
 <div class="layout">
   <app-sidebar></app-sidebar>
-
+ 
   <main class="main">
     <div class="loading" *ngIf="!user">Chargement...</div>
+ 
     <ng-container *ngIf="user">
-
+ 
       <!-- Success -->
       <div class="alert-success" *ngIf="success">✅ Profil mis à jour avec succès !</div>
-
-      <!-- Profile Header -->
+ 
+      <!-- Profile Hero -->
       <div class="profile-hero">
-        <div class="avatar-circle">{{ getInitials() }}</div>
+ 
+        <!-- Avatar -->
+        <div class="avatar-section">
+          <!-- Avatar affiché -->
+          <div class="avatar-wrapper">
+            <img *ngIf="user.avatar_url && !avatarPreview"
+                 [src]="user.avatar_url"
+                 class="avatar-img"
+                 alt="Avatar">
+            <img *ngIf="avatarPreview"
+                 [src]="avatarPreview"
+                 class="avatar-img"
+                 alt="Aperçu">
+            <div class="avatar-initials" *ngIf="!user.avatar_url && !avatarPreview">
+              {{ getInitials() }}
+            </div>
+            <!-- Overlay bouton changer -->
+            <label class="avatar-overlay" for="avatar-input" title="Changer la photo">
+              📷
+            </label>
+          </div>
+          <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp"
+                 (change)="onAvatarSelected($event)" style="display:none">
+ 
+          <!-- Erreur avatar -->
+          <p class="avatar-error" *ngIf="avatarError">⚠️ {{ avatarError }}</p>
+ 
+          <!-- Boutons preview -->
+          <div class="avatar-preview-actions" *ngIf="avatarPreview">
+            <button class="btn-upload" (click)="uploadAvatar()" [disabled]="uploadingAvatar">
+              {{ uploadingAvatar ? '⏳ Upload...' : '✅ Valider' }}
+            </button>
+            <button class="btn-cancel-avatar" (click)="cancelAvatarPreview()">✕ Annuler</button>
+          </div>
+        </div>
+ 
+        <!-- Infos hero -->
         <div class="profile-info">
           <h1>{{ user.name }}</h1>
           <span class="role-badge">{{ getRoleLabel() }}</span>
           <p class="email">📧 {{ user.email }}</p>
+          <p class="bio-preview" *ngIf="user.bio && !editMode">{{ user.bio }}</p>
+          <p class="speciality-preview" *ngIf="user.speciality && !editMode">🎯 {{ user.speciality }}</p>
         </div>
+ 
         <button class="btn-edit" (click)="editMode = !editMode">
           {{ editMode ? '✕ Annuler' : '✏️ Modifier' }}
         </button>
       </div>
-
+ 
       <!-- Edit Form -->
       <div class="profile-card" *ngIf="editMode">
         <h2>✏️ Modifier le profil</h2>
@@ -30,7 +70,8 @@
         </div>
         <div class="field">
           <label>Bio</label>
-          <textarea [(ngModel)]="form.bio" placeholder="Parlez de vous..." rows="3"></textarea>
+          <textarea [(ngModel)]="form.bio" placeholder="Parlez de vous..." rows="4"></textarea>
+          <span class="char-count">{{ (form.bio || '').length }}/1000</span>
         </div>
         <div class="field" *ngIf="user.role === 'teacher'">
           <label>Spécialité</label>
@@ -40,7 +81,7 @@
           {{ saving ? 'Sauvegarde...' : '💾 Sauvegarder' }}
         </button>
       </div>
-
+ 
       <!-- Profile Details -->
       <div class="profile-card" *ngIf="!editMode">
         <h2>📋 Informations</h2>
@@ -69,7 +110,7 @@
           <span class="info-value">{{ user.created_at | date:'dd/MM/yyyy' }}</span>
         </div>
       </div>
-
+ 
     </ng-container>
   </main>
 </div>

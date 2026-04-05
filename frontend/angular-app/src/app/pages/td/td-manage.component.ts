@@ -49,7 +49,7 @@ import { CourseService } from '../../services/course.service';
                 </select>
               </div>
               <button type="submit" [disabled]="exerciseForm.invalid || saving">
-                {{ saving ? 'Création...' : '✅ Créer l\'exercice' }}
+                {{ saving ? 'Création...' : '✅ Créer exercice' }}
               </button>
             </form>
           </div>
@@ -88,8 +88,8 @@ import { CourseService } from '../../services/course.service';
                   </div>
                   <div class="field">
                     <label>Code template (optionnel)</label>
-                    <textarea formControlName="template_code" rows="4" placeholder="def add(a, b):&#10;    {{marque}}&#10;print(add(2, 3))"></textarea>
-                    <small>Utilisez {{marque}} pour indiquer où l'étudiant écrit son code</small>
+                    <textarea formControlName="template_code" rows="4" placeholder="def add(a, b):&#10;    __MARQUE__&#10;print(add(2, 3))"></textarea>
+                    <small>Utilisez __MARQUE__ pour indiquer où l'étudiant écrit son code</small>
                   </div>
                   <div class="field">
                     <label>Points</label>

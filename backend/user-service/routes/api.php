@@ -14,6 +14,7 @@ Route::middleware('jwt')->group(function () {
     // Profil personnel
     Route::get('/me',  [UserController::class, 'me']);
     Route::put('/me',  [UserController::class, 'updateMe']);
+    Route::post('/me/avatar', [UserController::class, 'uploadAvatar']);
 
     // Sync inter-services
     Route::post('/users/sync', [UserController::class, 'sync']);

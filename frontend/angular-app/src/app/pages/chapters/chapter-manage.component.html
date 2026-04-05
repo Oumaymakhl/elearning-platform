@@ -69,6 +69,7 @@
             <button class="btn-add-sub" (click)="showSubForm[chapter.id] = !showSubForm[chapter.id]">
               {{ showSubForm[chapter.id] ? 'Annuler' : '+ Sous-chapitre' }}
             </button>
+            <a [routerLink]="['/quiz-manage', course.id, chapter.id]" class="btn-quiz">🧠 Quiz</a>
             <button class="btn-del" (click)="deleteChapter(chapter.id)">🗑️</button>
           </div>
         </div>
@@ -88,21 +89,10 @@
                 <input type="checkbox" formControlName="is_lab" id="lab-{{chapter.id}}">
                 <label for="lab-{{chapter.id}}">🔬 C'est un TD/Lab</label>
               </div>
-              <div class="field-check">
-                <input type="checkbox" id="has-quiz-{{chapter.id}}"
-                       (change)="toggleQuiz(chapter.id, $event)">
-                <label for="has-quiz-{{chapter.id}}">🧠 Lier un quiz</label>
-              </div>
-              <div *ngIf="showQuiz[chapter.id]">
-                <div class="field">
-                  <label>ID du quiz</label>
-                  <input type="number" formControlName="quiz_id" placeholder="Ex: 1">
-                </div>
                 <div class="field">
                   <label>Score minimum pour debloquer le suivant (%)</label>
                   <input type="number" formControlName="passing_score" placeholder="70">
                 </div>
-              </div>
               <button type="submit" [disabled]="subForms[chapter.id].invalid || saving">
                 {{ saving ? 'Ajout...' : 'Ajouter' }}
               </button>

@@ -17,6 +17,7 @@ export const routes: Routes = [
   { path: 'courses/:id/certificate', loadComponent: () => import('./pages/certificate/certificate.component').then(m => m.CertificateComponent), canActivate: [authGuard] },
   { path: 'students', loadComponent: () => import('./pages/students/students.component').then(m => m.StudentsComponent), canActivate: [authGuard] },
   { path: 'courses/:id/students', loadComponent: () => import('./pages/courses/course-students.component').then(m => m.CourseStudentsComponent), canActivate: [authGuard] },
+  { path: 'quiz-manage/:courseId/:chapterId', loadComponent: () => import('./pages/quiz-manage/quiz-manage.component').then(m => m.QuizManageComponent), canActivate: [authGuard] },
   { path: 'quiz/:id', loadComponent: () => import('./pages/quiz/quiz.component').then(m => m.QuizComponent), canActivate: [authGuard] },
   { path: 'exercise/:id', loadComponent: () => import('./pages/exercise/exercise.component').then(m => m.ExerciseComponent), canActivate: [authGuard] },
   { path: 'admin', loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent), canActivate: [authGuard] },

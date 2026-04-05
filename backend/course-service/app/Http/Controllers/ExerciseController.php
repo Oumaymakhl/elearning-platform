@@ -128,7 +128,7 @@ class ExerciseController extends Controller
 
         foreach ($testCases as $tc) {
             $finalCode = $question->template_code
-                ? str_replace('{{marque}}', $data['code'], $question->template_code)
+                ? str_replace('__MARQUE__', $data['code'], $question->template_code)
                 : $data['code'];
 
             try {

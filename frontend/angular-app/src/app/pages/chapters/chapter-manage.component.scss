@@ -59,3 +59,5 @@ input[type=text],textarea,select{width:100%;padding:.65rem;border:1px solid #ddd
 .btn-save:disabled { opacity:.5; cursor:not-allowed; }
 .btn-cancel { background:#f0f4ff; color:#4361ee; border:1px solid #d5dcf9; border-radius:8px; padding:.4rem 1rem; cursor:pointer; font-size:.85rem; }
 .btn-td { background:#e8f0fe; color:#1E3A5F; padding:.2rem .6rem; border-radius:6px; text-decoration:none; font-size:.75rem; font-weight:600; margin-left:.5rem; }
+.btn-quiz{padding:.4rem .85rem;background:#7C3AED;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;}
+.btn-quiz:hover{background:#6D28D9;}
