@@ -12,7 +12,14 @@
       <!-- Hero compact -->
       <div class="course-hero">
         <div class="hero-left">
-          <h1>{{ course.title }}</h1>
+          <div class="course-title-row">
+            <h1>{{ course.title }}</h1>
+            <div class="course-rating-badge" *ngIf="courseRating">
+              <span class="cr-star">★</span>
+              <span class="cr-avg">{{ courseRating.average }}</span>
+              <span class="cr-count">({{ courseRating.count }} avis)</span>
+            </div>
+          </div>
           <p>{{ course.description }}</p>
           <div class="hero-actions">
             <button class="btn-enroll" *ngIf="isStudent && !enrolled" (click)="enroll()">🚀 S'inscrire gratuitement</button>
@@ -21,6 +28,9 @@
             <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
             <a [routerLink]="['/courses', course.id, 'certificate']" class="btn-cert" *ngIf="isStudent && enrolled">🏆 Mon Certificat</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
+            <button class="btn-chat" *ngIf="enrolled" (click)="showChat = !showChat">
+              🤖 {{ showChat ? 'Fermer assistant' : 'Assistant IA' }}
+            </button>
           </div>
         </div>
         <div class="hero-right" *ngIf="isStudent && enrolled">
@@ -148,6 +158,30 @@
           [isEnrolled]="enrolled"
           (ratingChanged)="onRatingChanged($event)">
         </app-star-rating>
+      </div>
+
+      <!-- Mini chat contextuel -->
+      <div class="mini-chat" *ngIf="showChat && enrolled">
+        <div class="mc-header">
+          <span>🤖 Assistant — {{ activeSubChapter ? activeSubChapter.title : course.title }}</span>
+          <button (click)="showChat = false">✕</button>
+        </div>
+        <div class="mc-messages" #mcMessages>
+          <div class="mc-welcome" *ngIf="chatMessages.length === 0">
+            <p>Bonjour ! Je connais le contenu de ce cours.</p>
+            <p *ngIf="activeSubChapter">Je suis sur la leçon <strong>{{ activeSubChapter.title }}</strong>.</p>
+            <p *ngIf="!activeSubChapter">Sélectionnez une leçon pour que je puisse vous aider sur son contenu.</p>
+          </div>
+          <div *ngFor="let m of chatMessages" class="mc-msg" [class.user]="m.role === 'user'">
+            <span class="mc-bubble">{{ m.content }}</span>
+          </div>
+          <div class="mc-typing" *ngIf="chatLoading"><span></span><span></span><span></span></div>
+        </div>
+        <div class="mc-input">
+          <input [(ngModel)]="chatMessage" placeholder="Posez une question sur ce cours..."
+            (keydown.enter)="sendChatMessage()" [disabled]="chatLoading">
+          <button (click)="sendChatMessage()" [disabled]="chatLoading || !chatMessage.trim()">➤</button>
+        </div>
       </div>
 
     </ng-container>

@@ -47,7 +47,14 @@
         </div>
 
         <div class="card-body">
-          <h3>{{ course.title }}</h3>
+          <div class="card-title-row">
+            <h3>{{ course.title }}</h3>
+            <div class="card-stars-inline" *ngIf="ratingsMap[course.id] && ratingsMap[course.id].count > 0">
+              <span class="csi-star">★</span>
+              <span class="csi-avg">{{ ratingsMap[course.id].average | number:'1.1-1' }}</span>
+              <span class="csi-count">({{ ratingsMap[course.id].count }})</span>
+            </div>
+          </div>
           <p>{{ (course.description || '').slice(0, 80) }}{{ course.description?.length > 80 ? '...' : '' }}</p>
           <div class="card-footer">
             <span class="lang-tag">🌐 {{ course.language || 'FR' }}</span>

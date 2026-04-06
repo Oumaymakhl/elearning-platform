@@ -19,8 +19,13 @@ class RatingController extends Controller
         ]);
         DB::table('ratings')->updateOrInsert(
             ['course_id' => $courseId, 'user_id' => $userId],
-            ['stars' => $validated['stars'], 'comment' => $validated['comment'] ?? null,
-             'updated_at' => now(), 'created_at' => now()]
+            [
+                'stars'     => $validated['stars'],
+                'comment'   => $validated['comment'] ?? null,
+                'user_name' => $request->auth_user_name ?? 'Étudiant',
+                'updated_at'=> now(),
+                'created_at'=> now(),
+            ]
         );
         return response()->json(['message' => 'Note enregistrée.']);
     }
@@ -46,13 +51,16 @@ class RatingController extends Controller
         $dist = [1=>0,2=>0,3=>0,4=>0,5=>0];
         foreach ($ratings as $r) { $dist[$r->stars]++; }
         $comments = DB::table('ratings')
-            ->where('course_id', $courseId)->whereNotNull('comment')
-            ->orderByDesc('updated_at')->limit(10)->get(['stars','comment','updated_at']);
+            ->where('course_id', $courseId)
+            ->whereNotNull('comment')
+            ->orderByDesc('updated_at')
+            ->limit(10)
+            ->get(['stars', 'comment', 'updated_at', 'user_name']);
         return response()->json([
-            'average' => round($ratings->avg('stars'), 1),
-            'count'   => $ratings->count(),
+            'average'      => round($ratings->avg('stars'), 1),
+            'count'        => $ratings->count(),
             'distribution' => $dist,
-            'comments' => $comments,
+            'comments'     => $comments,
         ]);
     }
 

@@ -378,3 +378,88 @@
 .lesson-placeholder h3 { color: #2d3a52 !important; font-size: 1.1rem !important; }
 .lesson-placeholder p { color: #8a9bbf !important; }
 .placeholder-icon { font-size: 3rem !important; margin-bottom: .8rem; }
+
+.course-title-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: .2rem; }
+.course-title-row h1 { margin: 0 !important; }
+.course-rating-badge {
+  display: inline-flex; align-items: center; gap: .3rem;
+  background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 20px; padding: .25rem .75rem; flex-shrink: 0;
+}
+.cr-star { color: #f59e0b; font-size: 1rem; }
+.cr-avg { font-size: .9rem; font-weight: 700; color: #fff; }
+.cr-count { font-size: .78rem; color: rgba(255,255,255,.65); }
+
+/* ── Bouton assistant ── */
+.btn-chat {
+  padding: .5rem 1rem;
+  background: linear-gradient(135deg, #7b5ea7, #4361ee);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: .85rem; font-weight: 600; cursor: pointer;
+  transition: opacity .2s;
+}
+.btn-chat:hover { opacity: .88; }
+
+/* ── Mini chat flottant ── */
+.mini-chat {
+  position: fixed;
+  bottom: 1.5rem; right: 1.5rem;
+  width: 360px; height: 480px;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #e8ecf3;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  display: flex; flex-direction: column;
+  z-index: 1000;
+  overflow: hidden;
+}
+.mc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: .8rem 1rem;
+  background: linear-gradient(135deg, #4361ee, #7b5ea7);
+  color: #fff; font-size: .85rem; font-weight: 600; flex-shrink: 0;
+}
+.mc-header button {
+  background: rgba(255,255,255,.2); border: none; color: #fff;
+  border-radius: 6px; padding: .2rem .5rem; cursor: pointer; font-size: .85rem;
+}
+.mc-messages {
+  flex: 1; overflow-y: auto; padding: 1rem;
+  display: flex; flex-direction: column; gap: .6rem;
+}
+.mc-welcome { text-align: center; color: #8a9bbf; font-size: .82rem; padding: .5rem; }
+.mc-welcome p { margin: .3rem 0; }
+.mc-msg { display: flex; }
+.mc-msg.user { justify-content: flex-end; }
+.mc-bubble {
+  max-width: 80%; padding: .6rem .9rem;
+  background: #f0f4ff; border-radius: 12px;
+  font-size: .83rem; color: #1a2340; line-height: 1.5;
+  white-space: pre-wrap;
+}
+.mc-msg.user .mc-bubble {
+  background: linear-gradient(135deg, #4361ee, #7b5ea7);
+  color: #fff;
+}
+.mc-typing { display: flex; gap: 4px; padding: .4rem; }
+.mc-typing span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4361ee; animation: bounce .8s infinite;
+}
+.mc-typing span:nth-child(2) { animation-delay: .15s; }
+.mc-typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,80%,100%{transform:scale(0.6)} 40%{transform:scale(1)} }
+.mc-input {
+  display: flex; gap: .5rem; padding: .8rem;
+  border-top: 1px solid #e8ecf3; flex-shrink: 0;
+}
+.mc-input input {
+  flex: 1; border: 1px solid #e8ecf3; border-radius: 8px;
+  padding: .5rem .8rem; font-size: .83rem; outline: none;
+}
+.mc-input input:focus { border-color: #4361ee; }
+.mc-input button {
+  background: #4361ee; color: #fff; border: none;
+  border-radius: 8px; padding: .5rem .8rem; cursor: pointer; font-size: .9rem;
+}
+.mc-input button:disabled { opacity: .5; cursor: not-allowed; }

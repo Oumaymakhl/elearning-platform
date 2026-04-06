@@ -6,7 +6,7 @@ export interface RatingStats {
   average: number | null;
   count: number;
   distribution: { [key: number]: number };
-  comments: { stars: number; comment: string; updated_at: string }[];
+  comments: { stars: number; comment: string; updated_at: string; user_name: string }[];
 }
 
 @Injectable({ providedIn: 'root' })

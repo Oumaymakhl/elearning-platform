@@ -77,3 +77,26 @@ nav{flex:1;padding:1.25rem 0}
 }
 .card-stars span { font-size: 14px; line-height: 1; }
 .card-rating-text { font-size: 12px; color: #6b7280; }
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.card-title-row h3 { margin: 0; }
+.card-stars-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: 20px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.csi-star { color: #f59e0b; font-size: 13px; }
+.csi-avg { font-size: 12px; font-weight: 700; color: #92400e; }
+.csi-count { font-size: 11px; color: #b45309; }

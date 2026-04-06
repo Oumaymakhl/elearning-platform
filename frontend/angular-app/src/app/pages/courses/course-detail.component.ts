@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ChatService, ChatContext } from '../../services/chat.service';
+import { RatingService } from '../../services/rating.service';
 import { StarRatingComponent } from '../../shared/star-rating/star-rating.component';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +22,11 @@ export class CourseDetailComponent implements OnInit {
   course: any;
   chapters: any[] = [];
   enrolled = false;
+  courseRating: { average: number | null; count: number } | null = null;
+  showChat = false;
+  chatMessage = "";
+  chatMessages: { role: string; content: string }[] = [];
+  chatLoading = false;
   progress: any;
 
   get isStudent() { return this.auth.isStudent(); }
@@ -46,7 +53,7 @@ export class CourseDetailComponent implements OnInit {
     ruby: '# Ruby\nputs "Hello, World!"'
   };
 
-  constructor(private route: ActivatedRoute, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient) {}
+  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -408,6 +415,33 @@ export class CourseDetailComponent implements OnInit {
 
   saveVisitedSubs() {} // No-op, DB est source de vérité
 
+
+  getChatContext(): ChatContext {
+    return {
+      course_title: this.course?.title,
+      lesson_title: this.activeSubChapter?.title,
+      lesson_content: this.activeSubChapter?.content,
+    };
+  }
+
+  sendChatMessage() {
+    const msg = this.chatMessage.trim();
+    if (!msg || this.chatLoading) return;
+    this.chatMessage = "";
+    this.chatLoading = true;
+    this.chatMessages.push({ role: "user", content: msg });
+    const history = this.chatMessages.slice(0, -1).map(m => ({ role: m.role, content: m.content }));
+    this.chatService.sendMessage(msg, null, this.getChatContext()).subscribe({
+      next: (res: any) => {
+        this.chatMessages.push({ role: "assistant", content: res.reply });
+        this.chatLoading = false;
+      },
+      error: () => {
+        this.chatMessages.push({ role: "assistant", content: "Erreur de connexion." });
+        this.chatLoading = false;
+      }
+    });
+  }
 
   onRatingChanged(stars: number) {
     console.log("Note mise a jour:", stars);

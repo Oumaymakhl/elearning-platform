@@ -3,10 +3,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotificationController extends Controller
 {
-    // Envoi interne (appelé par les autres services)
     public function send(Request $request)
     {
         $data = $request->validate([
@@ -24,7 +24,57 @@ class NotificationController extends Controller
         return response()->json($notification, 201);
     }
 
-    // Mes notifications
+    public function stream(Request $request): StreamedResponse
+    {
+        $userId = (int) $request->auth_user_id;
+        $lastId = (int) ($request->query('lastId', 0));
+
+        return response()->stream(function () use ($userId, $lastId) {
+            // Headers SSE
+            echo "retry: 3000\n\n";
+            ob_flush(); flush();
+
+            $maxTime = 25;
+            $start   = time();
+
+            while ((time() - $start) < $maxTime) {
+                $notifications = Notification::where('user_id', $userId)
+                    ->where('id', '>', $lastId)
+                    ->orderBy('id', 'asc')
+                    ->get();
+
+                if ($notifications->isNotEmpty()) {
+                    foreach ($notifications as $n) {
+                        $payload = json_encode([
+                            'id'         => $n->id,
+                            'type'       => $n->type,
+                            'data'       => json_decode($n->data, true),
+                            'read_at'    => $n->read_at,
+                            'created_at' => $n->created_at,
+                        ]);
+                        echo "id: {$n->id}\n";
+                        echo "data: {$payload}\n\n";
+                        $lastId = $n->id;
+                    }
+                    ob_flush(); flush();
+                } else {
+                    // Heartbeat
+                    echo ": ping\n\n";
+                    ob_flush(); flush();
+                }
+
+                sleep(3);
+
+                if (connection_aborted()) break;
+            }
+        }, 200, [
+            'Content-Type'      => 'text/event-stream',
+            'Cache-Control'     => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+            'Connection'        => 'keep-alive',
+        ]);
+    }
+
     public function index(Request $request)
     {
         $notifications = Notification::where('user_id', (int) $request->auth_user_id)
@@ -33,7 +83,6 @@ class NotificationController extends Controller
         return response()->json($notifications);
     }
 
-    // Marquer comme lu
     public function markAsRead(Request $request, $id)
     {
         $notification = Notification::findOrFail($id);
@@ -44,7 +93,6 @@ class NotificationController extends Controller
         return response()->json(['message' => 'Marked as read']);
     }
 
-    // Marquer tout comme lu
     public function markAllAsRead(Request $request)
     {
         Notification::where('user_id', (int) $request->auth_user_id)
@@ -53,7 +101,6 @@ class NotificationController extends Controller
         return response()->json(['message' => 'All marked as read']);
     }
 
-    // Nombre non lus
     public function unreadCount(Request $request)
     {
         $count = Notification::where('user_id', (int) $request->auth_user_id)
