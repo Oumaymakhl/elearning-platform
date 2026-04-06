@@ -8,6 +8,7 @@ use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
@@ -99,4 +100,8 @@ Route::middleware("jwt")->group(function () {
         ]);
         return response()->json(['ok' => true]);
     });
+ 
+    // Analytics
+    Route::get('/analytics/teacher',            [AnalyticsController::class, 'teacherStats']);
+    Route::get('/analytics/courses/{courseId}', [AnalyticsController::class, 'courseStats']);
 });
