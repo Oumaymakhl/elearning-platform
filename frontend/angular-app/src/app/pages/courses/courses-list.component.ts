@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { RatingService, RatingStats } from '../../services/rating.service';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -20,12 +21,13 @@ export class CoursesListComponent implements OnInit {
   selectedLevel = '';
   search = '';
   loading = true;
+  ratingsMap: { [key: number]: { average: number | null; count: number } } = {};
 
   get isStudent() { return this.auth.isStudent(); }
   get isTeacher() { return this.auth.isTeacher(); }
   get isAdmin() { return this.auth.isAdmin(); }
 
-  constructor(private courseService: CourseService, private auth: AuthService) {}
+  constructor(private courseService: CourseService, private auth: AuthService, private ratingService: RatingService) {}
 
   ngOnInit() {
     this.courseService.getCourses().subscribe({
@@ -37,6 +39,12 @@ export class CoursesListComponent implements OnInit {
           this.courses = courses;
         }
         this.filteredCourses = this.courses;
+        this.courses.forEach((c: any) => {
+          this.ratingService.getStats(c.id).subscribe({
+            next: (s: RatingStats) => { this.ratingsMap[c.id] = { average: s.average, count: s.count }; },
+            error: () => {}
+          });
+        });
         this.loading = false;
       },
       error: () => { this.loading = false; }

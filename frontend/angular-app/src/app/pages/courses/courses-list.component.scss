@@ -68,3 +68,12 @@ nav{flex:1;padding:1.25rem 0}
 
 .btn-students { background:#e8f0fe; color:#1E3A5F; padding:.45rem .9rem; border-radius:8px; text-decoration:none; font-size:.8rem; font-weight:600; }
 .btn-students:hover { background:#1E3A5F; color:white; }
+
+.card-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.card-stars span { font-size: 14px; line-height: 1; }
+.card-rating-text { font-size: 12px; color: #6b7280; }

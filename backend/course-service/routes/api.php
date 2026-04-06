@@ -7,6 +7,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\RatingController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
@@ -18,6 +19,7 @@ Route::get('/courses/{courseId}/chapters/{id}', [ChapterController::class, 'show
 Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters', [SubChapterController::class, 'index']);
 Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}', [SubChapterController::class, 'show']);
 Route::get('/exercises', [ExerciseController::class, 'index']);
+Route::get('/courses/{courseId}/ratings', [RatingController::class, 'stats']);
 Route::get('/exercises/{id}', [ExerciseController::class, 'show']);
 
 // Protégées
@@ -68,6 +70,9 @@ Route::middleware('jwt')->group(function () {
     Route::get('/exercises/{exerciseId}/results', [ExerciseController::class, 'results']);
     Route::get('/exercises/{exerciseId}/participation', [ExerciseController::class, 'participation']);
     Route::get('/exercises/{exerciseId}/my-submissions', [ExerciseController::class, 'mySubmissions']);
+    Route::post('/courses/{courseId}/ratings', [RatingController::class, 'store']);
+    Route::get('/courses/{courseId}/ratings/mine', [RatingController::class, 'myRating']);
+    Route::delete('/courses/{courseId}/ratings', [RatingController::class, 'destroy']);
 });
 
 // Sous-chapitres visités

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { StarRatingComponent } from '../../shared/star-rating/star-rating.component';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
@@ -11,7 +12,7 @@ import { LessonContentComponent } from '../../shared/lesson-content/lesson-conte
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent, RouterLink, LessonContentComponent],
+  imports: [CommonModule, StarRatingComponent, FormsModule, SidebarComponent, RouterLink, LessonContentComponent],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
 })
@@ -407,4 +408,8 @@ export class CourseDetailComponent implements OnInit {
 
   saveVisitedSubs() {} // No-op, DB est source de vérité
 
+
+  onRatingChanged(stars: number) {
+    console.log("Note mise a jour:", stars);
+  }
 }

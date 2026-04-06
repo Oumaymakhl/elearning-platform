@@ -1,16 +1,17 @@
 <div class="layout">
-  <app-sidebar></app-sidebar>
 
   <main class="main">
     <div class="loading" *ngIf="!course">⏳ Chargement du cours...</div>
 
     <ng-container *ngIf="course">
-      <div class="back"><a routerLink="/courses">← Retour aux cours</a></div>
+      <div class="top-bar">
+        <a routerLink="/courses" class="back-link">← Retour aux cours</a>
+        <div class="hero-badge">{{ course.level === "debutant" ? "🟢 Débutant" : course.level === "intermediaire" ? "🟡 Intermédiaire" : "🔴 Avancé" }}</div>
+      </div>
 
-      <!-- Hero -->
+      <!-- Hero compact -->
       <div class="course-hero">
-        <div class="hero-content">
-          <div class="hero-badge">📘 COURS &nbsp;•&nbsp; {{ course.level === "debutant" ? "🟢 Débutant" : course.level === "intermediaire" ? "🟡 Intermédiaire" : "🔴 Avancé" }}</div>
+        <div class="hero-left">
           <h1>{{ course.title }}</h1>
           <p>{{ course.description }}</p>
           <div class="hero-actions">
@@ -21,88 +22,76 @@
             <a [routerLink]="['/courses', course.id, 'certificate']" class="btn-cert" *ngIf="isStudent && enrolled">🏆 Mon Certificat</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
           </div>
-          <div class="hero-stats" *ngIf="isStudent && enrolled">
-            <div class="hero-stat">
-              <span class="hero-stat-value">{{ chapters.length }}</span>
-              <span class="hero-stat-label">Chapitres</span>
-            </div>
-            <div class="hero-stat">
-              <span class="hero-stat-value">{{ displayPercentage }}%</span>
-              <span class="hero-stat-label">Complété</span>
-            </div>
-          </div>
+        </div>
+        <div class="hero-right" *ngIf="isStudent && enrolled">
+          <div class="hero-stat"><span class="sv">{{ chapters.length }}</span><span class="sl">Chapitres</span></div>
+          <div class="hero-stat"><span class="sv">{{ displayPercentage }}%</span><span class="sl">Complété</span></div>
         </div>
       </div>
 
       <!-- Progression -->
       <div class="progress-section" *ngIf="isStudent && enrolled">
         <div class="progress-header">
-          <span class="progress-label-text">📈 Votre progression</span>
+          <span>📈 Votre progression</span>
           <span class="progress-pct">{{ displayPercentage }}%</span>
         </div>
         <div class="progress-track">
-          <div class="progress-fill"
-            [style.width]="(displayPercentage) + '%'"
-            [class.complete]="(displayPercentage) === 100">
-          </div>
+          <div class="progress-fill" [style.width]="displayPercentage + '%'" [class.complete]="displayPercentage === 100"></div>
         </div>
         <div class="progress-sub">
-          <span>{{ (displayPercentage) === 0 ? 'Commencez votre apprentissage !' : (displayPercentage) === 100 ? '🎉 Cours terminé !' : 'Continuez comme ça !' }}</span>
+          <span>{{ displayPercentage === 0 ? 'Commencez votre apprentissage !' : displayPercentage === 100 ? '🎉 Cours terminé !' : 'Continuez comme ça !' }}</span>
           <span>{{ displayPercentage }}/100</span>
         </div>
       </div>
 
-      <!-- Split view : chapitres à gauche, contenu à droite -->
+      <!-- Split view -->
       <div class="split-view">
 
-        <!-- Panneau gauche : liste chapitres collapsible -->
+        <!-- Panneau gauche chapitres -->
         <div class="chapters-panel" [class.collapsed]="chaptersCollapsed">
           <div class="panel-toggle" (click)="chaptersCollapsed = !chaptersCollapsed">
             <span class="panel-toggle-title" *ngIf="!chaptersCollapsed">📚 Contenu du cours</span>
             <button class="panel-toggle-btn">{{ chaptersCollapsed ? "▶" : "◀" }}</button>
           </div>
           <ng-container *ngIf="!chaptersCollapsed">
-          <div class="chapter" *ngFor="let chapter of chapters; let i = index">
-            <div class="chapter-title" (click)="isChapterUnlocked(i) ? (chapter.expanded = !chapter.expanded) : null" [class.locked-chapter]="isStudent && enrolled && !isChapterUnlocked(i)">
-              <div class="chapter-title-left">
-                <span>📖</span>
-                <span>{{ chapter.title }}</span>
-                <span class="chapter-count">({{ (chapter.sub_chapters || []).length }} leçons)</span>
-              </div>
-              <span class="lock-chapter" *ngIf="isStudent && enrolled && !isChapterUnlocked(i)">🔒</span>
-              <span class="chapter-arrow" *ngIf="!isStudent || !enrolled || isChapterUnlocked(i)">{{ chapter.expanded ? '▲' : '▼' }}</span>
-            </div>
-            <div class="subchapters" *ngIf="chapter.expanded">
-              <div class="subchapter"
-                *ngFor="let sub of chapter.sub_chapters || []; let i = index"
-                [class.clickable]="isUnlocked(sub, i, chapter.sub_chapters || [])"
-                [class.locked]="isStudent && enrolled && !isUnlocked(sub, i, chapter.sub_chapters || [])"
-                [class.active-sub]="activeSubChapter?.id === sub.id"
-                (click)="openSubChapter(sub, i, chapter.sub_chapters || [])">
-                <div class="sub-info">
-                  <span class="sub-icon">{{ sub.is_lab ? (completedLabs.has(sub.exercise_id) ? '✅' : '🔬') : '📄' }}</span>
-                  <span class="sub-title">{{ sub.title }}</span>
-                  <span class="quiz-badge" *ngIf="sub.quiz_id">🧠 Quiz</span>
+            <div class="chapter" *ngFor="let chapter of chapters; let i = index">
+              <div class="chapter-title" (click)="isChapterUnlocked(i) ? (chapter.expanded = !chapter.expanded) : null" [class.locked-chapter]="isStudent && enrolled && !isChapterUnlocked(i)">
+                <div class="chapter-title-left">
+                  <span>📖</span>
+                  <span>{{ chapter.title }}</span>
+                  <span class="chapter-count">({{ (chapter.sub_chapters || []).length }} leçons)</span>
                 </div>
-                <span class="lock" *ngIf="!enrolled && isStudent">🔒</span>
-                <span class="lock" *ngIf="isStudent && enrolled && !isUnlocked(sub, i, chapter.sub_chapters || [])">🔒</span>
+                <span class="lock-chapter" *ngIf="isStudent && enrolled && !isChapterUnlocked(i)">🔒</span>
+                <span class="chapter-arrow" *ngIf="!isStudent || !enrolled || isChapterUnlocked(i)">{{ chapter.expanded ? '▲' : '▼' }}</span>
+              </div>
+              <div class="subchapters" *ngIf="chapter.expanded">
+                <div class="subchapter"
+                  *ngFor="let sub of chapter.sub_chapters || []; let i = index"
+                  [class.clickable]="isUnlocked(sub, i, chapter.sub_chapters || [])"
+                  [class.locked]="isStudent && enrolled && !isUnlocked(sub, i, chapter.sub_chapters || [])"
+                  [class.active-sub]="activeSubChapter?.id === sub.id"
+                  (click)="openSubChapter(sub, i, chapter.sub_chapters || [])">
+                  <div class="sub-info">
+                    <span class="sub-icon">{{ sub.is_lab ? (completedLabs.has(sub.exercise_id) ? '✅' : '🔬') : '📄' }}</span>
+                    <span class="sub-title">{{ sub.title }}</span>
+                    <span class="quiz-badge" *ngIf="sub.quiz_id">🧠 Quiz</span>
+                  </div>
+                  <span class="lock" *ngIf="!enrolled && isStudent">🔒</span>
+                  <span class="lock" *ngIf="isStudent && enrolled && !isUnlocked(sub, i, chapter.sub_chapters || [])">🔒</span>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="empty" *ngIf="chapters.length === 0">📭 Aucun chapitre disponible.</div>
+            <div class="empty" *ngIf="chapters.length === 0">📭 Aucun chapitre disponible.</div>
           </ng-container>
         </div>
 
-        <!-- Panneau droite : contenu + éditeur -->
+        <!-- Panneau droite contenu -->
         <div class="lesson-panel">
-          <!-- Message par défaut -->
           <div class="lesson-placeholder" *ngIf="!activeSubChapter">
             <div class="placeholder-icon">📖</div>
             <h3>Sélectionnez une leçon</h3>
             <p>Cliquez sur un sous-chapitre pour afficher son contenu</p>
           </div>
-
-          <!-- Contenu leçon + éditeur côte à côte -->
           <div class="lesson-editor-split" *ngIf="activeSubChapter">
             <div class="lesson-content">
               <div class="lesson-header">
@@ -114,8 +103,6 @@
               </div>
               <app-lesson-content [html]="activeSubChapter.content || ''"></app-lesson-content>
             </div>
-
-            <!-- Éditeur de code -->
             <div class="mini-editor">
               <div class="editor-toolbar">
                 <span class="editor-title">💻 Éditeur de code</span>
@@ -137,8 +124,7 @@
                 <button class="reset-btn" (click)="resetEditor()">↺</button>
               </div>
               <textarea class="code-textarea" [(ngModel)]="editorCode"
-                (keydown)="onEditorTab($event)"
-                spellcheck="false" rows="10"></textarea>
+                (keydown)="onEditorTab($event)" spellcheck="false" rows="10"></textarea>
               <div class="output-zone" [class.success]="codeSuccess === true" [class.error]="codeSuccess === false">
                 <div class="output-header">
                   <span>● Console</span>
@@ -152,6 +138,16 @@
           </div>
         </div>
 
+      </div>
+
+      <!-- Rating en bas de page -->
+      <div class="rating-section">
+        <h3 class="rating-title">⭐ Évaluations du cours</h3>
+        <app-star-rating
+          [courseId]="course.id"
+          [isEnrolled]="enrolled"
+          (ratingChanged)="onRatingChanged($event)">
+        </app-star-rating>
       </div>
 
     </ng-container>
