@@ -1,38 +1,125 @@
 <div class="layout">
   <app-sidebar></app-sidebar>
+ 
   <main class="main">
-    <h1>📖 Mes cours</h1>
-    <div class="loading" *ngIf="loading">Chargement...</div>
-    <div class="empty" *ngIf="!loading && enrollments.length === 0">
-      Vous n'êtes inscrit à aucun cours. <a routerLink="/courses">Parcourir les cours</a>
-    </div>
-    <div class="enrollments" *ngIf="!loading && enrollments.length > 0">
-      <div class="enrollment-card" *ngFor="let e of enrollments">
-        <div class="card-cover">📘</div>
-        <div class="card-body">
-          <div class="card-header">
-            <h3>{{ e.course?.title }}</h3>
-            <span [class]="'status-badge ' + getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</span>
-          </div>
-          <p>{{ e.course?.description }}</p>
-          <div class="progress-section">
-            <div class="progress-label">
-              <span>Progression</span>
-              <span>{{ e.percentage }}%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width]="e.percentage + '%'"
-                [class.complete]="e.percentage === 100"></div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="enrolled-date">Inscrit le {{ e.enrolled_at | date:'dd/MM/yyyy' }}</span>
-            <a [routerLink]="['/courses', e.course_id]" class="btn-continue">
-              {{ e.percentage === 0 ? '▶ Commencer' : e.percentage === 100 ? '✅ Revoir' : '▶ Continuer' }}
-            </a>
-          </div>
+ 
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1>📖 Mes cours</h1>
+        <p>Suis ta progression et reprends là où tu t'es arrêté</p>
+      </div>
+      <div class="header-stats" *ngIf="!loading && enrollments.length > 0">
+        <div class="hstat">
+          <span class="hstat-val">{{ enrollments.length }}</span>
+          <span class="hstat-label">inscrits</span>
+        </div>
+        <div class="hstat-sep"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ completedCount }}</span>
+          <span class="hstat-label">terminés</span>
+        </div>
+        <div class="hstat-sep"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ avgProgress }}%</span>
+          <span class="hstat-label">progression moy.</span>
         </div>
       </div>
     </div>
+ 
+    <!-- Filtres -->
+    <div class="filters" *ngIf="!loading && enrollments.length > 0">
+      <button class="filter-btn" [class.active]="filter === 'all'"       (click)="setFilter('all')">Tous ({{ enrollments.length }})</button>
+      <button class="filter-btn" [class.active]="filter === 'active'"    (click)="setFilter('active')">En cours ({{ activeCount }})</button>
+      <button class="filter-btn" [class.active]="filter === 'completed'" (click)="setFilter('completed')">Terminés ({{ completedCount }})</button>
+      <button class="filter-btn" [class.active]="filter === 'not_started'" (click)="setFilter('not_started')">Non commencés ({{ notStartedCount }})</button>
+    </div>
+ 
+    <!-- Loading -->
+    <div class="loading-state" *ngIf="loading">
+      <div class="spinner"></div>
+      <span>Chargement de tes cours…</span>
+    </div>
+ 
+    <!-- Empty global -->
+    <div class="empty-state" *ngIf="!loading && enrollments.length === 0">
+      <div class="empty-icon">📭</div>
+      <h2>Aucun cours suivi pour l'instant</h2>
+      <p>Explore le catalogue et inscris-toi à ton premier cours !</p>
+      <a routerLink="/courses" class="btn-primary">Parcourir les cours</a>
+    </div>
+ 
+    <!-- Empty filtre -->
+    <div class="empty-state" *ngIf="!loading && enrollments.length > 0 && filtered.length === 0">
+      <div class="empty-icon">🔍</div>
+      <h2>Aucun cours dans cette catégorie</h2>
+      <button class="btn-secondary" (click)="setFilter('all')">Voir tous mes cours</button>
+    </div>
+ 
+    <!-- Grille de cours -->
+    <div class="courses-grid" *ngIf="!loading && filtered.length > 0">
+      <div class="course-card" *ngFor="let e of filtered"
+           [class.done]="e.percentage === 100"
+           [class.not-started]="e.percentage === 0">
+ 
+        <!-- Cover -->
+        <div class="card-cover" [routerLink]="['/courses', e.course_id]">
+          <img *ngIf="e.course?.image_path" [src]="e.course.image_path" [alt]="e.course?.title">
+          <span *ngIf="!e.course?.image_path" class="cover-emoji">📘</span>
+          <div class="cover-overlay">
+            <span class="cover-play">{{ e.percentage === 100 ? '✅' : '▶' }}</span>
+          </div>
+          <div class="cover-badge" [class]="getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</div>
+        </div>
+ 
+        <!-- Body -->
+        <div class="card-body">
+          <div class="card-meta">
+            <span class="level-tag" *ngIf="e.course?.level" [class]="e.course.level">
+              {{ formatLevel(e.course.level) }}
+            </span>
+            <span class="enrolled-date">📅 {{ e.enrolled_at | date:'dd/MM/yy' }}</span>
+          </div>
+ 
+          <h3 [routerLink]="['/courses', e.course_id]">{{ e.course?.title }}</h3>
+          <p>{{ e.course?.description | slice:0:90 }}…</p>
+ 
+          <!-- Progress -->
+          <div class="progress-section">
+            <div class="progress-labels">
+              <span>Progression</span>
+              <span class="pct" [class.done-pct]="e.percentage === 100">{{ e.percentage }}%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill"
+                   [style.width]="e.percentage + '%'"
+                   [class.fill-done]="e.percentage === 100"
+                   [class.fill-mid]="e.percentage >= 50 && e.percentage < 100"
+                   [class.fill-low]="e.percentage < 50 && e.percentage > 0">
+              </div>
+            </div>
+            <div class="progress-hint" *ngIf="e.percentage > 0 && e.percentage < 100">
+              {{ 100 - e.percentage }}% restant
+            </div>
+          </div>
+ 
+          <!-- Footer -->
+          <div class="card-footer">
+            <a [routerLink]="['/courses', e.course_id]" class="btn-continue"
+               [class.btn-start]="e.percentage === 0"
+               [class.btn-review]="e.percentage === 100">
+              <span *ngIf="e.percentage === 0">▶ Commencer</span>
+              <span *ngIf="e.percentage > 0 && e.percentage < 100">▶ Continuer</span>
+              <span *ngIf="e.percentage === 100">🔁 Revoir</span>
+            </a>
+            <a *ngIf="e.percentage === 100"
+               [routerLink]="['/courses', e.course_id, 'certificate']"
+               class="btn-cert">🏆 Certificat</a>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+ 
   </main>
 </div>

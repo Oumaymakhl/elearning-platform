@@ -1,0 +1,38 @@
+<div class="layout">
+  <app-sidebar></app-sidebar>
+  <main class="main">
+    <h1>📖 Mes cours</h1>
+    <div class="loading" *ngIf="loading">Chargement...</div>
+    <div class="empty" *ngIf="!loading && enrollments.length === 0">
+      Vous n'êtes inscrit à aucun cours. <a routerLink="/courses">Parcourir les cours</a>
+    </div>
+    <div class="enrollments" *ngIf="!loading && enrollments.length > 0">
+      <div class="enrollment-card" *ngFor="let e of enrollments">
+        <div class="card-cover">📘</div>
+        <div class="card-body">
+          <div class="card-header">
+            <h3>{{ e.course?.title }}</h3>
+            <span [class]="'status-badge ' + getStatusClass(e.status)">{{ getStatusLabel(e.status) }}</span>
+          </div>
+          <p>{{ e.course?.description }}</p>
+          <div class="progress-section">
+            <div class="progress-label">
+              <span>Progression</span>
+              <span>{{ e.percentage }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width]="e.percentage + '%'"
+                [class.complete]="e.percentage === 100"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="enrolled-date">Inscrit le {{ e.enrolled_at | date:'dd/MM/yyyy' }}</span>
+            <a [routerLink]="['/courses', e.course_id]" class="btn-continue">
+              {{ e.percentage === 0 ? '▶ Commencer' : e.percentage === 100 ? '✅ Revoir' : '▶ Continuer' }}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
