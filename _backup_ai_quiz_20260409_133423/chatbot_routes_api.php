@@ -1,10 +1,6 @@
 <?php
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\QuizGeneratorController;
 
 Route::get('/ping', [ChatController::class, 'ping']);
 Route::post('/chat', [ChatController::class, 'chat']);
-
-// AI Quiz Generation
-Route::post('/generate-quiz', [QuizGeneratorController::class, 'generate']);

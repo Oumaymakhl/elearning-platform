@@ -68,14 +68,12 @@ export class CourseDetailComponent implements OnInit {
             next: (p) => {
               this.progress = { ...p, percentage: parseFloat(p.progress || 0) };
               this.enrolled = true;
-              // Vider localStorage si progression = 0
               if (parseFloat(p.progress || 0) === 0 && typeof localStorage !== "undefined") {
                 localStorage.removeItem("visited_" + id + "_" + (this.auth.getCurrentUser()?.id || 0));
               }
               this.visitedSubs.clear();
               this.loadQuizScores();
               this.loadCompletedLabs();
-              // Charger visited-subs puis ouvrir sous-chapitre
               this.courseService.getVisitedSubs(this.course.id).subscribe({
                 next: (ids: number[]) => {
                   ids.forEach((id: number) => this.visitedSubs.add(id));
@@ -96,9 +94,7 @@ export class CourseDetailComponent implements OnInit {
                     this.resumeProgress();
                   }
                 },
-                error: () => {
-                  this.resumeProgress();
-                }
+                error: () => { this.resumeProgress(); }
               });
             },
             error: () => {}
@@ -189,23 +185,26 @@ export class CourseDetailComponent implements OnInit {
       if (this.isUnlocked(allSubs[i], i, allSubs)) lastUnlockedSub = allSubs[i];
     }
     if (lastUnlockedSub) {
-      this.courseService.updateProgress(this.course.id, { sub_chapter_id: lastUnlockedSub.id }).subscribe({
+      if (this.isStudent) this.courseService.updateProgress(this.course.id, { sub_chapter_id: lastUnlockedSub.id }).subscribe({
         next: (r: any) => { if (this.progress) this.progress.percentage = r.progress; },
         error: () => {}
       });
     }
   }
 
-  // Vérifie si un chapitre entier est débloqué (basé sur le quiz du chapitre précédent)
+  // Vérifie si un chapitre entier est débloqué (basé sur le quiz du dernier sous-chapitre du chapitre précédent)
   isChapterUnlocked(chapterIndex: number): boolean {
     if (!this.isStudent) return true;
     if (!this.enrolled) return false;
     if (chapterIndex === 0) return true;
     const prevChapter = this.chapters[chapterIndex - 1];
-    if (!prevChapter.quiz_id) return true;
-    const score = this.quizScores[prevChapter.quiz_id];
+    const prevSubs = prevChapter.sub_chapters || [];
+    // Chercher le dernier sous-chapitre avec un quiz
+    const subWithQuiz = [...prevSubs].reverse().find((s: any) => s.quiz_id);
+    if (!subWithQuiz) return true;
+    const score = this.quizScores[subWithQuiz.quiz_id];
     if (score === undefined) return false;
-    return score >= (prevChapter.passing_score || 70);
+    return score >= (subWithQuiz.passing_score || 70);
   }
 
   isUnlocked(sub: any, index: number, allSubs: any[]): boolean {
@@ -260,10 +259,12 @@ export class CourseDetailComponent implements OnInit {
     const total = this.chapters.reduce((acc: number, ch: any) => acc + (ch.sub_chapters?.length || 0), 0);
     const percentage = total > 0 ? Math.round(this.visitedSubs.size / total * 100) : 0;
     if (percentage > (this.progress?.percentage || 0)) {
-      this.courseService.updateProgress(this.course.id, { sub_chapter_id: sub.id, progress: percentage }).subscribe({
-        next: (r: any) => { if (this.progress) { this.progress.percentage = percentage; this.progress.current_sub_chapter_id = sub.id; } },
-        error: () => {}
-      });
+      if (this.isStudent) {
+        this.courseService.updateProgress(this.course.id, { sub_chapter_id: sub.id, progress: percentage }).subscribe({
+          next: (r: any) => { if (this.progress) { this.progress.percentage = percentage; this.progress.current_sub_chapter_id = sub.id; } },
+          error: () => {}
+        });
+      }
     }
   }
 
@@ -278,15 +279,17 @@ export class CourseDetailComponent implements OnInit {
     }
     const total = this.chapters.reduce((acc: number, ch: any) => acc + (ch.sub_chapters?.length || 0), 0);
     const percentage = total > 0 ? Math.round(this.visitedSubs.size / total * 100) : 0;
-    this.courseService.updateProgress(this.course.id, { sub_chapter_id: sub.id, progress: percentage }).subscribe({
-      next: (r: any) => {
-        if (this.progress) {
-          this.progress.percentage = percentage;
-          this.progress.current_sub_chapter_id = sub.id;
-        }
-      },
-      error: () => {}
-    });
+    if (this.isStudent) {
+      this.courseService.updateProgress(this.course.id, { sub_chapter_id: sub.id, progress: percentage }).subscribe({
+        next: (r: any) => {
+          if (this.progress) {
+            this.progress.percentage = percentage;
+            this.progress.current_sub_chapter_id = sub.id;
+          }
+        },
+        error: () => {}
+      });
+    }
     if (sub.is_lab && sub.exercise_id) {
       // Bloquer si TD déjà réussi
       if (this.completedLabs.has(sub.exercise_id)) return;

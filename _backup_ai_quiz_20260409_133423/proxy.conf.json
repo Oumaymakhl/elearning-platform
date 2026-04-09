@@ -15,8 +15,7 @@
   "/api/courses": {
     "target": "http://localhost:8002",
     "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
+    "changeOrigin": true
   },
   "/api/exercises": {
     "target": "http://localhost:8002",
@@ -90,16 +89,6 @@
   },
   "/storage": {
     "target": "http://localhost:8001",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/generate-quiz": {
-    "target": "http://localhost:8007",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/chapters": {
-    "target": "http://localhost:8005",
     "secure": false,
     "changeOrigin": true
   }
