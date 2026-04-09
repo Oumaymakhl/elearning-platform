@@ -17,7 +17,7 @@
           <!-- Avatar affiché -->
           <div class="avatar-wrapper">
             <img *ngIf="user.avatar_url && !avatarPreview"
-                 [src]="user.avatar_url"
+                 [src]="getAvatarUrl()"
                  class="avatar-img"
                  alt="Avatar">
             <img *ngIf="avatarPreview"

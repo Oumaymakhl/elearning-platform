@@ -26,14 +26,14 @@ export class ProfileComponent implements OnInit {
   uploadingAvatar = false;
   avatarError = '';
 
-  private readonly USER_API = 'http://localhost:8001/api';
+  private readonly USER_API = '/api';
 
   constructor(private auth: AuthService, private http: HttpClient) {}
 
   ngOnInit() {
     this.auth.currentUser$.subscribe(u => {
       if (u) {
-        this.user = u;
+        this.user = { ...u, avatar_url: u.avatar_url || null };
         this.form = { name: u.name, bio: u.bio || '', speciality: u.speciality || '' };
       }
     });
@@ -85,12 +85,18 @@ export class ProfileComponent implements OnInit {
 
     this.http.post<any>(`${this.USER_API}/me/avatar`, formData, { headers: this.headersNoContent() }).subscribe({
       next: (res) => {
-        this.user = { ...this.user, avatar_url: res.avatar_url };
+        const avatarUrl = res.avatar_url || null;
+        this.user = { ...this.user, avatar_url: avatarUrl };
         this.avatarPreview = null;
         this.avatarFile = null;
         this.uploadingAvatar = false;
         this.success = true;
         setTimeout(() => (this.success = false), 3000);
+        // Mettre à jour la sidebar immédiatement
+        const stored = this.auth.getCurrentUser();
+        const updated = { ...stored, avatar_url: avatarUrl };
+        localStorage.setItem('user', JSON.stringify(updated));
+        (this.auth as any)['currentUserSubject'].next(updated);
       },
       error: (e) => {
         this.avatarError = e.error?.message || 'Erreur upload';
@@ -130,6 +136,11 @@ export class ProfileComponent implements OnInit {
     return labels[this.user?.role] || this.user?.role;
   }
 
+  getAvatarUrl(): string {
+    const url = this.user?.avatar_url || '';
+    if (!url) return '';
+    return url.replace('http://nginx-user', 'http://localhost:8001');
+  }
   getInitials(): string {
     return (this.user?.name || 'U')
       .split(' ')

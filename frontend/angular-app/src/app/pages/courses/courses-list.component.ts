@@ -33,7 +33,8 @@ export class CoursesListComponent implements OnInit {
     this.courseService.getCourses().subscribe({
       next: (courses) => {
         if (this.isTeacher) {
-          const userId = this.auth.getUserId();
+          const user = this.auth.getCurrentUser();
+          const userId = user?.auth_id || user?.id;
           this.courses = courses.filter((c: any) => c.instructor_id === userId);
         } else {
           this.courses = courses;

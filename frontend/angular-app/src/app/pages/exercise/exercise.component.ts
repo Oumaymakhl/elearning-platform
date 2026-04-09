@@ -274,7 +274,7 @@ export class ExerciseComponent implements OnInit {
   loadExercise(id: number) {
     this.loading = true;
     this.exerciseId = id;
-    this.http.get<any>(`http://localhost:8002/api/exercises/${id}`, { headers: this.getHeaders() })
+    this.http.get<any>(`/api/exercises/${id}`, { headers: this.getHeaders() })
       .subscribe({
         next: (ex) => {
           this.exercise = ex;
@@ -333,7 +333,7 @@ export class ExerciseComponent implements OnInit {
       let codeToSubmit = this.code.replace('# Écrivez votre solution ici', '').trim();
 
       this.http.post<any>(
-        `http://localhost:8002/api/exercises/${this.exerciseId}/questions/${this.questionId}/submit`,
+        `/api/exercises/${this.exerciseId}/questions/${this.questionId}/submit`,
         { code: codeToSubmit },
         { headers: this.getHeaders() }
       ).subscribe({
@@ -355,7 +355,7 @@ export class ExerciseComponent implements OnInit {
         }
       });
     } else {
-      this.http.post<any>("http://localhost:8004/api/execute",
+      this.http.post<any>("/api/execute",
         { language: this.selectedLang, code: this.code },
         { headers: this.getHeaders() }
       ).subscribe({

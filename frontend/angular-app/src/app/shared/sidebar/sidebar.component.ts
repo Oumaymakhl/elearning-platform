@@ -49,16 +49,16 @@ import { Subscription } from 'rxjs';
         <a routerLink="/courses" class="nav-item" routerLinkActive="active" *ngIf="!isAdmin">📚 Cours</a>
         <a routerLink="/my-courses" class="nav-item" routerLinkActive="active" *ngIf="isStudent">📖 Mes cours</a>
         <a routerLink="/courses/create" class="nav-item" routerLinkActive="active" *ngIf="isTeacher">➕ Créer un cours</a>
-        <a routerLink="/students" class="nav-item" routerLinkActive="active" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
+        <a routerLink="/students" class="nav-item" routerLinkActive="active" *ngIf="isTeacher">👥 Étudiants</a>
         <a routerLink="/analytics" class="nav-item" routerLinkActive="active" *ngIf="isTeacher || isAdmin">📊 Analytics</a>
         <a routerLink="/admin" class="nav-item" routerLinkActive="active" *ngIf="isAdmin">⚙️ Administration</a>
         <a routerLink="/chatbot" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🤖 Assistant IA</a>
-        <a routerLink="/profile" class="nav-item" routerLinkActive="active">👤 Mon profil</a>
       </nav>
 
-      <div class="sidebar-footer">
+      <div class="sidebar-footer" [routerLink]="['/profile']" style="cursor:pointer" title="Mon profil">
         <div class="user-info">
-          <div class="user-avatar">{{ getInitials() }}</div>
+          <img *ngIf="user?.avatar_url" [src]="getAvatarUrl()" class="user-avatar user-avatar-img" alt="avatar">
+          <div class="user-avatar" *ngIf="!user?.avatar_url">{{ getInitials() }}</div>
           <div class="user-details">
             <span class="user-name">{{ user?.name }}</span>
             <span class="user-role">{{ getRoleLabel() }}</span>
@@ -77,6 +77,7 @@ import { Subscription } from 'rxjs';
     .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.75rem}
     .user-info{display:flex;align-items:center;gap:.75rem;flex:1;min-width:0}
     .user-avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;flex-shrink:0}
+    .user-avatar-img{object-fit:cover;background:none;}
     .user-details{display:flex;flex-direction:column;min-width:0}
     .user-name{font-size:.85rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .user-role{font-size:.72rem;color:rgba(255,255,255,.5)}
@@ -160,6 +161,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get isTeacher() { return this.auth.isTeacher(); }
   get isStudent() { return this.auth.isStudent(); }
 
+  getAvatarUrl(): string {
+    const url = this.user?.avatar_url || '';
+    if (url.startsWith('/storage')) return 'http://localhost:8001' + url;
+    return url;
+  }
   getInitials(): string {
     return (this.user?.name || 'U').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }

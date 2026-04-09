@@ -85,7 +85,7 @@ export class VerifyEmailComponent implements OnInit {
 
   confirm() {
     this.status = 'loading';
-    this.http.post('http://localhost:8000/api/verify-email', { token: this.token }).subscribe({
+    this.http.post('/auth-api/verify-email', { token: this.token }).subscribe({
       next: () => { this.status = 'success'; },
       error: () => { this.status = 'error'; }
     });

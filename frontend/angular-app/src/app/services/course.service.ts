@@ -4,55 +4,88 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CourseService {
-  private api = 'http://localhost:8002/api';
+  private api = '/api/courses';
+  private baseApi = '/api';
 
   constructor(private http: HttpClient) {}
 
-  getCourses(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/courses`); }
-  getCourse(id: number): Observable<any> { return this.http.get(`${this.api}/courses/${id}`); }
-  createCourse(data: any): Observable<any> { return this.http.post(`${this.api}/courses`, data); }
-  updateCourse(id: number, data: any): Observable<any> { return this.http.put(`${this.api}/courses/${id}`, data); }
-  deleteCourse(id: number): Observable<any> { return this.http.delete(`${this.api}/courses/${id}`); }
+  getCourses(): Observable<any[]>        { return this.http.get<any[]>(`${this.api}`); }
+  getCourse(id: number): Observable<any> { return this.http.get(`${this.api}/${id}`); }
+  createCourse(data: any): Observable<any>             { return this.http.post(`${this.api}`, data); }
+  updateCourse(id: number, data: any): Observable<any> { return this.http.put(`${this.api}/${id}`, data); }
+  deleteCourse(id: number): Observable<any>            { return this.http.delete(`${this.api}/${id}`); }
 
-  getChapters(courseId: number): Observable<any[]> { return this.http.get<any[]>(`${this.api}/courses/${courseId}/chapters`); }
-  createChapter(courseId: number, data: any): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/chapters`, data); }
-
-  getSubChapters(courseId: number, chapterId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.api}/courses/${courseId}/chapters/${chapterId}/subchapters`);
+  getChapters(courseId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/${courseId}/chapters`);
   }
-
-  createSubChapter(courseId: number, chapterId: number, data: any): Observable<any> {
-    return this.http.post(`${this.api}/courses/${courseId}/chapters/${chapterId}/subchapters`, data);
+  createChapter(courseId: number, data: any): Observable<any> {
+    return this.http.post(`${this.api}/${courseId}/chapters`, data);
   }
   deleteChapter(courseId: number, chapterId: number): Observable<any> {
-    return this.http.delete(`${this.api}/courses/${courseId}/chapters/${chapterId}`);
+    return this.http.delete(`${this.api}/${courseId}/chapters/${chapterId}`);
+  }
+
+  getSubChapters(courseId: number, chapterId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/${courseId}/chapters/${chapterId}/subchapters`);
+  }
+  createSubChapter(courseId: number, chapterId: number, data: any): Observable<any> {
+    return this.http.post(`${this.api}/${courseId}/chapters/${chapterId}/subchapters`, data);
   }
   deleteSubChapter(courseId: number, chapterId: number, subId: number): Observable<any> {
-    return this.http.delete(`${this.api}/courses/${courseId}/chapters/${chapterId}/subchapters/${subId}`);
+    return this.http.delete(`${this.api}/${courseId}/chapters/${chapterId}/subchapters/${subId}`);
   }
-  enroll(courseId: number): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/enroll`, {}); }
-  unenroll(courseId: number): Observable<any> { return this.http.delete(`${this.api}/courses/${courseId}/enroll`); }
-  myCourses(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/my-courses`); }
+
+  enroll(courseId: number): Observable<any>   { return this.http.post(`${this.api}/${courseId}/enroll`, {}); }
+  unenroll(courseId: number): Observable<any> { return this.http.delete(`${this.api}/${courseId}/enroll`); }
+  myCourses(): Observable<any[]>              { return this.http.get<any[]>(`${this.baseApi}/my-courses`); }
+
   getVisitedSubs(courseId: number): Observable<number[]> {
-    return this.http.get<number[]>(`${this.api}/courses/${courseId}/visited-subs`);
+    return this.http.get<number[]>(`${this.api}/${courseId}/visited-subs`);
   }
   markSubVisited(courseId: number, subId: number): Observable<any> {
-    return this.http.post(`${this.api}/courses/${courseId}/visited-subs/${subId}`, {});
+    return this.http.post(`${this.api}/${courseId}/visited-subs/${subId}`, {});
   }
   updateProgress(courseId: number, data: any): Observable<any> {
-    return this.http.post(`${this.api}/courses/${courseId}/progress`, data);
+    return this.http.post(`${this.api}/${courseId}/progress`, data);
   }
-  getProgress(courseId: number): Observable<any> { return this.http.get(`${this.api}/courses/${courseId}/progress`); }
-  getCourseStudents(courseId: number): Observable<any[]> { return this.http.get<any[]>(`${this.api}/courses/${courseId}/students`); }
-  checkCertificate(courseId: number): Observable<any> { return this.http.post(`${this.api}/courses/${courseId}/certificate/check`, {}); }
-  getCertificate(courseId: number): Observable<any> { return this.http.get(`${this.api}/courses/${courseId}/certificate`); }
-  getMyCertificates(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/certificates`); }
-  createExercise(data: any): Observable<any> { return this.http.post(`${this.api}/exercises`, data); }
-  updateExercise(id: number, data: any): Observable<any> { return this.http.put(`${this.api}/exercises/${id}`, data); }
-  deleteExercise(id: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${id}`); }
-  getExercise(id: number): Observable<any> { return this.http.get(`${this.api}/exercises/${id}`); }
-  createQuestion(exerciseId: number, data: any): Observable<any> { return this.http.post(`${this.api}/exercises/${exerciseId}/questions`, data); }
-  deleteQuestion(exerciseId: number, questionId: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${exerciseId}/questions/${questionId}`); }
-  createTestCase(exerciseId: number, questionId: number, data: any): Observable<any> { return this.http.post(`${this.api}/exercises/${exerciseId}/questions/${questionId}/test-cases`, data); }
-  deleteTestCase(exerciseId: number, questionId: number, testCaseId: number): Observable<any> { return this.http.delete(`${this.api}/exercises/${exerciseId}/questions/${questionId}/test-cases/${testCaseId}`); }
+  getProgress(courseId: number): Observable<any> {
+    return this.http.get(`${this.api}/${courseId}/progress`);
+  }
+
+  getRatings(courseId: number): Observable<any>  { return this.http.get(`${this.api}/${courseId}/ratings`); }
+  getMyRating(courseId: number): Observable<any> { return this.http.get(`${this.api}/${courseId}/ratings/mine`); }
+  rateCourse(courseId: number, data: any): Observable<any> { return this.http.post(`${this.api}/${courseId}/ratings`, data); }
+  deleteRating(courseId: number): Observable<any> { return this.http.delete(`${this.api}/${courseId}/ratings`); }
+
+  getCourseStudents(courseId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/${courseId}/students`);
+  }
+
+  checkCertificate(courseId: number): Observable<any> {
+    return this.http.post(`${this.api}/${courseId}/certificate/check`, {});
+  }
+  getCertificate(courseId: number): Observable<any> {
+    return this.http.get(`${this.api}/${courseId}/certificate`);
+  }
+  getMyCertificates(): Observable<any[]> { return this.http.get<any[]>(`${this.baseApi}/certificates`); }
+
+  getTeacherAnalytics(): Observable<any>               { return this.http.get(`${this.baseApi}/analytics/teacher`); }
+  getCourseAnalytics(courseId: number): Observable<any> { return this.http.get(`${this.baseApi}/analytics/courses/${courseId}`); }
+
+  createExercise(data: any): Observable<any>             { return this.http.post(`${this.baseApi}/exercises`, data); }
+  updateExercise(id: number, data: any): Observable<any> { return this.http.put(`${this.baseApi}/exercises/${id}`, data); }
+  deleteExercise(id: number): Observable<any>            { return this.http.delete(`${this.baseApi}/exercises/${id}`); }
+  getExercise(id: number): Observable<any>               { return this.http.get(`${this.baseApi}/exercises/${id}`); }
+  createQuestion(exerciseId: number, data: any): Observable<any> {
+    return this.http.post(`${this.baseApi}/exercises/${exerciseId}/questions`, data);
+  }
+  deleteQuestion(exerciseId: number, questionId: number): Observable<any> {
+    return this.http.delete(`${this.baseApi}/exercises/${exerciseId}/questions/${questionId}`);
+  }
+  createTestCase(exerciseId: number, questionId: number, data: any): Observable<any> {
+    return this.http.post(`${this.baseApi}/exercises/${exerciseId}/questions/${questionId}/test-cases`, data);
+  }
+  deleteTestCase(exerciseId: number, questionId: number, testCaseId: number): Observable<any> {
+    return this.http.delete(`${this.baseApi}/exercises/${exerciseId}/questions/${questionId}/test-cases/${testCaseId}`);
+  }
 }

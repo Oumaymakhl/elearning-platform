@@ -81,12 +81,12 @@ export class QuizComponent implements OnInit {
         this.submitting = false;
         // Mettre à jour progression si quiz réussi
         if (result.passed && this.quiz.course_id) {
-          this.http.get<any[]>(`http://localhost:8002/api/courses/${this.quiz.course_id}/chapters`).subscribe({
+          this.http.get<any[]>(`/api/courses/${this.quiz.course_id}/chapters`).subscribe({
             next: (chapters) => {
               const allSubs = chapters.flatMap((c: any) => c.sub_chapters || []);
               const linkedSub = allSubs.find((s: any) => s.quiz_id === this.quiz.id);
               if (linkedSub) {
-                this.http.post(`http://localhost:8002/api/courses/${this.quiz.course_id}/progress`,
+                this.http.post(`/api/courses/${this.quiz.course_id}/progress`,
                   { sub_chapter_id: linkedSub.id }).subscribe({ error: () => {} });
               }
             },

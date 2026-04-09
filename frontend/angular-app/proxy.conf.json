@@ -1,9 +1,11 @@
 {
-  "/api/auth": {
+  "/auth-api": {
     "target": "http://localhost:8000",
     "secure": false,
     "changeOrigin": true,
-    "pathRewrite": { "^/api/auth": "/api" }
+    "pathRewrite": {
+      "^/auth-api": "/api"
+    }
   },
   "/api/users": {
     "target": "http://localhost:8001",
@@ -15,12 +17,27 @@
     "secure": false,
     "changeOrigin": true
   },
+  "/api/exercises": {
+    "target": "http://localhost:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/my-courses": {
+    "target": "http://localhost:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/certificates": {
+    "target": "http://localhost:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/api/contents": {
     "target": "http://localhost:8003",
     "secure": false,
     "changeOrigin": true
   },
-  "/api/executor": {
+  "/api/execute": {
     "target": "http://localhost:8004",
     "secure": false,
     "changeOrigin": true
@@ -30,8 +47,48 @@
     "secure": false,
     "changeOrigin": true
   },
+  "/api/attempts": {
+    "target": "http://localhost:8005",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/quiz-stats": {
+    "target": "http://localhost:8005",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/stats": {
+    "target": "http://localhost:8005",
+    "secure": false,
+    "changeOrigin": true
+  },
   "/api/notifications": {
     "target": "http://localhost:8006",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/chat": {
+    "target": "http://localhost:8007",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/analytics": {
+    "target": "http://localhost:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/admin": {
+    "target": "http://localhost:8001",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/me": {
+    "target": "http://localhost:8001",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/storage": {
+    "target": "http://localhost:8001",
     "secure": false,
     "changeOrigin": true
   }

@@ -65,7 +65,8 @@ import { AuthService } from '../../services/auth.service';
         <div class="comments-header">💬 Avis récents</div>
         <div class="comment-card" *ngFor="let c of stats.comments">
           <div class="comment-top">
-            <div class="avatar">{{ getInitials(c.user_name) }}</div>
+            <img *ngIf="c.avatar_url" [src]="fixUrl(c.avatar_url)" class="avatar avatar-img" alt="avatar">
+            <div class="avatar" *ngIf="!c.avatar_url">{{ getInitials(c.user_name) }}</div>
             <div class="comment-meta">
               <div class="comment-author">{{ c.user_name || 'Étudiant' }}</div>
               <div class="comment-stars">
@@ -155,6 +156,7 @@ import { AuthService } from '../../services/auth.service';
     .comment-card { background: #f8fafc; border-radius: 9px; padding: .8rem 1rem; margin-bottom: .6rem; border: 1px solid #e8ecf3; transition: box-shadow .15s; }
     .comment-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.05); }
     .comment-top { display: flex; align-items: center; gap: .7rem; margin-bottom: .5rem; }
+    .avatar-img { object-fit:cover; }
     .avatar {
       width: 32px; height: 32px; border-radius: 50%;
       background: linear-gradient(135deg, #4361ee, #7b8ff7);
@@ -189,6 +191,13 @@ export class StarRatingComponent implements OnInit, OnChanges {
   ngOnInit(): void { this.load(); }
   ngOnChanges(): void { this.load(); }
 
+  fixUrl(url: string): string {
+    if (!url) return '';
+    if (url.startsWith('/storage')) return 'http://localhost:8001' + url;
+    // Remplacer les noms Docker internes par localhost
+    return url.replace('http://nginx-user', 'http://localhost:8001')
+              .replace('http://localhost:8001/storage', 'http://localhost:8001/storage');
+  }
   getInitials(name: string): string {
     if (!name) return 'E';
     const parts = name.trim().split(' ');

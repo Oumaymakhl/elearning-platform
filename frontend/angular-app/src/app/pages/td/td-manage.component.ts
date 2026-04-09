@@ -243,7 +243,7 @@ export class TdManageComponent implements OnInit {
   loadData() {
     this.loading = true;
     // Charger le sous-chapitre
-    this.http.get<any>(`http://localhost:8002/api/courses/${this.courseId}/chapters`, { headers: this.getHeaders() })
+    this.http.get<any>(`/api/courses/${this.courseId}/chapters`, { headers: this.getHeaders() })
       .subscribe({
         next: (chapters) => {
           for (const ch of chapters) {
@@ -280,7 +280,7 @@ export class TdManageComponent implements OnInit {
     this.courseService.createExercise(data).subscribe({
       next: (ex) => {
         // Lier l'exercice au sous-chapitre via SQL direct
-        this.http.put(`http://localhost:8002/api/courses/${this.courseId}/chapters/${this.chapterId}/subchapters/${this.subChapterId}`,
+        this.http.put(`/api/courses/${this.courseId}/chapters/${this.chapterId}/subchapters/${this.subChapterId}`,
           { exercise_id: ex.id, is_lab: true },
           { headers: this.getHeaders() }
         ).subscribe({ error: () => {} });

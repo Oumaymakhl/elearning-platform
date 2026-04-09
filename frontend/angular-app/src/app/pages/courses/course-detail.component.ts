@@ -130,7 +130,7 @@ export class CourseDetailComponent implements OnInit {
     for (const chapter of this.chapters) {
       for (const sub of chapter.sub_chapters || []) {
         if (sub.is_lab && sub.exercise_id) {
-          this.http.get<any>(`http://localhost:8002/api/exercises/${sub.exercise_id}/my-submissions`, { headers }).subscribe({
+          this.http.get<any>(`/api/exercises/${sub.exercise_id}/my-submissions`, { headers }).subscribe({
             next: (res) => {
               const passed = (res.best || []).some((s: any) => s.passed);
               console.log('Lab check', sub.exercise_id, passed, res);
@@ -150,7 +150,7 @@ export class CourseDetailComponent implements OnInit {
     for (const chapter of this.chapters) {
       // Quiz du chapitre lui-même
       if (chapter.quiz_id) {
-        this.http.get<any[]>(`http://localhost:8005/api/quizzes/${chapter.quiz_id}/attempts/mine`, { headers }).subscribe({
+        this.http.get<any[]>(`/api/quizzes/${chapter.quiz_id}/attempts/mine`, { headers }).subscribe({
           next: (attempts) => {
             if (attempts.length > 0) {
               const best = Math.max(...attempts.map((a: any) => Math.round((a.score / (a.max_score||1)) * 100)));
@@ -162,7 +162,7 @@ export class CourseDetailComponent implements OnInit {
       // Quiz des sous-chapitres
       for (const sub of chapter.sub_chapters || []) {
         if (sub.quiz_id) {
-          this.http.get<any[]>(`http://localhost:8005/api/quizzes/${sub.quiz_id}/attempts/mine`, { headers }).subscribe({
+          this.http.get<any[]>(`/api/quizzes/${sub.quiz_id}/attempts/mine`, { headers }).subscribe({
             next: (attempts) => {
               if (attempts.length > 0) {
                 const best = Math.max(...attempts.map((a: any) => Math.round((a.score / (a.max_score||1)) * 100)));
@@ -357,7 +357,7 @@ export class CourseDetailComponent implements OnInit {
     this.codeSuccess = null;
     const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
-    this.http.post<any>('http://localhost:8004/api/execute',
+    this.http.post<any>('/api/execute',
       { language: this.editorLang, code: this.editorCode },
       { headers }
     ).subscribe({

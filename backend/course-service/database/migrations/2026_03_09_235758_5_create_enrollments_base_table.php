@@ -5,18 +5,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
-        Schema::create('chapters', function (Blueprint $table) {
+        Schema::create('enrollments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('course_id');
-            $table->string('title')->nullable();
-            $table->string('objective')->nullable();
-            $table->integer('order')->default(0);
+            $table->string('status')->default('active');
             $table->timestamps();
-            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
         });
     }
 
     public function down(): void {
-        Schema::dropIfExists('chapters');
+        Schema::dropIfExists('enrollments');
     }
 };

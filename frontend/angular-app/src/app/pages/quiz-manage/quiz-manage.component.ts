@@ -210,8 +210,8 @@ export class QuizManageComponent implements OnInit {
   showQuestionForm: Record<number, boolean> = {};
   questionForms: Record<number, any> = {};
   quizForm = { title: '', description: '', passing_score: 70, time_limit: null as number | null };
-  private readonly QUIZ_API = 'http://localhost:8005/api';
-  private readonly COURSE_API = 'http://localhost:8002/api';
+  private readonly QUIZ_API = '/api/quizzes';
+  private readonly COURSE_API = '/api';
 
   constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient, private auth: AuthService) {}
 

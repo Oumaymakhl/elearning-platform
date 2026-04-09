@@ -455,6 +455,29 @@ services:
       - nginx-content
       - nginx-executor
     restart: unless-stopped
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    networks:
+      - elearning-network
+    restart: unless-stopped
+
+  chatbot-service:
+    build:
+      context: /home/ouma/projects/elearning-platform/backend/chatbot-service
+      dockerfile: Dockerfile
+    container_name: chatbot-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/chatbot-service:/var/www/html
+    ports:
+      - "8007:80"
+    networks:
+      - elearning-network
+    restart: unless-stopped
+
 networks:
   elearning-network:
     driver: bridge

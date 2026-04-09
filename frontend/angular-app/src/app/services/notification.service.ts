@@ -42,7 +42,7 @@ export function parseNotification(n: any): Notification {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService implements OnDestroy {
-  private apiUrl   = 'http://localhost:8006/api';
+  private apiUrl   = '/api/notifications';
   private eventSource?: EventSource;
   private lastId   = 0;
   private pollSub?: Subscription;
@@ -65,7 +65,7 @@ export class NotificationService implements OnDestroy {
   private connectSSE(): void {
     this.closeSSE();
     const token = localStorage.getItem('token') || '';
-    const url   = `${this.apiUrl}/notifications/stream?lastId=${this.lastId}&token=${token}`;
+    const url   = `${this.apiUrl}/stream?lastId=${this.lastId}&token=${token}`;
 
     try {
       this.eventSource = new EventSource(url);
@@ -93,7 +93,7 @@ export class NotificationService implements OnDestroy {
         // Fallback polling toutes les 15s si SSE échoue
         if (!this.pollSub) {
           this.pollSub = interval(15000).pipe(
-            switchMap(() => this.http.get<any>(this.apiUrl + '/notifications', { headers: this.getHeaders() }).pipe(catchError(() => of(null))))
+            switchMap(() => this.http.get<any>(this.apiUrl, { headers: this.getHeaders() }).pipe(catchError(() => of(null))))
           ).subscribe(res => {
             if (res) this.updateFromResponse(res);
           });
@@ -103,7 +103,7 @@ export class NotificationService implements OnDestroy {
     } catch {
       // SSE non supporté — fallback polling
       this.pollSub = interval(15000).pipe(
-        switchMap(() => this.http.get<any>(this.apiUrl + '/notifications', { headers: this.getHeaders() }).pipe(catchError(() => of(null))))
+        switchMap(() => this.http.get<any>(this.apiUrl, { headers: this.getHeaders() }).pipe(catchError(() => of(null))))
       ).subscribe(res => { if (res) this.updateFromResponse(res); });
     }
   }
@@ -124,7 +124,7 @@ export class NotificationService implements OnDestroy {
   }
 
   fetchNotifications(): void {
-    this.http.get<any>(this.apiUrl + '/notifications', { headers: this.getHeaders() })
+    this.http.get<any>(this.apiUrl, { headers: this.getHeaders() })
       .pipe(catchError(() => of(null)))
       .subscribe(res => { if (res) this.updateFromResponse(res); });
   }
@@ -145,13 +145,13 @@ export class NotificationService implements OnDestroy {
   }
 
   markAsRead(id: number): void {
-    this.http.post(this.apiUrl + '/notifications/' + id + '/read', {}, { headers: this.getHeaders() })
+    this.http.post(this.apiUrl + '/' + id + '/read', {}, { headers: this.getHeaders() })
       .pipe(catchError(() => of(null)))
       .subscribe(() => this.fetchNotifications());
   }
 
   markAllAsRead(): void {
-    this.http.post(this.apiUrl + '/notifications/read-all', {}, { headers: this.getHeaders() })
+    this.http.post(this.apiUrl + '/read-all', {}, { headers: this.getHeaders() })
       .pipe(catchError(() => of(null)))
       .subscribe(() => this.fetchNotifications());
   }

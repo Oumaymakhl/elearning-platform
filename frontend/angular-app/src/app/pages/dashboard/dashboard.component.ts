@@ -33,7 +33,7 @@ import { FormsModule } from '@angular/forms';
         <div class="tab-bar">
           <button class="tab" [class.active]="activeTab==='overview'" (click)="activeTab='overview'">Vue générale</button>
           <button *ngIf="!isStudent" class="tab" [class.active]="activeTab==='courses'" (click)="activeTab='courses'">Cours</button>
-          <button *ngIf="!isStudent" class="tab" [class.active]="activeTab==='terminal'" (click)="activeTab='terminal'">Terminal cat</button>
+
         </div>
 
         <!-- ===== TAB: Vue générale ===== -->
@@ -74,8 +74,8 @@ import { FormsModule } from '@angular/forms';
               <div class="kpi-value">{{ stats.completed }}</div>
             </div>
             <div class="kpi-card purple">
-              <div class="kpi-label">Score moyen</div>
-              <div class="kpi-value">{{ stats.score }}%</div>
+              <div class="kpi-label">{{ isStudent ? 'Score moyen' : 'Taux complétion' }}</div>
+              <div class="kpi-value">{{ isStudent ? stats.score : stats.completion }}%</div>
             </div>
             <div class="kpi-card amber">
               <div class="kpi-label">En cours</div>
@@ -120,10 +120,10 @@ import { FormsModule } from '@angular/forms';
                   <tr *ngFor="let c of recentCourses; let i = index" [routerLink]="['/courses', c.id]" class="clickable">
                     <td><span class="rank" [class]="getRankClass(i)">{{ i+1 }}</span></td>
                     <td class="course-title-cell">{{ c.title }}</td>
-                    <td><strong>{{ c.enrollments || '—' }}</strong></td>
+                    <td><strong>{{ c.enrollments ?? '—' }}</strong></td>
                     <td>
                       <div class="mini-bar">
-                        <div class="mini-fill" [class.high]="(c.progress||0)>=70" [class.mid]="(c.progress||0)>=40&&(c.progress||0)<70" [class.low]="(c.progress||0)<40" [style.width]="(c.progress||0)+'%'"></div>
+                        <div class="mini-fill" [class.high]="(c.progress ?? 0)>=70" [class.mid]="(c.progress ?? 0)>=40&&(c.progress ?? 0)<70" [class.low]="(c.progress ?? 0)<40" [style.width]="(c.progress ?? 0)+'%'"></div>
                       </div>
                     </td>
                   </tr>
@@ -138,34 +138,7 @@ import { FormsModule } from '@angular/forms';
           </div>
         </div>
 
-        <!-- ===== TAB: Terminal cat ===== -->
-        <div *ngIf="activeTab==='terminal'">
-          <div class="terminal">
-            <div class="term-header">
-              <div class="term-dot r"></div>
-              <div class="term-dot y"></div>
-              <div class="term-dot g"></div>
-              <span class="term-title">eduplatform — bash — 80x24</span>
-            </div>
-            <div class="term-body" #termBody>
-              <div class="term-history" [innerHTML]="terminalOutput"></div>
-              <div class="term-input-line">
-                <span class="prompt">{{ userPrefix }}:~$</span>
-                <input
-                  class="term-input"
-                  [(ngModel)]="termCmd"
-                  (keydown.enter)="runCmd()"
-                  placeholder="cat /api/admin/stats"
-                  autocomplete="off"
-                  spellcheck="false"
-                />
-              </div>
-            </div>
-          </div>
-          <div class="cmd-shortcuts">
-            <button *ngFor="let s of shortcuts" (click)="insertShortcut(s.cmd)">{{ s.label }}</button>
-          </div>
-        </div>
+
 
       </main>
     </div>
@@ -220,51 +193,15 @@ import { FormsModule } from '@angular/forms';
     .mini-fill { height:100%; border-radius:3px; }
     .mini-fill.high{background:#10b981} .mini-fill.mid{background:#f59e0b} .mini-fill.low{background:#ef4444}
     .empty-row { text-align:center; color:#94a3b8; padding:1.5rem; }
-    /* Terminal */
-    .terminal { background:#0d1117; border-radius:12px; border:1px solid #30363d; overflow:hidden; margin-bottom:1rem; }
-    .term-header { background:#161b22; padding:.5rem 1rem; display:flex; align-items:center; gap:6px; border-bottom:1px solid #30363d; }
-    .term-dot { width:10px; height:10px; border-radius:50%; }
-    .term-dot.r{background:#ff5f57} .term-dot.y{background:#ffbd2e} .term-dot.g{background:#28ca42}
-    .term-title { font-size:.72rem; color:#8b949e; margin-left:4px; font-family:monospace; }
-    .term-body { padding:1rem 1.25rem; font-family:'Courier New',monospace; font-size:.8rem; line-height:1.7; max-height:400px; overflow-y:auto; }
-    .term-history { white-space:pre-wrap; word-break:break-all; }
-    .term-input-line { display:flex; align-items:center; gap:.5rem; margin-top:.25rem; }
-    .prompt { color:#4A90D9; white-space:nowrap; }
-    .term-input { flex:1; background:transparent; border:none; outline:none; color:#e6edf3; font-family:'Courier New',monospace; font-size:.8rem; caret-color:#4A90D9; }
-    .cmd-shortcuts { display:flex; gap:.5rem; flex-wrap:wrap; }
-    .cmd-shortcuts button { font-family:monospace; font-size:.75rem; padding:.3rem .7rem; background:#1E3A5F; color:white; border:none; border-radius:6px; cursor:pointer; }
-    .cmd-shortcuts button:hover { background:#4A90D9; }
   `]
 })
 export class DashboardComponent implements OnInit {
   user: any;
   recentCourses: any[] = [];
-  stats = { courses: 0, completed: 0, score: 0 };
+  stats = { courses: 0, completed: 0, score: 0, completion: 0 };
   adminStats: any = null;
   activeTab = 'overview';
   today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-
-  // Terminal
-  termCmd = '';
-  terminalOutput = '';
-
-  shortcuts = [
-    { label: 'cat /api/admin/stats',       cmd: 'cat /api/admin/stats' },
-    { label: 'cat /api/admin/users',       cmd: 'cat /api/admin/users' },
-    { label: 'cat /api/analytics/teacher', cmd: 'cat /api/analytics/teacher' },
-    { label: 'cat /api/quiz-stats',        cmd: 'cat /api/quiz-stats' },
-    { label: 'cat /api/attempts/mine',     cmd: 'cat /api/attempts/mine' },
-    { label: 'ls',                         cmd: 'ls' },
-    { label: 'help',                       cmd: 'help' },
-  ];
-
-  private catRoutes: Record<string, () => void> = {
-    '/api/admin/stats':        () => this.catAdminStats(),
-    '/api/admin/users':        () => this.catAdminUsers(),
-    '/api/analytics/teacher':  () => this.catAnalytics(),
-    '/api/quiz-stats':         () => this.catQuizStats(),
-    '/api/attempts/mine':      () => this.catAttempts(),
-  };
 
   get isStudent() { return this.auth.isStudent(); }
   get isTeacher() { return this.auth.isTeacher(); }
@@ -281,12 +218,11 @@ export class DashboardComponent implements OnInit {
   ngOnInit() {
     this.user = this.auth.getCurrentUser();
     this.loadData();
-    this.appendTermLine(`<span style="color:#7ee787">EduPlatform Terminal v1.0</span> — Tapez <span style="color:#79c0ff">help</span> pour voir les commandes\n`);
   }
 
   loadData() {
     if (this.isAdmin) {
-      this.http.get('http://localhost:8001/api/admin/stats').subscribe({
+      this.http.get('/api/admin/stats').subscribe({
         next: (s: any) => { this.adminStats = s; this.stats.courses = s.courses?.total || 0; },
         error: () => {}
       });
@@ -305,7 +241,7 @@ export class DashboardComponent implements OnInit {
         },
         error: () => {}
       });
-      this.http.get<any[]>('http://localhost:8005/api/attempts/mine').subscribe({
+      this.http.get<any[]>('/api/attempts/mine').subscribe({
         next: (attempts) => {
           if (attempts.length > 0) {
             const best: Record<number, number> = {};
@@ -322,8 +258,29 @@ export class DashboardComponent implements OnInit {
     } else {
       this.courseService.getCourses().subscribe({
         next: (courses) => {
-          this.recentCourses = courses.filter((c: any) => c.instructor_id === this.user?.id).slice(0, 6);
-          this.stats.courses = this.recentCourses.length;
+          const myId = this.user?.auth_id || this.user?.id;
+          const myCourses = courses.filter((c: any) => c.instructor_id === myId).slice(0, 6);
+          // Enrichir avec les stats analytics
+          this.http.get<any>('/api/analytics/teacher').subscribe({
+            next: (analytics: any) => {
+              const topMap: any = {};
+              (analytics.top_courses || []).forEach((tc: any) => { topMap[tc.id] = tc; });
+              const compMap: any = {};
+              (analytics.completion_by_course || []).forEach((cc: any) => { compMap[cc.course_id] = cc; });
+              this.recentCourses = myCourses.map((c: any) => ({
+                ...c,
+                enrollments: topMap[c.id]?.enrollments ?? 0,
+                progress: compMap[c.id]?.completion_rate ?? 0
+              }));
+              this.stats.courses = this.recentCourses.length;
+              this.stats.completion = analytics.summary?.completion_rate ?? 0;
+              this.stats.completed = (analytics.summary?.completed ?? 0);
+            },
+            error: (e) => {
+              this.recentCourses = myCourses;
+              this.stats.courses = myCourses.length;
+            }
+          });
         },
         error: () => {}
       });
@@ -332,143 +289,6 @@ export class DashboardComponent implements OnInit {
 
   getRankClass(i: number): string {
     return ['gold','silver','bronze'][i] ?? 'other';
-  }
-
-  // ---- Terminal ----
-
-  insertShortcut(cmd: string) { this.termCmd = cmd; }
-
-  runCmd() {
-    const raw = this.termCmd.trim();
-    if (!raw) return;
-    this.appendTermLine(`<span style="color:#4A90D9">${this.userPrefix}:~$</span> <span style="color:#79c0ff">${raw}</span>\n`);
-    const parts = raw.split(/\s+/);
-    const cmd = parts[0];
-    const arg = parts[1] || '';
-
-    if (cmd === 'cat') {
-      const route = this.catRoutes[arg];
-      if (route) { route(); }
-      else {
-        this.appendTermLine(`<span style="color:#ff7b72">bash: cat: ${arg}: No such endpoint. Tapez help.</span>\n\n`);
-      }
-    } else if (cmd === 'ls') {
-      this.appendTermLine(`<span style="color:#a5d6ff">admin/  analytics/  attempts/  courses/  quiz-stats  users/</span>\n\n`);
-    } else if (cmd === 'help') {
-      this.appendTermLine(
-        `<span style="color:#d2a8ff">Commandes disponibles:</span>\n` +
-        `  <span style="color:#79c0ff">cat /api/admin/stats</span>        — statistiques globales\n` +
-        `  <span style="color:#79c0ff">cat /api/admin/users</span>        — liste des utilisateurs\n` +
-        `  <span style="color:#79c0ff">cat /api/analytics/teacher</span>  — analytics formateur\n` +
-        `  <span style="color:#79c0ff">cat /api/quiz-stats</span>         — stats quizzes\n` +
-        `  <span style="color:#79c0ff">cat /api/attempts/mine</span>      — tentatives quiz\n` +
-        `  <span style="color:#79c0ff">ls</span>                          — endpoints disponibles\n` +
-        `  <span style="color:#79c0ff">clear</span>                       — vider le terminal\n\n`
-      );
-    } else if (cmd === 'clear') {
-      this.terminalOutput = '';
-    } else {
-      this.appendTermLine(`<span style="color:#ff7b72">bash: ${cmd}: command not found. Tapez <span style="color:#79c0ff">help</span>.</span>\n\n`);
-    }
-    this.termCmd = '';
-  }
-
-  private appendTermLine(html: string) {
-    this.terminalOutput += html;
-  }
-
-  private catAdminStats() {
-    this.http.get('http://localhost:8001/api/admin/stats').subscribe({
-      next: (s: any) => {
-        this.appendTermLine(
-          `<span style="color:#8b949e">{</span>\n` +
-          `  <span style="color:#7ee787">"users"</span>: {\n` +
-          `    <span style="color:#7ee787">"total_users"</span>: <span style="color:#ff7b72">${s.users?.total_users ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"students"</span>: <span style="color:#ff7b72">${s.users?.students ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"teachers"</span>: <span style="color:#ff7b72">${s.users?.teachers ?? 0}</span>\n` +
-          `  },\n` +
-          `  <span style="color:#7ee787">"courses"</span>: { <span style="color:#7ee787">"total_courses"</span>: <span style="color:#ff7b72">${s.courses?.total_courses ?? 0}</span> },\n` +
-          `  <span style="color:#7ee787">"quizzes"</span>: {\n` +
-          `    <span style="color:#7ee787">"total_attempts"</span>: <span style="color:#ff7b72">${s.quizzes?.total_attempts ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"pass_rate"</span>: <span style="color:#ff7b72">${s.quizzes?.pass_rate ?? 0}</span>\n` +
-          `  }\n` +
-          `<span style="color:#8b949e">}</span>\n\n`
-        );
-      },
-      error: (e) => this.appendTermLine(`<span style="color:#ff7b72">Erreur HTTP ${e.status}: ${e.message}</span>\n\n`)
-    });
-  }
-
-  private catAdminUsers() {
-    this.http.get<any>('http://localhost:8001/api/admin/users').subscribe({
-      next: (res: any) => {
-        const users: any[] = res.data || res;
-        let out = `<span style="color:#d2a8ff">ID   NOM                  EMAIL                        RÔLE</span>\n`;
-        out += `<span style="color:#8b949e">${'─'.repeat(65)}</span>\n`;
-        for (const u of users.slice(0, 8)) {
-          const name  = (u.name  || '').padEnd(20).slice(0,20);
-          const email = (u.email || '').padEnd(28).slice(0,28);
-          out += `<span style="color:#ff7b72">${String(u.id).padEnd(4)}</span> <span style="color:#a5d6ff">${name}</span> <span style="color:#a5d6ff">${email}</span> <span style="color:#7ee787">${u.role}</span>\n`;
-        }
-        if (users.length > 8) out += `<span style="color:#8b949e">... ${users.length - 8} autres entrées</span>\n`;
-        this.appendTermLine(out + '\n');
-      },
-      error: (e) => this.appendTermLine(`<span style="color:#ff7b72">Erreur HTTP ${e.status}: ${e.message}</span>\n\n`)
-    });
-  }
-
-  private catAnalytics() {
-    this.http.get<any>('http://localhost:8002/api/analytics/teacher').subscribe({
-      next: (data: any) => {
-        const s = data.summary || {};
-        this.appendTermLine(
-          `<span style="color:#8b949e">{</span>\n` +
-          `  <span style="color:#7ee787">"summary"</span>: {\n` +
-          `    <span style="color:#7ee787">"total_courses"</span>: <span style="color:#ff7b72">${s.total_courses ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"total_enrollments"</span>: <span style="color:#ff7b72">${s.total_enrollments ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"completion_rate"</span>: <span style="color:#ff7b72">${s.completion_rate ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"active_students"</span>: <span style="color:#ff7b72">${s.active_students ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"avg_progress"</span>: <span style="color:#ff7b72">${s.avg_progress ?? 0}</span>,\n` +
-          `    <span style="color:#7ee787">"completed"</span>: <span style="color:#ff7b72">${s.completed ?? 0}</span>\n` +
-          `  }\n` +
-          `<span style="color:#8b949e">}</span>\n\n`
-        );
-      },
-      error: (e) => this.appendTermLine(`<span style="color:#ff7b72">Erreur HTTP ${e.status}: ${e.message}</span>\n\n`)
-    });
-  }
-
-  private catQuizStats() {
-    this.http.get<any>('http://localhost:8005/api/quiz-stats').subscribe({
-      next: (data: any) => {
-        this.appendTermLine(
-          `<span style="color:#8b949e">{</span>\n` +
-          `  <span style="color:#7ee787">"total_quizzes"</span>: <span style="color:#ff7b72">${data.total_quizzes ?? 0}</span>,\n` +
-          `  <span style="color:#7ee787">"total_attempts"</span>: <span style="color:#ff7b72">${data.total_attempts ?? 0}</span>,\n` +
-          `  <span style="color:#7ee787">"completed"</span>: <span style="color:#ff7b72">${data.completed ?? 0}</span>,\n` +
-          `  <span style="color:#7ee787">"pass_rate"</span>: <span style="color:#ff7b72">${data.pass_rate ?? 0}</span>\n` +
-          `<span style="color:#8b949e">}</span>\n\n`
-        );
-      },
-      error: (e) => this.appendTermLine(`<span style="color:#ff7b72">Erreur HTTP ${e.status}: ${e.message}</span>\n\n`)
-    });
-  }
-
-  private catAttempts() {
-    this.http.get<any[]>('http://localhost:8005/api/attempts/mine').subscribe({
-      next: (attempts: any[]) => {
-        let out = `<span style="color:#8b949e">[  /* ${attempts.length} tentatives */</span>\n`;
-        for (const a of attempts.slice(0, 5)) {
-          const pct = a.max_score > 0 ? Math.round((a.score / a.max_score) * 100) : 0;
-          const passed = pct >= 50;
-          out += `  { <span style="color:#7ee787">"quiz_id"</span>: <span style="color:#ff7b72">${a.quiz_id}</span>, <span style="color:#7ee787">"score"</span>: <span style="color:#ff7b72">${a.score}/${a.max_score}</span>, <span style="color:#7ee787">"pct"</span>: <span style="color:#ff7b72">${pct}%</span>, <span style="color:#7ee787">"passed"</span>: <span style="color:${passed ? '#7ee787' : '#ff7b72'}">${passed}</span> },\n`;
-        }
-        if (attempts.length > 5) out += `  <span style="color:#8b949e">... ${attempts.length - 5} autres</span>\n`;
-        out += `<span style="color:#8b949e">]</span>\n\n`;
-        this.appendTermLine(out);
-      },
-      error: (e) => this.appendTermLine(`<span style="color:#ff7b72">Erreur HTTP ${e.status}: ${e.message}</span>\n\n`)
-    });
   }
 
   logout() {

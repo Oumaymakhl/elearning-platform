@@ -23,6 +23,6 @@ export class ChatService {
     if (context?.course_title)   body.course_title   = context.course_title;
     if (context?.lesson_title)   body.lesson_title   = context.lesson_title;
     if (context?.lesson_content) body.lesson_content = context.lesson_content;
-    return this.http.post('http://localhost:8007/api/chat', body, { headers });
+    return this.http.post('/api/chat', body, { headers });
   }
 }

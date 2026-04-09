@@ -5,7 +5,7 @@ import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://localhost:8000/api';
+  private apiUrl = '/auth-api';
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -24,6 +24,13 @@ export class AuthService {
           localStorage.setItem('token', res.authorization.token);
           localStorage.setItem('user', JSON.stringify(res.user));
           this.currentUserSubject.next(res.user);
+          // Charger le profil complet avec avatar
+          this.http.get<any>('/api/me', { headers: { Authorization: 'Bearer ' + res.authorization.token } })
+            .subscribe(profile => {
+              const full = { ...res.user, ...profile, avatar_url: profile.avatar_url ? profile.avatar_url.replace('http://localhost:8001', 'http://localhost:8001') : null };
+              localStorage.setItem('user', JSON.stringify(full));
+              this.currentUserSubject.next(full);
+            });
         }
       })
     );
