@@ -34,6 +34,8 @@ export class QuizComponent implements OnInit {
   get isAdmin()   { return this.auth.isAdmin(); }
 
   courseId: number | null = null;
+  completedLabs: Set<number> = new Set();
+  showLabBlockedModal = false;
   subId: number | null = null;
   subIndex: number = -1;
 
@@ -79,6 +81,18 @@ export class QuizComponent implements OnInit {
           expanded: true,
           sub_chapters: c.sub_chapters || c.subChapters || []
         }));
+        // Charger les TDs réussis
+        const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
+        const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
+        const headers = { Authorization: 'Bearer ' + token };
+        allSubs.filter((s: any) => s.is_lab && s.exercise_id).forEach((s: any) => {
+          this.http.get<any>(`/api/exercises/${s.exercise_id}/my-submissions`, { headers: { Authorization: 'Bearer ' + token } }).subscribe({
+            next: (res: any[]) => {
+              if (res.some((r: any) => r.passed)) this.completedLabs.add(s.exercise_id);
+            },
+            error: () => {}
+          });
+        });
       },
       error: () => {}
     });
@@ -95,7 +109,16 @@ export class QuizComponent implements OnInit {
     if (!cid) return;
     const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
     const idx = allSubs.findIndex((s: any) => s.id === sub.id);
-    if (sub.quiz_id) {
+    if (sub.is_lab && sub.exercise_id) {
+      if (this.completedLabs.has(sub.exercise_id)) {
+        this.showLabBlockedModal = true;
+        setTimeout(() => this.showLabBlockedModal = false, 3000);
+        return;
+      }
+      this.router.navigate(['/exercise', sub.exercise_id], {
+        queryParams: { course_id: cid, sub_index: idx }
+      });
+    } else if (sub.quiz_id) {
       this.router.navigate(['/quiz', sub.quiz_id], {
         queryParams: { course_id: cid, sub_id: sub.id, sub_index: idx }
       });

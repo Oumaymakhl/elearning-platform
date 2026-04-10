@@ -128,6 +128,7 @@ export class CourseDetailComponent implements OnInit {
   chaptersCollapsed = false;
   visitedSubs: Set<number> = new Set();
   completedLabs: Set<number> = new Set();
+  showLabBlockedModal = false;
   activeSubIndex: number = -1;
   allSubChapters: any[] = []; // liste plate de tous les sous-chapitres
 
@@ -303,7 +304,7 @@ export class CourseDetailComponent implements OnInit {
     }
     if (sub.is_lab && sub.exercise_id) {
       // Bloquer si TD déjà réussi
-      if (this.completedLabs.has(sub.exercise_id)) return;
+      if (this.completedLabs.has(sub.exercise_id)) { this.showLabBlockedModal = true; setTimeout(() => this.showLabBlockedModal = false, 3000); return; }
       const allSubs = this.getAllSubs();
       const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
       this.router.navigate(['/exercise', sub.exercise_id], {

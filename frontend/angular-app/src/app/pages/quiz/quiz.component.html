@@ -1,3 +1,16 @@
+
+<!-- TD Bloqué Modal -->
+<div *ngIf="showLabBlockedModal"
+  style="position:fixed; top:2rem; left:50%; transform:translateX(-50%); z-index:9999;
+         background:#fff; border-radius:16px; padding:1.5rem 2rem;
+         box-shadow:0 8px 40px rgba(0,0,0,.18); border:2px solid #86efac;
+         display:flex; align-items:center; gap:1rem; min-width:320px;">
+  <span style="font-size:2rem;">🏆</span>
+  <div>
+    <div style="font-weight:800; color:#16a34a; font-size:1rem;">TD déjà réussi !</div>
+    <div style="color:#4a5568; font-size:.85rem; margin-top:.2rem;">Vous avez déjà complété ce TD avec succès.</div>
+  </div>
+</div>
 <div class="layout">
 
   <!-- COURSE SIDEBAR identique à course-detail -->

@@ -124,6 +124,14 @@ interface Exercise {
               <div class="ex-hint" *ngIf="exercise.language === 'python'">
                 💡 Écrivez uniquement le corps de la fonction. Pas besoin de <code>print()</code>.
               </div>
+              <div *ngIf="alreadyPassed && questionIndex < allQuestions.length - 1"
+                style="margin-top:1rem; padding:1rem; background:#f0fdf4; border:1px solid #86efac; border-radius:12px; text-align:center;">
+                <div style="color:#16a34a; font-weight:700; margin-bottom:.5rem;">✅ Question {{ questionIndex + 1 }}/{{ allQuestions.length }} réussie !</div>
+                <button (click)="nextQuestion()"
+                  style="background:linear-gradient(135deg,#4361ee,#7c3aed); color:#fff; border:none; border-radius:10px; padding:.7rem 1.5rem; font-size:.9rem; font-weight:700; cursor:pointer; width:100%;">
+                  Question suivante →
+                </button>
+              </div>
             </div>
             <div *ngIf="!exercise && !loading" class="ex-description">
               Écrivez votre solution ci-contre.
@@ -182,12 +190,14 @@ interface Exercise {
             <div class="output-body" [class.error]="lastSuccess === false">
               <span *ngIf="!output && !running" style="font-style:italic">Cliquez sur "Soumettre" pour vérifier votre code...</span>
               <span *ngIf="running">⏳ Vérification en cours...</span>
-              <span *ngIf="output && !submitResult">{{ output }}</span>
-              <div *ngIf="submitResult && !submitResult.passed">
-                <div *ngFor="let r of submitResult.results">
-                  <span style="color:#fca5a5">❌ Test {{ r.test_case_id }}</span> — Sortie: {{ r.output }} | Attendu: {{ r.expected }}
+              <div *ngIf="submitResult">
+                <div *ngFor="let r of submitResult.results" style="margin-bottom:.3rem">
+                  <span [style.color]="r.passed ? '#86efac' : '#fca5a5'">{{ r.passed ? '✅' : '❌' }} Test {{ r.test_case_id }}</span>
+                  <span style="color:#cbd5e1"> — Sortie: <code style="color:#fff">{{ r.output || '(vide)' }}</code> | Attendu: <code style="color:#fff">{{ r.expected }}</code></span>
                 </div>
               </div>
+              <span *ngIf="!submitResult && output">{{ output }}</span>
+              <span *ngIf="!submitResult && !output" style="color:#4a5568;font-style:italic">Cliquez sur "Soumettre" pour vérifier votre code...</span>
             </div>
           </div>
 
@@ -197,6 +207,7 @@ interface Exercise {
             <span class="fail-hint">Réessayez !</span>
           </div>
         </div>
+
 
         <!-- SUCCESS OVERLAY -->
         <div class="success-overlay" *ngIf="showSuccess">
@@ -237,7 +248,10 @@ export class ExerciseComponent implements OnInit {
   submitResult: any = null;
   showSuccess = false;
   alreadyPassed = false;
+  showBlockedModal = false;
   currentQuestion: any = null;
+  questionIndex: number = 0;
+  allQuestions: any[] = [];
   courseId: number | null = null;
   subIndex: number | null = null;
 
@@ -280,6 +294,8 @@ export class ExerciseComponent implements OnInit {
           this.exercise = ex;
           if (ex.language) this.selectedLang = ex.language;
           if (ex.questions && ex.questions.length > 0) {
+            this.allQuestions = ex.questions;
+            this.questionIndex = 0;
             this.questionId = ex.questions[0].id;
             this.currentQuestion = ex.questions[0];
             // Utiliser le template_code comme starter si disponible
@@ -342,8 +358,10 @@ export class ExerciseComponent implements OnInit {
           this.lastSuccess = res.passed;
           this.running = false;
           if (res.passed) {
-            this.showSuccess = true;
             this.alreadyPassed = true;
+            if (this.questionIndex >= this.allQuestions.length - 1) {
+              this.showSuccess = true;
+            }
           } else {
             this.output = '';
           }
@@ -370,6 +388,21 @@ export class ExerciseComponent implements OnInit {
           this.running = false;
         }
       });
+    }
+  }
+
+  nextQuestion() {
+    if (this.questionIndex < this.allQuestions.length - 1) {
+      this.questionIndex++;
+      this.currentQuestion = this.allQuestions[this.questionIndex];
+      this.questionId = this.currentQuestion.id;
+      this.code = this.currentQuestion.template_code || '';
+      this.output = '';
+      this.submitResult = null;
+      this.lastSuccess = null;
+      this.alreadyPassed = false;
+      this.showSuccess = false;
+      this.updateLineNumbers();
     }
   }
 

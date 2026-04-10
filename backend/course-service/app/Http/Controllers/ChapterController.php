@@ -10,7 +10,7 @@ class ChapterController extends Controller
     public function index($courseId)
     {
         Course::findOrFail($courseId);
-        $chapters = Chapter::with('subChapters')
+        $chapters = Chapter::with('subChapters.exercise')
             ->where('course_id', $courseId)
             ->orderBy('order')
             ->get();
@@ -19,7 +19,7 @@ class ChapterController extends Controller
 
     public function show($courseId, $id)
     {
-        $chapter = Chapter::with('subChapters')
+        $chapter = Chapter::with('subChapters.exercise')
             ->where('course_id', $courseId)
             ->findOrFail($id);
         return response()->json($chapter);

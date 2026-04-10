@@ -11,7 +11,7 @@ class SubChapterController extends Controller {
     }
 
     public function show($courseId, $chapterId, $id) {
-        return response()->json(SubChapter::where('chapter_id', $chapterId)->findOrFail($id));
+        return response()->json(SubChapter::with('exercise')->where('chapter_id', $chapterId)->findOrFail($id));
     }
 
     public function store(Request $request, $courseId, $chapterId) {
@@ -23,10 +23,11 @@ class SubChapterController extends Controller {
             'is_lab'        => 'nullable|boolean',
             'quiz_id'       => 'nullable|integer',
             'passing_score' => 'nullable|integer|min:0|max:100',
+            'exercise_id'   => 'nullable|integer',
         ]);
         $data['chapter_id'] = $chapterId;
         $data['order'] = $data['order'] ?? (SubChapter::where('chapter_id', $chapterId)->max('order') + 1);
-        return response()->json(SubChapter::create($data), 201);
+        return response()->json(SubChapter::create($data)->load('exercise'), 201);
     }
 
     public function update(Request $request, $courseId, $chapterId, $id) {
@@ -41,7 +42,7 @@ class SubChapterController extends Controller {
             'exercise_id'   => 'nullable|integer',
         ]);
         $sub->update($data);
-        return response()->json($sub);
+        return response()->json($sub->load('exercise'));
     }
 
     public function destroy($courseId, $chapterId, $id) {

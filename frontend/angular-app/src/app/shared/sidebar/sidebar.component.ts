@@ -53,6 +53,7 @@ import { Subscription } from 'rxjs';
         <a routerLink="/analytics" class="nav-item" routerLinkActive="active" *ngIf="isTeacher || isAdmin">📊 Analytics</a>
         <a routerLink="/admin" class="nav-item" routerLinkActive="active" *ngIf="isAdmin">⚙️ Administration</a>
         <a routerLink="/chatbot" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🤖 Assistant IA</a>
+        <a routerLink="/certificates" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🏆 Mes certificats</a>
       </nav>
 
       <div class="sidebar-footer" [routerLink]="['/profile']" style="cursor:pointer" title="Mon profil">
