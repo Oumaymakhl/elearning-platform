@@ -12,6 +12,8 @@ export const routes: Routes = [
   { path: 'courses/create', loadComponent: () => import('./pages/courses/course-create.component').then(m => m.CourseCreateComponent), canActivate: [authGuard] },
   { path: 'courses/:id', loadComponent: () => import('./pages/courses/course-detail.component').then(m => m.CourseDetailComponent), canActivate: [authGuard] },
   { path: 'courses/:id/manage', loadComponent: () => import('./pages/chapters/chapter-manage.component').then(m => m.ChapterManageComponent), canActivate: [authGuard] },
+  { path: 'reset-password', loadComponent: () => import('./pages/auth/reset-password.component').then(m => m.ResetPasswordComponent), canActivate: [guestGuard] },
+  { path: 'forgot-password', loadComponent: () => import('./pages/auth/forgot-password.component').then(m => m.ForgotPasswordComponent), canActivate: [guestGuard] },
   { path: 'verify-email', loadComponent: () => import('./pages/auth/verify-email.component').then(m => m.VerifyEmailComponent) },
   { path: 'courses/:courseId/td/:subId', loadComponent: () => import('./pages/td/td-manage.component').then(m => m.TdManageComponent), canActivate: [authGuard] },
   { path: 'courses/:id/certificate', loadComponent: () => import('./pages/certificate/certificate.component').then(m => m.CertificateComponent), canActivate: [authGuard] },

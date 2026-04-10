@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-forgot-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   template: `
@@ -19,69 +19,55 @@ import { AuthService } from '../../services/auth.service';
             <svg viewBox="0 0 340 280" xmlns="http://www.w3.org/2000/svg" class="illus-svg">
               <circle cx="170" cy="140" r="110" fill="#4A90D9" opacity=".12"/>
               <circle cx="170" cy="140" r="75" fill="#4A90D9" opacity=".1"/>
-              <rect x="90" y="70" width="150" height="110" rx="12" fill="white" opacity=".9"/>
-              <rect x="90" y="70" width="150" height="28" rx="12" fill="#1E3A5F" opacity=".85"/>
-              <rect x="90" y="84" width="150" height="14" rx="0" fill="#1E3A5F" opacity=".85"/>
-              <circle cx="103" cy="84" r="4" fill="#ef4444" opacity=".8"/>
-              <circle cx="116" cy="84" r="4" fill="#f59e0b" opacity=".8"/>
-              <circle cx="129" cy="84" r="4" fill="#10b981" opacity=".8"/>
-              <rect x="105" y="110" width="120" height="8" rx="4" fill="#4A90D9" opacity=".5"/>
-              <rect x="105" y="126" width="90" height="6" rx="3" fill="#e2e8f0"/>
-              <rect x="105" y="140" width="100" height="6" rx="3" fill="#e2e8f0"/>
-              <rect x="105" y="154" width="70" height="14" rx="7" fill="#4A90D9" opacity=".85"/>
-              <circle cx="265" cy="110" r="30" fill="#4A90D9" opacity=".15"/>
-              <circle cx="265" cy="104" r="12" fill="#FFD7B5"/>
-              <rect x="253" y="116" width="24" height="30" rx="6" fill="#4A90D9" opacity=".7"/>
-              <rect x="245" y="120" width="12" height="20" rx="5" fill="#4A90D9" opacity=".5"/>
-              <rect x="277" y="120" width="12" height="20" rx="5" fill="#4A90D9" opacity=".5"/>
-              <circle cx="95" cy="210" r="22" fill="#4A90D9" opacity=".12"/>
-              <circle cx="95" cy="204" r="9" fill="#FFD7B5"/>
-              <rect x="86" y="213" width="18" height="22" rx="5" fill="#1E3A5F" opacity=".5"/>
-              <path d="M200 180 Q230 160 250 185" stroke="#4A90D9" stroke-width="2" fill="none" opacity=".4" stroke-dasharray="4,3"/>
-              <text x="280" y="75" font-size="14" fill="#4A90D9" opacity=".5">✦</text>
-              <text x="65" y="160" font-size="10" fill="#1E3A5F" opacity=".3">✦</text>
-              <text x="220" y="240" font-size="12" fill="#4A90D9" opacity=".4">✦</text>
+              <rect x="110" y="100" width="120" height="90" rx="14" fill="white" opacity=".9"/>
+              <path d="M135 100 v-25 a35 35 0 0 1 70 0 v25" fill="none" stroke="#4A90D9" stroke-width="12" stroke-linecap="round" opacity=".4"/>
+              <circle cx="170" cy="143" r="14" fill="#4A90D9" opacity=".7"/>
+              <rect x="166" y="143" width="8" height="20" rx="4" fill="#1E3A5F" opacity=".6"/>
+              <circle cx="85" cy="185" r="38" fill="none" stroke="#f59e0b" stroke-width="10" opacity=".35"/>
+              <circle cx="85" cy="185" r="20" fill="none" stroke="#f59e0b" stroke-width="7" opacity=".3"/>
+              <rect x="118" y="181" width="65" height="10" rx="4" fill="#f59e0b" opacity=".45"/>
+              <rect x="169" y="191" width="12" height="15" rx="3" fill="#f59e0b" opacity=".45"/>
+              <rect x="150" y="191" width="10" height="12" rx="3" fill="#f59e0b" opacity=".35"/>
+              <circle cx="270" cy="155" r="22" fill="#4A90D9" opacity=".1"/>
+              <circle cx="270" cy="149" r="9" fill="#FFD7B5"/>
+              <rect x="261" y="158" width="18" height="26" rx="5" fill="#4A90D9" opacity=".45"/>
+              <text x="290" y="75" font-size="14" fill="#4A90D9" opacity=".5">✦</text>
+              <text x="55" y="120" font-size="10" fill="#1E3A5F" opacity=".3">✦</text>
+              <text x="210" y="255" font-size="12" fill="#4A90D9" opacity=".4">✦</text>
             </svg>
-            <h2>Bon retour parmi nous !</h2>
-            <p>Connectez-vous pour accéder à vos cours et continuer votre apprentissage.</p>
+            <h2>Mot de passe oublié ?</h2>
+            <p>Pas de panique ! Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.</p>
           </div>
         </div>
         <div class="form-side">
           <div class="form-card">
             <div class="brand">🎓 <span>E-Learning</span></div>
-            <h3>Connexion</h3>
-            <p class="sub">Bienvenue ! Entrez vos identifiants.</p>
-            <form [formGroup]="form" (ngSubmit)="submit()">
+            <h3>Réinitialiser</h3>
+            <p class="sub">Entrez votre adresse email pour recevoir le lien.</p>
+            <div class="success-box" *ngIf="sent">
+              <div class="success-icon">📧</div>
+              <h4>Email envoyé !</h4>
+              <p>Vérifiez votre boîte mail à <strong>{{ form.value.email }}</strong> et suivez le lien pour réinitialiser votre mot de passe.</p>
+              <a routerLink="/login" class="btn-back">← Retour à la connexion</a>
+            </div>
+            <form [formGroup]="form" (ngSubmit)="submit()" *ngIf="!sent">
               <div class="field">
-                <label>Email</label>
+                <label>Adresse email</label>
                 <div class="input-wrap">
                   <svg class="ico" viewBox="0 0 20 20" fill="none"><path d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm0 0l7 5 7-5" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/></svg>
                   <input type="email" formControlName="email" placeholder="votre@email.com">
                 </div>
-              </div>
-              <div class="field">
-                <label>Mot de passe</label>
-                <div class="input-wrap">
-                  <svg class="ico" viewBox="0 0 20 20" fill="none"><rect x="5" y="9" width="10" height="8" rx="2" stroke="#94a3b8" stroke-width="1.5"/><path d="M7 9V7a3 3 0 016 0v2" stroke="#94a3b8" stroke-width="1.5" stroke-linecap="round"/></svg>
-                  <input [type]="showPw ? 'text' : 'password'" formControlName="password" placeholder="••••••••">
-                  <button type="button" class="eye" (click)="showPw=!showPw">
-                    <svg viewBox="0 0 20 20" fill="none" width="18"><path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="#94a3b8" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="#94a3b8" stroke-width="1.5"/></svg>
-                  </button>
-                </div>
-              </div>
-              <div class="row-forgot">
-                <a routerLink="/forgot-password" class="forgot">Mot de passe oublié ?</a>
               </div>
               <div class="error-box" *ngIf="error">
                 <svg viewBox="0 0 20 20" width="16" fill="none"><circle cx="10" cy="10" r="8" stroke="#ef4444" stroke-width="1.5"/><path d="M10 6v4M10 14h.01" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/></svg>
                 {{ error }}
               </div>
               <button type="submit" [disabled]="loading" class="btn-submit">
-                <span *ngIf="!loading">Se connecter</span>
+                <span *ngIf="!loading">Envoyer le lien</span>
                 <span *ngIf="loading" class="spinner"></span>
               </button>
             </form>
-            <p class="switch">Pas encore inscrit ? <a routerLink="/register">S'inscrire</a></p>
+            <p class="switch" *ngIf="!sent">← <a routerLink="/login">Retour à la connexion</a></p>
           </div>
         </div>
       </div>
@@ -105,17 +91,13 @@ import { AuthService } from '../../services/auth.service';
     .brand { text-align:center; font-size:1.25rem; font-weight:800; color:#1E3A5F; margin-bottom:.4rem; }
     .brand span { color:#4A90D9; }
     h3 { text-align:center; font-size:1.6rem; color:#1E3A5F; font-weight:700; margin-bottom:.2rem; }
-    .sub { text-align:center; color:#64748b; font-size:.88rem; margin-bottom:1.75rem; }
-    .field { margin-bottom:1.1rem; }
+    .sub { text-align:center; color:#64748b; font-size:.88rem; margin-bottom:1.75rem; line-height:1.5; }
+    .field { margin-bottom:1.25rem; }
     label { display:block; font-size:.82rem; font-weight:600; color:#374151; margin-bottom:.4rem; }
     .input-wrap { position:relative; display:flex; align-items:center; }
     .ico { position:absolute; left:.85rem; width:17px; height:17px; }
     .input-wrap input { width:100%; padding:.78rem .78rem .78rem 2.6rem; border:1.5px solid #e2e8f0; border-radius:10px; font-size:.92rem; outline:none; transition:border-color .2s,box-shadow .2s; background:#f8fafc; color:#1e293b; }
     .input-wrap input:focus { border-color:#4A90D9; box-shadow:0 0 0 3px rgba(74,144,217,.12); background:white; }
-    .eye { position:absolute; right:.75rem; background:none; border:none; cursor:pointer; padding:0; display:flex; }
-    .row-forgot { display:flex; justify-content:flex-end; margin:.2rem 0 1rem; }
-    .forgot { font-size:.82rem; color:#4A90D9; text-decoration:none; font-weight:500; }
-    .forgot:hover { color:#1E3A5F; text-decoration:underline; }
     .error-box { display:flex; align-items:center; gap:.5rem; background:#fef2f2; border:1px solid #fecaca; color:#ef4444; padding:.65rem .85rem; border-radius:8px; font-size:.85rem; margin-bottom:1rem; }
     .btn-submit { width:100%; padding:.9rem; background:#4A90D9; color:white; border:none; border-radius:10px; font-size:1rem; font-weight:600; cursor:pointer; transition:background .2s,transform .1s; display:flex; align-items:center; justify-content:center; min-height:48px; }
     .btn-submit:hover:not(:disabled) { background:#1E3A5F; transform:translateY(-1px); }
@@ -125,41 +107,32 @@ import { AuthService } from '../../services/auth.service';
     .switch { text-align:center; margin-top:1.25rem; color:#64748b; font-size:.88rem; }
     .switch a { color:#4A90D9; font-weight:600; text-decoration:none; }
     .switch a:hover { color:#1E3A5F; }
+    .success-box { text-align:center; padding:1rem 0; }
+    .success-icon { font-size:3.5rem; margin-bottom:1rem; }
+    .success-box h4 { color:#1E3A5F; font-size:1.2rem; margin-bottom:.75rem; }
+    .success-box p { color:#64748b; font-size:.9rem; line-height:1.6; margin-bottom:1.5rem; }
+    .btn-back { display:inline-block; background:#4A90D9; color:white; padding:.75rem 1.75rem; border-radius:10px; text-decoration:none; font-weight:600; font-size:.9rem; }
+    .btn-back:hover { background:#1E3A5F; }
     @media(max-width:768px) { .illus-side { display:none; } .form-side { flex:1; } }
   `]
 })
-export class LoginComponent {
+export class ForgotPasswordComponent {
   form: FormGroup;
   loading = false;
   error = '';
-  showPw = false;
+  sent = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
-    this.form = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
-    });
+  constructor(private fb: FormBuilder, private http: HttpClient) {
+    this.form = this.fb.group({ email: ['', [Validators.required, Validators.email]] });
   }
 
   submit() {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      if (this.form.get('email')?.invalid) this.error = 'Veuillez entrer un email valide';
-      else if (this.form.get('password')?.invalid) this.error = 'Le mot de passe est obligatoire';
-      return;
-    }
+    if (this.form.invalid) { this.error = 'Veuillez entrer un email valide'; return; }
     this.loading = true;
     this.error = '';
-    const { email, password } = this.form.value;
-    this.auth.login(email, password).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
-      error: (e) => {
-        const status = e.status;
-        if (status === 401) this.error = 'Mot de passe incorrect';
-        else if (status === 404) this.error = 'Aucun compte trouvé avec cet email';
-        else this.error = e.error?.message || 'Une erreur est survenue';
-        this.loading = false;
-      }
+    this.http.post('/api/auth/forgot-password', { email: this.form.value.email }).subscribe({
+      next: () => { this.sent = true; this.loading = false; },
+      error: (e) => { this.error = e.error?.message || 'Email introuvable'; this.loading = false; }
     });
   }
 }
