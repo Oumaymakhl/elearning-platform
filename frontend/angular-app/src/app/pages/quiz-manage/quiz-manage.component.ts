@@ -474,6 +474,10 @@ export class QuizManageComponent implements OnInit {
         quiz.questions = []; this.quizzes.push(quiz);
         this.quizForm = { title: '', description: '', passing_score: 70, time_limit: null };
         this.showQuizForm = false; this.saving = false; this.expandedQuiz = quiz.id; this.initQuestionForm(quiz.id);
+        // Créer automatiquement un sous-chapitre lié à ce quiz
+        this.http.post<any>(`${this.COURSE_API}/courses/${this.courseId}/chapters/${this.chapterId}/subchapters`,
+          { title: quiz.title, content: '', is_lab: false, passing_score: quiz.passing_score || 70, quiz_id: quiz.id },
+          { headers: this.headers() }).subscribe({ error: () => {} });
       }, error: () => { this.saving = false; }
     });
   }

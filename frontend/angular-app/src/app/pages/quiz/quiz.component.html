@@ -1,67 +1,65 @@
 <div class="layout">
 
-  <!-- COURSE SIDEBAR -->
-  <aside class="course-sidebar" [class.collapsed]="sidebarCollapsed">
-    <div class="cs-header">
-      <button class="cs-back" (click)="goBackToCourse()" title="Retour au cours">
-        ← <span *ngIf="!sidebarCollapsed">{{ course?.title || 'Retour au cours' }}</span>
-      </button>
-      <button class="cs-toggle" (click)="sidebarCollapsed = !sidebarCollapsed">
-        {{ sidebarCollapsed ? '▶' : '◀' }}
-      </button>
+  <!-- COURSE SIDEBAR identique à course-detail -->
+  <div class="chapters-panel" [class.collapsed]="sidebarCollapsed">
+    <div class="panel-toggle" (click)="sidebarCollapsed = !sidebarCollapsed">
+      <span class="panel-toggle-title" *ngIf="!sidebarCollapsed">📚 Contenu du cours</span>
+      <button class="panel-toggle-btn">{{ sidebarCollapsed ? "▶" : "◀" }}</button>
     </div>
-
     <ng-container *ngIf="!sidebarCollapsed">
-      <div class="cs-loading" *ngIf="courseId && !course">⏳ Chargement...</div>
-
-      <div class="cs-chapters" *ngIf="course">
-        <div class="cs-chapter" *ngFor="let chapter of chapters">
-          <div class="cs-chapter-title" (click)="chapter.expanded = !chapter.expanded">
-            <span>📖 {{ chapter.title }}</span>
-            <span class="cs-arrow">{{ chapter.expanded ? '▲' : '▼' }}</span>
+      <div class="chapter" *ngFor="let chapter of chapters">
+        <div class="chapter-title" (click)="chapter.expanded = !chapter.expanded">
+          <div class="chapter-title-left">
+            <span>📖</span>
+            <span>{{ chapter.title }}</span>
+            <span class="chapter-count">({{ (chapter.sub_chapters || []).length }} leçons)</span>
           </div>
-          <div class="cs-subs" *ngIf="chapter.expanded">
-            <div class="cs-sub"
-              *ngFor="let sub of chapter.sub_chapters || []"
-              [class.active]="sub.quiz_id === quiz?.id"
-              (click)="openSubFromSidebar(sub)">
-              <span class="cs-sub-icon">{{ sub.quiz_id ? '🧠' : '📄' }}</span>
-              <span class="cs-sub-title">{{ sub.title }}</span>
-              <span class="cs-quiz-dot" *ngIf="sub.quiz_id">●</span>
+          <span class="chapter-arrow">{{ chapter.expanded ? '▲' : '▼' }}</span>
+        </div>
+        <div class="subchapters" *ngIf="chapter.expanded">
+          <div class="subchapter"
+            *ngFor="let sub of chapter.sub_chapters || []"
+            [class.active-sub]="sub.quiz_id === quiz?.id"
+            (click)="openSubFromSidebar(sub)">
+            <div class="sub-info">
+              <span class="sub-icon">{{ sub.is_lab ? '🔬' : (sub.quiz_id ? '🧠' : '📄') }}</span>
+              <span class="sub-title">{{ sub.title }}</span>
             </div>
           </div>
         </div>
-        <div class="cs-empty" *ngIf="chapters.length === 0">Aucun chapitre</div>
       </div>
-
-      <div class="cs-no-course" *ngIf="!courseId && !course">
-        <p>📚 Quiz standalone</p>
-      </div>
+      <div class="empty" *ngIf="chapters.length === 0">📭 Aucun chapitre disponible.</div>
     </ng-container>
-  </aside>
+  </div>
 
   <!-- MAIN CONTENT -->
   <main class="main">
+
     <div class="loading" *ngIf="loading">Chargement...</div>
 
     <!-- INTRO -->
     <div class="intro-card" *ngIf="!loading && step === 'intro'">
       <div class="quiz-icon">🧠</div>
       <h1>{{ quiz.title }}</h1>
-      <p>{{ quiz.description }}</p>
+      
       <div class="meta">
         <span>📊 Score requis : {{ quiz.passing_score }}%</span>
       </div>
       <div class="past-attempts" *ngIf="pastAttempts.length > 0">
-        <h3>Mes tentatives précédentes</h3>
-        <div class="attempt" *ngFor="let a of pastAttempts">
-          <span>Score : <strong>{{ a.max_score > 0 ? ((a.score / a.max_score) * 100).toFixed(0) : 0 }}%</strong></span>
-          <span [class]="a.passed ? 'pass' : 'fail'">{{ a.passed ? '✅ Réussi' : '❌ Échoué' }}</span>
+        <h3>Dernière tentative</h3>
+        <div class="attempt">
+          <span>Score : <strong>{{ pastAttempts[pastAttempts.length-1].max_score > 0 ? ((pastAttempts[pastAttempts.length-1].score / pastAttempts[pastAttempts.length-1].max_score) * 100).toFixed(0) : 0 }}%</strong></span>
+          <span [class]="pastAttempts[pastAttempts.length-1].passed ? 'pass' : 'fail'">{{ pastAttempts[pastAttempts.length-1].passed ? '✅ Réussi' : '❌ Échoué' }}</span>
         </div>
       </div>
       <button class="btn-start" *ngIf="!isTeacher" (click)="startQuiz()">Commencer le quiz</button>
       <div class="teacher-notice" *ngIf="isTeacher">
         👁️ Mode aperçu — les enseignants ne peuvent pas passer les quiz.
+      </div>
+      <div class="intro-nav">
+        <button class="nav-btn-prev" (click)="goToPrev()" [disabled]="subIndex <= 0">← Précédent</button>
+  
+        <button class="nav-btn-next" (click)="goToNext()">Suivant →</button>
       </div>
     </div>
 

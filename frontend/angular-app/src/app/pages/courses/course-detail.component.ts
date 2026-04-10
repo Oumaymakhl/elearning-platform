@@ -10,11 +10,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { LessonContentComponent } from '../../shared/lesson-content/lesson-content.component';
+import { QuizService } from '../../services/quiz.service';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
   imports: [CommonModule, StarRatingComponent, FormsModule, SidebarComponent, RouterLink, LessonContentComponent],
+  providers: [QuizService],
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.scss']
 })
@@ -53,7 +55,7 @@ export class CourseDetailComponent implements OnInit {
     ruby: '# Ruby\nputs "Hello, World!"'
   };
 
-  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient) {}
+  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -114,6 +116,15 @@ export class CourseDetailComponent implements OnInit {
 
   quizScores: Record<number, number> = {};
   activeSubChapter: any = null;
+  activeQuiz: any = null;
+  activeQuizQuestions: any[] = [];
+  activeQuizAnswers: Record<number, number> = {};
+  activeQuizAttemptId: number | null = null;
+  activeQuizResult: any = null;
+  activeQuizStep: 'intro' | 'quiz' | 'result' = 'intro';
+  activeQuizPastAttempts: any[] = [];
+  activeQuizSubmitting = false;
+  activeQuizLoading = false;
   chaptersCollapsed = false;
   visitedSubs: Set<number> = new Set();
   completedLabs: Set<number> = new Set();
@@ -302,6 +313,10 @@ export class CourseDetailComponent implements OnInit {
       const allSubs = this.getAllSubs();
       const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
       this.router.navigate(['/quiz', sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: sub.id, sub_index: subIdx } });
+      this.quizService.myAttempts(sub.quiz_id).subscribe({
+        next: (attempts) => { this.activeQuizPastAttempts = attempts; },
+        error: () => { this.activeQuizPastAttempts = []; }
+      });
     } else {
       // Afficher le contenu inline
       this.activeSubChapter = this.activeSubChapter?.id === sub.id ? null : sub;
@@ -448,5 +463,61 @@ export class CourseDetailComponent implements OnInit {
 
   onRatingChanged(stars: number) {
     console.log("Note mise a jour:", stars);
+  }
+
+  // ── Quiz inline methods ──────────────────────────────────────────────────────
+  startInlineQuiz() {
+    if (!this.activeQuiz) return;
+    this.quizService.startAttempt(this.activeQuiz._quiz_id).subscribe({
+      next: (attempt) => {
+        this.activeQuizAttemptId = attempt.id;
+        this.quizService.getQuestions(this.activeQuiz._quiz_id).subscribe({
+          next: (questions) => { this.activeQuizQuestions = questions; this.activeQuizStep = 'quiz'; }
+        });
+      }
+    });
+  }
+
+  selectInlineOption(questionId: number, optionId: number) {
+    this.activeQuizAnswers[questionId] = optionId;
+  }
+
+  get inlineAnsweredCount() { return Object.keys(this.activeQuizAnswers).length; }
+
+  submitInlineQuiz() {
+    if (this.activeQuizSubmitting || !this.activeQuiz) return;
+    this.activeQuizSubmitting = true;
+    const answersArray = Object.entries(this.activeQuizAnswers).map(([qId, oId]) => ({
+      question_id: +qId, option_id: +oId
+    }));
+    this.quizService.submitAttempt(this.activeQuiz._quiz_id, this.activeQuizAttemptId!, answersArray).subscribe({
+      next: (result) => {
+        this.activeQuizResult = result;
+        this.activeQuizResult.score = result.percentage ?? Math.round((result.score / result.max_score) * 100);
+        this.activeQuizStep = 'result';
+        this.activeQuizSubmitting = false;
+        if (result.passed) {
+          this.quizScores = { ...this.quizScores, [this.activeQuiz._quiz_id]: this.activeQuizResult.score };
+          if (!this.visitedSubs.has(this.activeQuiz.id)) this.visitedSubs.add(this.activeQuiz.id);
+          const total = this.chapters.reduce((acc: number, ch: any) => acc + (ch.sub_chapters?.length || 0), 0);
+          const percentage = total > 0 ? Math.round(this.visitedSubs.size / total * 100) : 0;
+          this.courseService.updateProgress(this.course.id, { sub_chapter_id: this.activeQuiz.id, progress: percentage }).subscribe({ error: () => {} });
+        }
+      },
+      error: () => { this.activeQuizSubmitting = false; }
+    });
+  }
+
+  retryInlineQuiz() {
+    this.activeQuizAnswers = {};
+    this.activeQuizResult = null;
+    this.activeQuizStep = 'intro';
+  }
+
+  closeInlineQuiz() {
+    this.activeQuiz = null;
+    this.activeQuizStep = 'intro';
+    this.activeQuizAnswers = {};
+    this.activeQuizResult = null;
   }
 }

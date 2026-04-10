@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { QuizService } from '../../services/quiz.service';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { CourseService } from '../../services/course.service';
 
@@ -134,13 +134,17 @@ export class QuizComponent implements OnInit {
         this.step = 'result';
         this.submitting = false;
         if (result.passed && this.courseId) {
-          this.http.get<any[]>(`/api/courses/${this.courseId}/chapters`).subscribe({
+          const token2 = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
+          const headers2 = new HttpHeaders({ Authorization: `Bearer ${token2}` });
+          this.http.get<any[]>(`/api/courses/${this.courseId}/chapters`, { headers: headers2 }).subscribe({
             next: (chapters) => {
               const allSubs = chapters.flatMap((c: any) => c.sub_chapters || []);
               const linkedSub = allSubs.find((s: any) => s.quiz_id === this.quiz.id);
               if (linkedSub) {
+                const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
+                const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
                 this.http.post(`/api/courses/${this.courseId}/progress`,
-                  { sub_chapter_id: linkedSub.id }).subscribe({ error: () => {} });
+                  { sub_chapter_id: linkedSub.id }, { headers }).subscribe({ error: () => {} });
               }
             },
             error: () => {}
@@ -161,15 +165,14 @@ export class QuizComponent implements OnInit {
   retry() { this.answers = {}; this.result = null; this.step = 'intro'; }
 
   goToNext() {
-    const cid = this.courseId || this.quiz.course_id;
+    const cid = this.courseId || this.quiz?.course_id;
     if (cid) this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex + 1 } });
-    else     this.router.navigate(['/courses']);
+    else this.router.navigate(['/courses']);
   }
 
   goToPrev() {
-    if (this.result?.score >= 70) {
-      const cid = this.courseId || this.quiz.course_id;
-      if (cid) this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex - 1 } });
-    }
+    const cid = this.courseId || this.quiz?.course_id;
+    if (cid) this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex - 1 } });
+    else this.router.navigate(['/courses']);
   }
 }
