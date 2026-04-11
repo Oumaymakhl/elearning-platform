@@ -203,7 +203,7 @@ export class StudentsComponent implements OnInit {
             this.allEnrollments = [];
             results.forEach((enrollments, i) => {
               enrollments.forEach((e: any) => {
-                this.allEnrollments.push({ ...e, course_id: this.courses[i].id });
+                this.allEnrollments.push({ ...e, course_id: this.courses[i].id, progress: parseFloat(e.progress) || 0 });
               });
             });
             this.filtered = [...this.allEnrollments];
@@ -237,7 +237,8 @@ export class StudentsComponent implements OnInit {
 
   get avgProgress(): number {
     if (!this.allEnrollments.length) return 0;
-    return Math.round(this.allEnrollments.reduce((acc, e) => acc + (e.progress || 0), 0) / this.allEnrollments.length);
+    const total = this.allEnrollments.reduce((acc, e) => acc + (parseFloat(e.progress) || 0), 0);
+    return Math.round(total / this.allEnrollments.length);
   }
 
   getCourseTitle(courseId: number): string {

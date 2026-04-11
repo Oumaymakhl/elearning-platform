@@ -23,20 +23,58 @@ import { Subscription } from 'rxjs';
           </button>
 
           <div class="notif-panel" *ngIf="notifOpen">
-            <div class="notif-header">
-              <span>🔔 Notifications</span>
-              <button class="read-all-btn" (click)="markAllAsRead()" *ngIf="unreadCount > 0">Tout lire</button>
-            </div>
-            <div class="notif-empty" *ngIf="notifications.length === 0">Aucune notification</div>
-            <div class="notif-list">
-              <div class="notif-item" [class.unread]="!n.is_read"
-                   *ngFor="let n of notifications" (click)="markAsRead(n)">
-                <div class="notif-dot" *ngIf="!n.is_read"></div>
-                <div class="notif-body">
-                  <div class="notif-title">{{ n.title }}</div>
-                  <div class="notif-msg">{{ n.message }}</div>
-                  <div class="notif-time">{{ formatTime(n.created_at) }}</div>
+            <div class="np-header">
+              <div class="np-header-top">
+                <span class="np-title">🔔 Notifications</span>
+                <div class="np-actions">
+                  <button class="np-btn" (click)="markAllAsRead()" *ngIf="unreadCount > 0">✓ Tout lire</button>
+                  <button class="np-btn red" (click)="clearAll()" *ngIf="notifications.length > 0">🗑</button>
                 </div>
+              </div>
+              <div class="np-filters">
+                <button class="np-ftab" [class.on]="activeFilter==='all'"    (click)="setFilter('all')">Toutes</button>
+                <button class="np-ftab" [class.on]="activeFilter==='unread'" (click)="setFilter('unread')">Non lues</button>
+                <button class="np-ftab" [class.on]="activeFilter==='high'"   (click)="setFilter('high')">Urgentes</button>
+              </div>
+            </div>
+
+            <div class="np-list">
+              <div class="np-empty" *ngIf="filtered.length === 0">
+                <div style="font-size:24px">🔕</div>
+                <div>Aucune notification</div>
+              </div>
+              <div class="np-item"
+                *ngFor="let n of filtered"
+                [class.unread]="!n.is_read"
+                [class.p-high]="n.priority==='high'"
+                [class.p-med]="n.priority==='medium'"
+                [class.p-low]="n.priority==='low'"
+                (click)="markAsRead(n)">
+                <div class="np-ico" [ngClass]="iconBg(n)">{{ n.icon }}</div>
+                <div class="np-body">
+                  <div class="np-item-top">
+                    <span class="np-item-title">{{ n.title }}</span>
+                    <span class="np-prio" *ngIf="n.priority==='high'">urgent</span>
+                    <span class="np-dot" [class.np-dot-red]="n.priority==='high'" *ngIf="!n.is_read"></span>
+                  </div>
+                  <div class="np-msg">{{ n.message }}</div>
+                  <div class="np-foot">
+                    <span class="np-time">{{ n.time_ago }}</span>
+                    <a class="np-link" *ngIf="n.action_url" [href]="n.action_url" (click)="$event.stopPropagation()">Voir →</a>
+                  </div>
+                </div>
+                <div class="np-quick">
+                  <button class="np-qbtn" *ngIf="!n.is_read" (click)="$event.stopPropagation(); quickRead(n)">✓</button>
+                  <button class="np-qbtn del" (click)="$event.stopPropagation(); deleteNotif(n)">×</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="np-footer">
+              <span class="np-foot-txt">{{ notifications.length }} notification(s)</span>
+              <div class="np-stats">
+                <span class="np-stat s-unread" *ngIf="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
+                <span class="np-stat s-high" *ngIf="highCount > 0">{{ highCount }} urgente(s)</span>
               </div>
             </div>
           </div>
@@ -67,6 +105,19 @@ import { Subscription } from 'rxjs';
         </div>
         <button class="btn-logout" (click)="logout()">⏻</button>
       </div>
+    
+      <!-- Popup confirmation -->
+      <div class="confirm-overlay" *ngIf="showConfirm">
+        <div class="confirm-box">
+          <div class="confirm-icon">🗑️</div>
+          <div class="confirm-title">Supprimer les notifications ?</div>
+          <div class="confirm-msg">Toutes vos notifications seront supprimées définitivement.</div>
+          <div class="confirm-actions">
+            <button class="confirm-cancel" (click)="showConfirm=false">Annuler</button>
+            <button class="confirm-ok" (click)="confirmClearAll()">Supprimer</button>
+          </div>
+        </div>
+      </div>
     </aside>
   `,
   styles: [`
@@ -91,22 +142,79 @@ import { Subscription } from 'rxjs';
     .notif-btn:hover{background:rgba(255,255,255,.2)}
     .notif-btn svg{width:18px;height:18px;display:block}
     .notif-badge{position:absolute;top:-6px;right:-6px;background:#e53e3e;color:#fff;font-size:.6rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 4px;display:flex;align-items:center;justify-content:center;border:2px solid #0f2544}
-    .notif-panel{position:fixed;top:20px;left:270px;z-index:1001;width:320px;background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.18);overflow:hidden;color:#1a2332}
-    .notif-header{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;background:#f6f8fc;border-bottom:1px solid #e2e8f0;font-size:.82rem;font-weight:700}
-    .read-all-btn{font-size:.72rem;color:#4361ee;background:none;border:none;cursor:pointer;font-weight:600}
-    .read-all-btn:hover{text-decoration:underline}
-    .notif-empty{padding:28px 14px;text-align:center;color:#94a3b8;font-size:.82rem}
-    .notif-list{max-height:340px;overflow-y:auto}
-    .notif-item{display:flex;gap:8px;padding:11px 14px;border-bottom:1px solid #f0f4f8;cursor:pointer;transition:background .15s}
-    .notif-item:hover{background:#f6f8fc}
-    .notif-item.unread{background:#f0f4ff}
-    .notif-item.unread:hover{background:#e8eef9}
-    .notif-dot{width:7px;height:7px;border-radius:50%;background:#4361ee;flex-shrink:0;margin-top:5px}
-    .notif-body{flex:1;min-width:0}
-    .notif-title{font-size:.8rem;font-weight:700;color:#1a2332;margin-bottom:2px}
-    .notif-msg{font-size:.75rem;color:#64748b;line-height:1.4;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .notif-time{font-size:.68rem;color:#94a3b8}
+
+    .notif-panel{position:fixed;top:20px;left:270px;z-index:1001;width:370px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.14);overflow:hidden;color:#1a202c}
+
+    .np-header{padding:13px 15px 9px;border-bottom:1px solid #edf2f7}
+    .np-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
+    .np-title{font-size:13px;font-weight:700;color:#1a202c}
+    .np-actions{display:flex;gap:5px}
+    .np-btn{font-size:11px;color:#718096;background:#f7fafc;border:1px solid #e2e8f0;border-radius:6px;padding:3px 8px;cursor:pointer;font-weight:600}
+    .np-btn:hover{background:#edf2f7;color:#2d3748}
+    .np-btn.red:hover{background:#fff5f5;color:#e53e3e;border-color:#feb2b2}
+    .np-filters{display:flex;gap:4px}
+    .np-ftab{font-size:11px;padding:3px 11px;border-radius:20px;border:1.5px solid transparent;cursor:pointer;color:#718096;background:transparent;font-weight:500;transition:all .15s}
+    .np-ftab:hover{background:#f7fafc}
+    .np-ftab.on{background:#ebf4ff;color:#3b82f6;border-color:#93c5fd;font-weight:700}
+
+    .np-list{max-height:360px;overflow-y:auto}
+    .np-list::-webkit-scrollbar{width:3px}
+    .np-list::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:3px}
+    .np-empty{padding:36px 14px;text-align:center;color:#a0aec0;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:6px}
+
+    .np-item{display:flex;align-items:flex-start;gap:10px;padding:11px 15px;border-bottom:1px solid #f7fafc;cursor:pointer;transition:background .12s;position:relative}
+    .np-item:last-child{border-bottom:none}
+    .np-item:hover{background:#f7fafc}
+    .np-item.unread{background:#f0f7ff}
+    .np-item.unread:hover{background:#e8f0fe}
+    .np-item.p-high{border-left:3px solid #e53e3e}
+    .np-item.p-med{border-left:3px solid #4361ee}
+    .np-item.p-low{border-left:3px solid #e2e8f0}
+
+    .np-ico{width:36px;height:36px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+    .ico-purple{background:#f3f0ff}
+    .ico-red{background:#fff5f5}
+    .ico-green{background:#f0fff4}
+    .ico-amber{background:#fffbeb}
+    .ico-blue{background:#ebf8ff}
+    .ico-gray{background:#f7fafc}
+
+    .np-body{flex:1;min-width:0}
+    .np-item-top{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+    .np-item-title{font-size:11px;font-weight:700;color:#1a202c;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .np-prio{font-size:9px;padding:1px 6px;border-radius:10px;font-weight:700;background:#fff5f5;color:#c53030}
+    .np-dot{width:6px;height:6px;border-radius:50%;background:#4361ee;flex-shrink:0}
+    .np-dot-red{background:#e53e3e}
+    .np-msg{font-size:11px;color:#718096;line-height:1.45;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .np-foot{display:flex;justify-content:space-between;align-items:center}
+    .np-time{font-size:10px;color:#a0aec0;font-weight:500}
+    .np-link{font-size:10px;color:#4361ee;font-weight:700;text-decoration:none}
+    .np-link:hover{text-decoration:underline}
+
+    .np-quick{display:flex;flex-direction:column;gap:3px;opacity:0;transition:opacity .12s;flex-shrink:0}
+    .np-item:hover .np-quick{opacity:1}
+    .np-qbtn{width:21px;height:21px;border-radius:6px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;color:#718096}
+    .np-qbtn:hover{background:#ebf4ff;color:#4361ee;border-color:#93c5fd}
+    .np-qbtn.del:hover{background:#fff5f5;color:#e53e3e;border-color:#feb2b2}
+
+    .np-footer{padding:9px 15px;border-top:1px solid #edf2f7;display:flex;justify-content:space-between;align-items:center;background:#f7fafc}
+    .np-foot-txt{font-size:10px;color:#a0aec0}
+    .np-stats{display:flex;gap:5px}
+    .np-stat{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:700}
+    .s-unread{background:#ebf4ff;color:#3b82f6}
+    .s-high{background:#fff5f5;color:#c53030}
     .notif-overlay{position:fixed;inset:0;z-index:1000}
+
+    .confirm-overlay{position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center}
+    .confirm-box{background:#fff;border-radius:16px;padding:28px 24px;width:300px;text-align:center;box-shadow:0 16px 48px rgba(0,0,0,.2)}
+    .confirm-icon{font-size:32px;margin-bottom:12px}
+    .confirm-title{font-size:15px;font-weight:700;color:#1a202c;margin-bottom:6px}
+    .confirm-msg{font-size:12px;color:#718096;line-height:1.5;margin-bottom:20px}
+    .confirm-actions{display:flex;gap:10px;justify-content:center}
+    .confirm-cancel{padding:8px 20px;border-radius:8px;border:1px solid #e2e8f0;background:#f7fafc;color:#4a5568;font-size:13px;font-weight:600;cursor:pointer}
+    .confirm-cancel:hover{background:#edf2f7}
+    .confirm-ok{padding:8px 20px;border-radius:8px;border:none;background:#e53e3e;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+    .confirm-ok:hover{background:#c53030}
   `]
 })
 export class SidebarComponent implements OnInit, OnDestroy {
@@ -126,7 +234,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.notifService.startPolling();
-    this.subs.add(this.notifService.notifications$.subscribe(n => this.notifications = n));
+    this.subs.add(this.notifService.notifications$.subscribe(n => {
+      this.notifications = n;
+      this.highCount = n.filter(x => !x.is_read && x.priority === 'high').length;
+      this.applyFilter();
+    }));
     this.subs.add(this.notifService.unreadCount$.subscribe(c => this.unreadCount = c));
   }
 
@@ -147,7 +259,44 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
 
+  activeFilter = 'all';
+  filtered: Notification[] = [];
+  highCount = 0;
+
   markAllAsRead(): void { this.notifService.markAllAsRead(); }
+
+  setFilter(f: string): void {
+    this.activeFilter = f;
+    this.applyFilter();
+  }
+
+  private applyFilter(): void {
+    if (this.activeFilter === 'unread')    this.filtered = this.notifications.filter(n => !n.is_read);
+    else if (this.activeFilter === 'high') this.filtered = this.notifications.filter(n => n.priority === 'high');
+    else                                   this.filtered = this.notifications;
+  }
+
+  iconBg(n: Notification): string {
+    const map: Record<string, string> = {
+      course_enrolled: 'ico-blue', course_completed: 'ico-amber',
+      quiz_passed: 'ico-green',    quiz_failed: 'ico-red',
+      exercise_passed: 'ico-green', exercise_failed: 'ico-red',
+      new_student: 'ico-purple',   student_completed: 'ico-amber',
+      progress_milestone: 'ico-blue', new_course: 'ico-gray',
+    };
+    return map[n.type] || 'ico-gray';
+  }
+
+  quickRead(n: Notification): void    { this.notifService.markAsRead(n.id); }
+  deleteNotif(n: Notification): void  { this.notifService.deleteNotification(n.id); }
+  showConfirm = false;
+
+  clearAll(): void { this.showConfirm = true; this.notifOpen = false; }
+
+  confirmClearAll(): void {
+    this.notifService.clearAll();
+    this.showConfirm = false;
+  }
 
   formatTime(dateStr: string): string {
     const date = new Date(dateStr);

@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -55,7 +56,7 @@ export class CourseDetailComponent implements OnInit {
     ruby: '# Ruby\nputs "Hello, World!"'
   };
 
-  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService) {}
+  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService, private confirmSvc: ConfirmService) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -106,8 +107,9 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
-  deleteCourse() {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) return;
+  async deleteCourse() {
+    const ok = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer ce cours ?', message: 'Cette action est irréversible. Le cours sera définitivement supprimé.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    if (!ok) return;
     this.courseService.deleteCourse(this.course.id).subscribe({
       next: () => { this.router.navigate(['/courses']); },
       error: (e) => { alert('Erreur : ' + (e.error?.message || 'Suppression échouée')); }

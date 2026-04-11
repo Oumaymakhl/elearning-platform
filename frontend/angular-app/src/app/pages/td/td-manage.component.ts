@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -215,7 +216,7 @@ export class TdManageComponent implements OnInit {
     private courseService: CourseService,
     private fb: FormBuilder,
     private http: HttpClient
-  ) {
+  , private confirmSvc: ConfirmService) {
     this.exerciseForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
@@ -307,8 +308,9 @@ export class TdManageComponent implements OnInit {
     });
   }
 
-  deleteQuestion(questionId: number) {
-    if (!confirm('Supprimer cette question ?')) return;
+  async deleteQuestion(questionId: number) {
+    const ok = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer cette question ?', message: 'Cette question et ses tests seront supprimés définitivement.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    if (!ok) return;
     this.courseService.deleteQuestion(this.exercise.id, questionId).subscribe({
       next: () => {
         this.exercise.questions = this.exercise.questions.filter((q: any) => q.id !== questionId);

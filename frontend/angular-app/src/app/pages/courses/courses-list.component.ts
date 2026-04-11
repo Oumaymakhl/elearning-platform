@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
@@ -27,7 +28,7 @@ export class CoursesListComponent implements OnInit {
   get isTeacher() { return this.auth.isTeacher(); }
   get isAdmin() { return this.auth.isAdmin(); }
 
-  constructor(private courseService: CourseService, private auth: AuthService, private ratingService: RatingService) {}
+  constructor(private courseService: CourseService, private auth: AuthService, private ratingService: RatingService, private confirmSvc: ConfirmService) {}
 
   ngOnInit() {
     this.courseService.getCourses().subscribe({
@@ -52,10 +53,17 @@ export class CoursesListComponent implements OnInit {
     });
   }
 
-  deleteCourse(id: number, event: Event) {
+  async deleteCourse(id: number, event: Event) {
     event.preventDefault();
     event.stopPropagation();
-    if (!confirm('Supprimer ce cours ?')) return;
+    const ok = await this.confirmSvc.open({
+      icon: '🗑️',
+      title: 'Supprimer ce cours ?',
+      message: 'Cette action est irréversible. Le cours sera définitivement supprimé.',
+      okLabel: 'Supprimer',
+      okColor: '#e53e3e'
+    });
+    if (!ok) return;
     this.courseService.deleteCourse(id).subscribe({
       next: () => {
         this.courses = this.courses.filter(c => c.id !== id);

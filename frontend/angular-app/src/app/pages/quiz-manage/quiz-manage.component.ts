@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -423,7 +424,7 @@ export class QuizManageComponent implements OnInit {
   private readonly COURSE_API = '/api';
   private readonly AI_API = '/api/generate-quiz';
 
-  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient, private auth: AuthService) {}
+  constructor(private route: ActivatedRoute, private router: Router, private http: HttpClient, private auth: AuthService, private confirmSvc: ConfirmService) {}
 
   ngOnInit(): void {
     this.courseId  = +this.route.snapshot.paramMap.get('courseId')!;

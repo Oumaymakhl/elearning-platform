@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
@@ -35,7 +36,7 @@ export class ChapterManageComponent implements OnInit {
     private courseService: CourseService,
     private auth: AuthService,
     private fb: FormBuilder
-  ) {
+  , private confirmSvc: ConfirmService) {
     this.chapterForm = this.fb.group({
       title: ['', Validators.required],
       objective: ['']
@@ -106,16 +107,18 @@ export class ChapterManageComponent implements OnInit {
     });
   }
 
-  deleteChapter(chapterId: number) {
-    if (!confirm('Supprimer ce chapitre ?')) return;
+  async deleteChapter(chapterId: number) {
+    const ok = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer ce chapitre ?', message: 'Ce chapitre et tout son contenu seront supprimés définitivement.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    if (!ok) return;
     this.courseService.deleteChapter(this.course.id, chapterId).subscribe({
       next: () => { this.chapters = this.chapters.filter(c => c.id !== chapterId); },
       error: (e) => { alert(e.error?.message || 'Erreur'); }
     });
   }
 
-  deleteSubChapter(chapterId: number, subId: number) {
-    if (!confirm('Supprimer ce sous-chapitre ?')) return;
+  async deleteSubChapter(chapterId: number, subId: number) {
+    const ok2 = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer ce sous-chapitre ?', message: 'Ce sous-chapitre et son contenu seront supprimés définitivement.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    if (!ok2) return;
     this.courseService.deleteSubChapter(this.course.id, chapterId, subId).subscribe({
       next: () => {
         const chapter = this.chapters.find(c => c.id === chapterId);

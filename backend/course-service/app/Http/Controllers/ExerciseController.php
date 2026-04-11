@@ -8,6 +8,7 @@ use App\Models\Submission;
 use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ExerciseController extends Controller
 {
@@ -187,15 +188,71 @@ class ExerciseController extends Controller
             'executed_at'  => now(),
         ]);
 
+        // ── Notif étudiant TD ─────────────────────────────────────────
+        $exerciseTitle = $question->exercise->title ?? 'Exercice';
+        $attemptNo = \App\Models\Submission::where('question_id', $questionId)
+            ->where('user_id', $userId)->count();
+
+        if ($passed) {
+            $this->sendNotification($userId, 'exercise_passed', [
+                'title'        => '💻 TD réussi !',
+                'message'      => 'Vous avez réussi l\'exercice « ' . $exerciseTitle . ' » : ' . $testsPassed . '/' . $testsTotal . ' tests passés. Score : ' . $score . '/' . $question->points . ' pts.',
+                'exercise_id'  => $exerciseId,
+                'question_id'  => $questionId,
+                'exercise_title'=> $exerciseTitle,
+                'tests_passed' => $testsPassed,
+                'tests_total'  => $testsTotal,
+                'score'        => $score,
+                'max_score'    => $question->points,
+                'attempt_no'   => $attemptNo,
+                'language'     => $language,
+                'action_url'   => '/exercises/' . $exerciseId . '/question/' . $questionId,
+            ], 'medium');
+        } else {
+            $failedCount = $testsTotal - $testsPassed;
+            $this->sendNotification($userId, 'exercise_failed', [
+                'title'        => '⚠️ TD : des tests échouent',
+                'message'      => 'Pour l\'exercice « ' . $exerciseTitle . ' », ' . $testsPassed . '/' . $testsTotal . ' tests passés. ' . $failedCount . ' test(s) à corriger. Score actuel : ' . $score . '/' . $question->points . ' pts.',
+                'exercise_id'  => $exerciseId,
+                'question_id'  => $questionId,
+                'exercise_title'=> $exerciseTitle,
+                'tests_passed' => $testsPassed,
+                'tests_total'  => $testsTotal,
+                'failed_tests' => $failedCount,
+                'score'        => $score,
+                'max_score'    => $question->points,
+                'attempt_no'   => $attemptNo,
+                'language'     => $language,
+                'error'        => $globalError,
+                'action_url'   => '/exercises/' . $exerciseId . '/question/' . $questionId,
+            ], 'low');
+        }
+
         return response()->json([
             'submission_id' => $submission->id,
             'tests_passed'  => $testsPassed,
             'tests_total'   => $testsTotal,
             'score'         => $score,
+            'max_score'     => $question->points,
             'passed'        => $passed,
+            'attempt_no'    => $attemptNo,
             'error'         => $globalError,
             'results'       => $results,
         ]);
+    }
+
+    private function sendNotification(int $userId, string $type, array $data, string $priority = 'medium'): void
+    {
+        try {
+            Http::timeout(3)->post('http://nginx-notification/api/internal/send', [
+                'user_id'  => $userId,
+                'type'     => $type,
+                'data'     => $data,
+                'priority' => $priority,
+            ]);
+        } catch (\Exception $e) {
+            Log::warning("Notification failed [{$type}] user={$userId}: " . $e->getMessage());
+        }
     }
 
     // === RÉSULTATS FORMATEUR ===

@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers;
+
 use App\Models\Enrollment;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class EnrollmentController extends Controller
 {
@@ -15,29 +17,61 @@ class EnrollmentController extends Controller
     }
 
     public function enroll(Request $request, $courseId) {
-        $course = Course::findOrFail($courseId);
+        $course     = Course::findOrFail($courseId);
         $enrollment = Enrollment::firstOrCreate(
             ['user_id' => $request->auth_user_id, 'course_id' => $courseId],
             ['progress' => 0, 'status' => 'active']
         );
 
-        // Envoyer notification au teacher seulement si nouvelle inscription
         if ($enrollment->wasRecentlyCreated) {
+            $studentId = (int) $request->auth_user_id;
+
+            // Récupérer le nom de l'étudiant via auth_id (pas la PK DB)
+            $studentName  = 'Étudiant #' . $studentId;
+            $studentEmail = '';
             try {
-                Http::post('http://nginx-notification/api/internal/send', [
-                    'user_id' => $course->instructor_id,
-                    'type'    => 'course_enrolled',
-                    'data'    => [
-                        'title'        => 'Nouvel étudiant inscrit',
-                        'message'      => 'Un étudiant vient de s\'inscrire à votre cours : ' . $course->title,
-                        'course_id'    => $course->id,
-                        'course_title' => $course->title,
-                        'student_id'   => $request->auth_user_id,
-                    ]
-                ]);
+                $resp = Http::timeout(3)->post(
+                    'http://nginx-user/api/internal/students-by-ids',
+                    ['ids' => [$studentId]]
+                );
+                if ($resp->successful()) {
+                    $users = $resp->json();
+                    if (!empty($users)) {
+                        $studentName  = $users[0]['name']  ?? $studentName;
+                        $studentEmail = $users[0]['email'] ?? '';
+                    }
+                }
             } catch (\Exception $e) {
-                // Ne pas bloquer l'inscription si la notif échoue
+                Log::warning('Could not fetch student info: ' . $e->getMessage());
             }
+
+            $totalStudents = Enrollment::where('course_id', $courseId)->count();
+
+            // Notif teacher
+            if ($course->instructor_id) {
+                $this->sendNotification($course->instructor_id, 'new_student', [
+                    'title'          => '👤 Nouvel étudiant inscrit',
+                    'message'        => $studentName . ' vient de s\'inscrire à votre cours « ' . $course->title . ' ». Vous avez maintenant ' . $totalStudents . ' étudiant(s) inscrit(s).',
+                    'course_id'      => $course->id,
+                    'course_title'   => $course->title,
+                    'student_id'     => $studentId,
+                    'student_name'   => $studentName,
+                    'student_email'  => $studentEmail,
+                    'total_students' => $totalStudents,
+                    'enrolled_at'    => now()->toIso8601String(),
+                    'action_url'     => '/courses/' . $courseId . '/students',
+                ], 'low');
+            }
+
+            // Notif étudiant — confirmation
+            $this->sendNotification($studentId, 'course_enrolled', [
+                'title'        => '📚 Inscription confirmée',
+                'message'      => 'Vous êtes inscrit(e) au cours « ' . $course->title . ' ». Bonne formation !',
+                'course_id'    => $course->id,
+                'course_title' => $course->title,
+                'enrolled_at'  => now()->toIso8601String(),
+                'action_url'   => '/courses/' . $courseId,
+            ], 'medium');
         }
 
         return response()->json($enrollment, 201);
@@ -49,13 +83,11 @@ class EnrollmentController extends Controller
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $enrollments = Enrollment::where('course_id', $courseId)->get();
-        // Récupérer les infos des étudiants depuis user-service
-        $userIds = $enrollments->pluck('user_id')->toArray();
-        $usersData = [];
+        $userIds     = $enrollments->pluck('user_id')->toArray();
+        $usersData   = [];
         try {
             $response = Http::post('http://nginx-user/api/internal/students-by-ids', ['ids' => $userIds]);
-            $users = $response->json();
-            foreach ($users as $user) {
+            foreach ($response->json() as $user) {
                 $usersData[$user['auth_id']] = $user;
             }
         } catch (\Exception $e) {}
@@ -78,5 +110,19 @@ class EnrollmentController extends Controller
             ->where('course_id', $courseId)
             ->delete();
         return response()->json(['message' => 'Unenrolled']);
+    }
+
+    private function sendNotification(int $userId, string $type, array $data, string $priority = 'medium'): void
+    {
+        try {
+            Http::timeout(3)->post('http://nginx-notification/api/internal/send', [
+                'user_id'  => $userId,
+                'type'     => $type,
+                'data'     => $data,
+                'priority' => $priority,
+            ]);
+        } catch (\Exception $e) {
+            Log::warning("Notification failed [{$type}] user={$userId}: " . $e->getMessage());
+        }
     }
 }

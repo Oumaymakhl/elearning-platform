@@ -1,3 +1,4 @@
+import { ConfirmService } from '../../services/confirm.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
@@ -20,7 +21,7 @@ export class AdminComponent implements OnInit {
   loading = true;
   activeTab = 'stats';
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient, private auth: AuthService, private confirmSvc: ConfirmService) {}
 
   get isAdmin() { return this.auth.isAdmin(); }
 
@@ -53,8 +54,9 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  deleteUser(userId: number) {
-    if (!confirm('Supprimer cet utilisateur ?')) return;
+  async deleteUser(userId: number) {
+    const ok = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer cet utilisateur ?', message: 'Cet utilisateur sera supprimé définitivement.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    if (!ok) return;
     this.http.delete(`/api/admin/users/${userId}`).subscribe({
       next: () => { this.users = this.users.filter(u => u.id !== userId); },
       error: (e) => { alert(e.error?.message || 'Erreur'); }
