@@ -12,13 +12,7 @@ import { HttpClient } from '@angular/common/http';
       <div class="card">
         <div class="logo">🎓 E-Learning</div>
 
-        <!-- Confirmation -->
-        <div class="state" *ngIf="status === 'confirm'">
-          <div class="icon">📧</div>
-          <h2>Confirmer la vérification</h2>
-          <p>Cliquez sur le bouton ci-dessous pour activer votre compte.</p>
-          <button class="btn-primary" (click)="confirm()">✅ Activer mon compte</button>
-        </div>
+
 
         <!-- Loading -->
         <div class="state" *ngIf="status === 'loading'">
@@ -80,14 +74,13 @@ export class VerifyEmailComponent implements OnInit {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (!token) { this.status = 'no-token'; return; }
     this.token = token;
-    this.status = 'confirm';
-  }
-
-  confirm() {
     this.status = 'loading';
+    // Vérifier et activer directement au chargement — un seul usage possible
     this.http.post('/auth-api/verify-email', { token: this.token }).subscribe({
       next: () => { this.status = 'success'; },
       error: () => { this.status = 'error'; }
     });
   }
+
+  confirm() {} // gardé pour compatibilité template
 }

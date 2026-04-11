@@ -7,6 +7,20 @@ import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { forkJoin } from 'rxjs';
 
+interface StudentRow {
+  user_id: number;
+  name: string;
+  email: string;
+  enrollments: {
+    course_id: number;
+    course_title: string;
+    progress: number;
+    status: string;
+    created_at: string;
+  }[];
+  selectedEnrollment: any | null;
+}
+
 @Component({
   selector: 'app-students',
   standalone: true,
@@ -16,7 +30,6 @@ import { forkJoin } from 'rxjs';
       <app-sidebar></app-sidebar>
       <main class="main">
 
-        <!-- Header -->
         <div class="page-header">
           <div>
             <h1>👥 Mes Étudiants</h1>
@@ -24,7 +37,6 @@ import { forkJoin } from 'rxjs';
           </div>
         </div>
 
-        <!-- Filtres -->
         <div class="filters">
           <div class="search-box">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -40,13 +52,11 @@ import { forkJoin } from 'rxjs';
           <button class="reset-btn" (click)="search=''; selectedCourse=''; applyFilters()">↺ Réinitialiser</button>
         </div>
 
-        <!-- Loading -->
         <div class="loading" *ngIf="loading">
           <div class="spinner"></div>
           Chargement des étudiants...
         </div>
 
-        <!-- Stats cards -->
         <div class="stats-row" *ngIf="!loading">
           <div class="stat-card">
             <div class="stat-icon">👥</div>
@@ -71,7 +81,6 @@ import { forkJoin } from 'rxjs';
           </div>
         </div>
 
-        <!-- Table -->
         <div class="table-card" *ngIf="!loading">
           <table>
             <thead>
@@ -79,7 +88,7 @@ import { forkJoin } from 'rxjs';
                 <th>#</th>
                 <th>Étudiant</th>
                 <th>Email</th>
-                <th>Cours</th>
+                <th>Cours (cliquez pour les détails)</th>
                 <th>Progression</th>
                 <th>Statut</th>
                 <th>Inscrit le</th>
@@ -89,31 +98,41 @@ import { forkJoin } from 'rxjs';
               <tr *ngFor="let s of filtered; let i = index">
                 <td class="num">{{ i + 1 }}</td>
                 <td class="student-name">
-                  <div class="avatar">{{ getInitials(s.student?.name) }}</div>
-                  <span>{{ s.student?.name || 'Étudiant #' + s.user_id }}</span>
+                  <div class="avatar">{{ getInitials(s.name) }}</div>
+                  <span>{{ s.name || 'Étudiant #' + s.user_id }}</span>
                 </td>
-                <td class="email">{{ s.student?.email || '—' }}</td>
-                <td class="course-name">
-                  <a [routerLink]="['/courses', s.course_id]" class="course-link">
-                    {{ getCourseTitle(s.course_id) }}
-                  </a>
+                <td class="email">{{ s.email || '—' }}</td>
+                <td class="courses-cell">
+                  <select class="course-select" (change)="onSelectChange(s, $event)">
+                    <option value="">-- Choisir un cours --</option>
+                    <option *ngFor="let enr of s.enrollments" [value]="enr.course_id">
+                      {{ enr.course_title }}
+                    </option>
+                  </select>
                 </td>
                 <td class="progress-cell">
-                  <div class="progress-bar">
-                    <div class="progress-fill"
-                         [style.width]="(s.progress || 0) + '%'"
-                         [class.high]="s.progress >= 70"
-                         [class.mid]="s.progress >= 30 && s.progress < 70"
-                         [class.low]="s.progress < 30"></div>
-                  </div>
-                  <span class="progress-pct">{{ s.progress || 0 }}%</span>
+                  <ng-container *ngIf="s.selectedEnrollment; else emptyP">
+                    <div class="progress-bar">
+                      <div class="progress-fill"
+                           [style.width]="(s.selectedEnrollment.progress || 0) + '%'"
+                           [class.high]="s.selectedEnrollment.progress >= 70"
+                           [class.mid]="s.selectedEnrollment.progress >= 30 && s.selectedEnrollment.progress < 70"
+                           [class.low]="s.selectedEnrollment.progress < 30"></div>
+                    </div>
+                    <span class="progress-pct">{{ s.selectedEnrollment.progress || 0 }}%</span>
+                  </ng-container>
+                  <ng-template #emptyP><span class="dash">—</span></ng-template>
                 </td>
                 <td>
-                  <span class="badge" [class.active]="s.status === 'active'">
-                    {{ s.status === 'active' ? '✅ Actif' : '⏸ Inactif' }}
+                  <span *ngIf="s.selectedEnrollment" class="badge" [class.active]="s.selectedEnrollment.status === 'active'">
+                    {{ s.selectedEnrollment.status === 'active' ? '✅ Actif' : '⏸ Inactif' }}
                   </span>
+                  <span *ngIf="!s.selectedEnrollment" class="dash">—</span>
                 </td>
-                <td class="date">{{ s.created_at | date:'dd/MM/yyyy' }}</td>
+                <td class="date">
+                  <span *ngIf="s.selectedEnrollment">{{ s.selectedEnrollment.created_at | date:'dd/MM/yyyy' }}</span>
+                  <span *ngIf="!s.selectedEnrollment" class="dash">—</span>
+                </td>
               </tr>
               <tr *ngIf="filtered.length === 0">
                 <td colspan="7" class="empty">
@@ -163,8 +182,22 @@ import { forkJoin } from 'rxjs';
     .student-name { display:flex; align-items:center; gap:.75rem; font-weight:600; color:#1a2340; }
     .avatar { width:34px; height:34px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
     .email { color:#64748b; }
-    .course-link { color:#4361ee; text-decoration:none; font-weight:500; }
-    .course-link:hover { text-decoration:underline; }
+    .courses-cell { min-width:200px; }
+    .course-select {
+      width:100%; padding:7px 32px 7px 12px;
+      border-radius:20px;
+      border:1.5px solid #c7d4f0;
+      font-size:.78rem; font-weight:600;
+      color:#1E3A5F;
+      background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231E3A5F' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;
+      appearance:none; -webkit-appearance:none;
+      cursor:pointer; outline:none;
+      box-shadow: 0 1px 4px rgba(30,58,95,.08);
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .course-select:hover { border-color:#1E3A5F; box-shadow:0 2px 8px rgba(30,58,95,.15); }
+    .course-select:focus { border-color:#1E3A5F; box-shadow:0 0 0 3px rgba(30,58,95,.12); }
+    .course-select option { font-weight:500; color:#1E3A5F; background:white; }
     .progress-cell { display:flex; align-items:center; gap:.6rem; }
     .progress-bar { flex:1; height:7px; background:#e2e8f0; border-radius:4px; max-width:100px; overflow:hidden; }
     .progress-fill { height:100%; border-radius:4px; transition:width .3s; }
@@ -175,6 +208,7 @@ import { forkJoin } from 'rxjs';
     .badge { padding:.25rem .7rem; border-radius:20px; font-size:.75rem; font-weight:600; background:#f1f5f9; color:#64748b; }
     .badge.active { background:#dcfce7; color:#166534; }
     .date { color:#94a3b8; font-size:.8rem; }
+    .dash { color:#cbd5e1; }
     .empty { text-align:center; color:#94a3b8; padding:3rem; font-style:italic; }
     .empty div { font-size:2rem; margin-bottom:.5rem; }
     .empty p { margin:0; }
@@ -182,8 +216,8 @@ import { forkJoin } from 'rxjs';
 })
 export class StudentsComponent implements OnInit {
   courses: any[] = [];
-  allEnrollments: any[] = [];
-  filtered: any[] = [];
+  allStudentRows: StudentRow[] = [];
+  filtered: StudentRow[] = [];
   search = '';
   selectedCourse = '';
   loading = true;
@@ -200,13 +234,31 @@ export class StudentsComponent implements OnInit {
         const requests = this.courses.map((c: any) => this.courseService.getCourseStudents(c.id));
         forkJoin(requests).subscribe({
           next: (results: any[][]) => {
-            this.allEnrollments = [];
+            const studentMap = new Map<number, StudentRow>();
             results.forEach((enrollments, i) => {
+              const course = this.courses[i];
               enrollments.forEach((e: any) => {
-                this.allEnrollments.push({ ...e, course_id: this.courses[i].id, progress: parseFloat(e.progress) || 0 });
+                const uid = e.user_id;
+                if (!studentMap.has(uid)) {
+                  studentMap.set(uid, {
+                    user_id: uid,
+                    name: e.student?.name || '',
+                    email: e.student?.email || '',
+                    enrollments: [],
+                    selectedEnrollment: null
+                  });
+                }
+                studentMap.get(uid)!.enrollments.push({
+                  course_id: course.id,
+                  course_title: course.title,
+                  progress: parseFloat(e.progress) || 0,
+                  status: e.status,
+                  created_at: e.created_at
+                });
               });
             });
-            this.filtered = [...this.allEnrollments];
+            this.allStudentRows = Array.from(studentMap.values());
+            this.filtered = [...this.allStudentRows];
             this.loading = false;
           },
           error: () => { this.loading = false; }
@@ -216,33 +268,33 @@ export class StudentsComponent implements OnInit {
     });
   }
 
+  onSelectChange(student: StudentRow, event: Event) {
+    const courseId = +(event.target as HTMLSelectElement).value;
+    student.selectedEnrollment = courseId
+      ? student.enrollments.find(e => e.course_id === courseId) || null
+      : null;
+  }
+
   applyFilters() {
-    let data = [...this.allEnrollments];
+    let data = [...this.allStudentRows];
     if (this.selectedCourse) {
-      data = data.filter(e => e.course_id == +this.selectedCourse);
+      data = data
+        .map(s => ({ ...s, enrollments: s.enrollments.filter(e => e.course_id == +this.selectedCourse), selectedEnrollment: null }))
+        .filter(s => s.enrollments.length > 0);
     }
     if (this.search.trim()) {
-      const s = this.search.toLowerCase();
-      data = data.filter(e =>
-        (e.student?.name || '').toLowerCase().includes(s) ||
-        (e.student?.email || '').toLowerCase().includes(s)
-      );
+      const q = this.search.toLowerCase();
+      data = data.filter(s => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q));
     }
     this.filtered = data;
   }
 
-  get totalStudents(): number {
-    return new Set(this.allEnrollments.map(e => e.user_id)).size;
-  }
+  get totalStudents(): number { return this.allStudentRows.length; }
 
   get avgProgress(): number {
-    if (!this.allEnrollments.length) return 0;
-    const total = this.allEnrollments.reduce((acc, e) => acc + (parseFloat(e.progress) || 0), 0);
-    return Math.round(total / this.allEnrollments.length);
-  }
-
-  getCourseTitle(courseId: number): string {
-    return this.courses.find(c => c.id === courseId)?.title || 'Cours #' + courseId;
+    const all = this.allStudentRows.flatMap(s => s.enrollments);
+    if (!all.length) return 0;
+    return Math.round(all.reduce((acc, e) => acc + e.progress, 0) / all.length);
   }
 
   getInitials(name: string): string {

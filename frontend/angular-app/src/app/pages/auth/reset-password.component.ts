@@ -77,7 +77,7 @@ export class ResetPasswordComponent implements OnInit {
       password: this.password,
       password_confirmation: this.passwordConfirmation
     }).subscribe({
-      next: () => { this.success = true; this.loading = false; },
+      next: () => { this.success = true; this.loading = false; setTimeout(() => this.router.navigate(['/login']), 3000); },
       error: (e) => { this.error = e.error?.message || 'Token invalide ou expiré.'; this.loading = false; }
     });
   }
