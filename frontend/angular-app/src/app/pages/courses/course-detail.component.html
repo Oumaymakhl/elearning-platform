@@ -44,6 +44,7 @@
             <button class="btn-chat" *ngIf="enrolled" (click)="showChat = !showChat">
               🤖 {{ showChat ? 'Fermer assistant' : 'Assistant IA' }}
             </button>
+            <button class="btn-chat" (click)="exportCoursePDF()" style="background:#e74c3c">📄 Résumé PDF</button>
           </div>
         </div>
         <div class="hero-right" *ngIf="isStudent && enrolled">
@@ -278,7 +279,10 @@
       <div class="mini-chat" *ngIf="showChat && enrolled">
         <div class="mc-header">
           <span>🤖 Assistant — {{ activeSubChapter ? activeSubChapter.title : course.title }}</span>
-          <button (click)="showChat = false">✕</button>
+          <div style="display:flex;gap:.4rem">
+            <button (click)="exportChatPDF()" title="Exporter PDF" *ngIf="chatMessages.length > 0">📄</button>
+            <button (click)="showChat = false">✕</button>
+          </div>
         </div>
         <div class="mc-messages" #mcMessages>
           <div class="mc-welcome" *ngIf="chatMessages.length === 0">
@@ -300,4 +304,10 @@
 
     </ng-container>
   </main>
+
+
+<!-- Bouton FAB flottant pour ouvrir le chat -->
+<button class="chat-fab" *ngIf="enrolled" (click)="showChat = !showChat" title="Assistant IA">
+  {{ showChat ? '✕' : '🤖' }}
+</button>
 </div>

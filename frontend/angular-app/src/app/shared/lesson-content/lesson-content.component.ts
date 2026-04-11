@@ -3,7 +3,7 @@ import {
   ChangeDetectionStrategy, SecurityContext
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CodeBlockComponent } from '../code-block/code-block.component';
 
 interface Block { type: 'html' | 'code'; content: string; lang?: string; }
@@ -36,6 +36,10 @@ interface Block { type: 'html' | 'code'; content: string; lang?: string; }
     .lc-prose ::ng-deep blockquote { border-left:3px solid #4361ee; margin:.75rem 0; padding:.4rem .9rem; background:#f0f4ff; border-radius:0 6px 6px 0; color:#3451d1; font-style:italic; }
     .lc-prose ::ng-deep code { background:#1a2332; color:#e2e8f0; font-family:'Fira Code','Courier New',monospace; font-size:.8em; padding:.1em .38em; border-radius:4px; }
     .lc-prose ::ng-deep pre { display:none; }
+    .lc-prose ::ng-deep img { max-width:100%; border-radius:8px; margin:.5rem 0; display:block; }
+    .lc-prose ::ng-deep .re-video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; margin:.5rem 0; }
+    .lc-prose ::ng-deep .re-video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .lc-prose ::ng-deep .re-img { max-width:100%; border-radius:8px; margin:.5rem 0; display:block; }
     .lc-empty { color:#8a9bbf; font-style:italic; font-size:.83rem; }
   `]
 })
@@ -67,7 +71,9 @@ export class LessonContentComponent implements OnChanges {
     this.blocks = result;
   }
 
-  safe(html: string): string { return this.sanitizer.sanitize(SecurityContext.HTML, html) ?? ''; }
+  safe(html: any): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(html as string);
+  }
 
   private decodeEntities(encoded: string): string {
     if (typeof document === 'undefined') return encoded;

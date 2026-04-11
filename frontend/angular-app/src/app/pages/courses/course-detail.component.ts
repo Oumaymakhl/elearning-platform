@@ -523,4 +523,192 @@ export class CourseDetailComponent implements OnInit {
     this.activeQuizAnswers = {};
     this.activeQuizResult = null;
   }
+  get chatContext(): ChatContext {
+    return {
+      course_title:   this.course?.title,
+      lesson_title:   this.activeSubChapter?.title,
+      lesson_content: this.activeSubChapter?.content,
+    };
+  }
+  async exportChatPDF() {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF();
+    const title = this.activeSubChapter ? this.activeSubChapter.title : this.course?.title;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text('Assistant IA — ' + title, 14, 18);
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text(new Date().toLocaleDateString('fr-FR'), 14, 26);
+    doc.line(14, 29, 196, 29);
+    let y = 36;
+    doc.setTextColor(0);
+    for (const m of this.chatMessages) {
+      const isUser = m.role === 'user';
+      doc.setFont('helvetica', isUser ? 'bold' : 'normal');
+      doc.setFontSize(10);
+      const prefix = isUser ? 'Vous : ' : 'Assistant : ';
+      const lines = doc.splitTextToSize(prefix + m.content, 175);
+      if (y + lines.length * 6 > 280) { doc.addPage(); y = 16; }
+      doc.setTextColor(isUser ? 60 : 100, isUser ? 60 : 100, isUser ? 200 : 100);
+      doc.text(lines, 14, y);
+      y += lines.length * 6 + 4;
+    }
+    doc.save('conversation-assistant.pdf');
+  }
+
+  async exportCoursePDF() {
+    const { jsPDF } = await import('jspdf');
+    const doc = new jsPDF({ putOnlyUsedFonts: true, compress: true });
+
+    const clean = (s: string) => (s || '')
+      .replace(/[\u0080-\uFFFF]/g, c => {
+        const map: any = {
+          'é':'e','è':'e','ê':'e','ë':'e','à':'a','â':'a','ä':'a',
+          'î':'i','ï':'i','ô':'o','ö':'o','ù':'u','û':'u','ü':'u',
+          'ç':'c','É':'E','È':'E','Ê':'E','À':'A','Â':'A','Î':'I',
+          'Ô':'O','Û':'U','Ù':'U','Ç':'C','œ':'oe','Œ':'OE','æ':'ae'
+        };
+        return map[c] || '';
+      });
+
+    let y = 16;
+
+    // Titre
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(67, 97, 238);
+    doc.text(clean(this.course?.title || 'Cours'), 14, y);
+    y += 8;
+
+    // Description
+    if (this.course?.description) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      const desc = doc.splitTextToSize(clean(this.course.description), 175);
+      doc.text(desc, 14, y);
+      y += desc.length * 5 + 4;
+    }
+
+    doc.setDrawColor(200);
+    doc.line(14, y, 196, y);
+    y += 6;
+
+    // Chapitres
+    for (const chapter of this.chapters) {
+      if (y > 270) { doc.addPage(); y = 16; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.setTextColor(67, 97, 238);
+      doc.text('Chapitre : ' + clean(chapter.title), 14, y);
+      y += 7;
+
+      for (const sub of (chapter.sub_chapters || []).filter((s:any) => !s.title?.toLowerCase().startsWith('td') && !s.title?.toLowerCase().startsWith('quiz'))) {
+        if (y > 270) { doc.addPage(); y = 16; }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(40);
+        doc.text('  - ' + clean(sub.title), 14, y);
+        y += 6;
+
+        if (sub.content) {
+          const parser = new DOMParser();
+          const dom = parser.parseFromString(sub.content, 'text/html');
+
+          // Images
+          const imgs = dom.querySelectorAll('img');
+          for (const img of Array.from(imgs)) {
+            try {
+              const src = img.getAttribute('src') || '';
+              if (src) {
+                const canvas = document.createElement('canvas');
+                const image = new Image();
+                image.crossOrigin = 'anonymous';
+                await new Promise<void>(resolve => {
+                  image.onload = () => {
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    canvas.getContext('2d')!.drawImage(image, 0, 0);
+                    const ratio = Math.min(160 / image.width, 80 / image.height);
+                    const w = image.width * ratio;
+                    const h = image.height * ratio;
+                    if (y + h > 275) { doc.addPage(); y = 16; }
+                    try { doc.addImage(canvas.toDataURL('image/jpeg', 0.8), 'JPEG', 20, y, w, h); } catch(e) {}
+                    y += h + 4;
+                    resolve();
+                  };
+                  image.onerror = () => resolve();
+                  image.src = src;
+                });
+              }
+            } catch(e) {}
+          }
+
+          // Videos → lien
+          const videos = dom.querySelectorAll('video, iframe');
+          for (const v of Array.from(videos)) {
+            const src = v.getAttribute('src') || v.getAttribute('data-src') || '';
+            if (src) {
+              if (y > 275) { doc.addPage(); y = 16; }
+              doc.setFont('helvetica', 'bold');
+              doc.setFontSize(9);
+              doc.setTextColor(67, 97, 238);
+              doc.text('[Video] ' + clean(src.substring(0, 80)), 20, y);
+              y += 6;
+            }
+          }
+
+          // Blocs de code
+          const codes = dom.querySelectorAll('pre, code');
+          for (const c of Array.from(codes)) {
+            const codeText = clean((c.textContent || '').trim());
+            if (codeText) {
+              const clines = doc.splitTextToSize(codeText, 165);
+              const maxC = Math.min(clines.length, 10);
+              if (y + maxC * 4 + 6 > 275) { doc.addPage(); y = 16; }
+              doc.setFillColor(240, 240, 245);
+              doc.rect(18, y - 3, 172, maxC * 4 + 4, 'F');
+              doc.setFont('courier', 'normal');
+              doc.setFontSize(8);
+              doc.setTextColor(30);
+              doc.text(clines.slice(0, maxC), 20, y);
+              y += maxC * 4 + 6;
+            }
+          }
+
+          // Texte principal (sans les balises)
+          const text = clean(dom.body.innerText.replace(/\s+/g, ' ').trim());
+          if (text) {
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(9);
+            doc.setTextColor(80);
+            const lines = doc.splitTextToSize(text, 168);
+            const maxLines = Math.min(lines.length, 10);
+            if (y + maxLines * 4.5 > 275) { doc.addPage(); y = 16; }
+            doc.text(lines.slice(0, maxLines), 20, y);
+            y += maxLines * 4.5 + 3;
+            if (lines.length > 10) {
+              doc.setTextColor(150);
+              doc.text('[...]', 20, y);
+              y += 5;
+            }
+          }
+        }
+      }
+      y += 4;
+    }
+
+    // Pied de page
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text('Genere le ' + new Date().toLocaleDateString('fr-FR') + ' - Page ' + i + '/' + pageCount, 14, 290);
+    }
+
+    doc.save(clean(this.course?.title || 'cours') + '-resume.pdf');
+  }
+
 }

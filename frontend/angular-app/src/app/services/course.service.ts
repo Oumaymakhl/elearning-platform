@@ -31,6 +31,9 @@ export class CourseService {
   createSubChapter(courseId: number, chapterId: number, data: any): Observable<any> {
     return this.http.post(`${this.api}/${courseId}/chapters/${chapterId}/subchapters`, data);
   }
+  updateSubChapter(courseId: number, chapterId: number, subId: number, body: any): Observable<any> {
+    return this.http.put(`${this.api}/${courseId}/chapters/${chapterId}/subchapters/${subId}`, body);
+  }
   deleteSubChapter(courseId: number, chapterId: number, subId: number): Observable<any> {
     return this.http.delete(`${this.api}/${courseId}/chapters/${chapterId}/subchapters/${subId}`);
   }

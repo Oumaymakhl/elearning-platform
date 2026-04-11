@@ -3,7 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { RichEditorComponent } from '../../shared/rich-editor/rich-editor.component';
@@ -11,7 +12,7 @@ import { RichEditorComponent } from '../../shared/rich-editor/rich-editor.compon
 @Component({
   selector: 'app-chapter-manage',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule, RichEditorComponent],
+  imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule, FormsModule, RichEditorComponent],
   templateUrl: './chapter-manage.component.html',
   styleUrls: ['./chapter-manage.component.scss']
 })
@@ -27,6 +28,7 @@ export class ChapterManageComponent implements OnInit {
   showQuiz: Record<number, boolean> = {};
   error = '';
   showCourseEdit = false;
+  editingSub: any = null;
   courseForm!: FormGroup;
   savingCourse = false;
 
@@ -35,8 +37,9 @@ export class ChapterManageComponent implements OnInit {
     private router: Router,
     private courseService: CourseService,
     private auth: AuthService,
-    private fb: FormBuilder
-  , private confirmSvc: ConfirmService) {
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private confirmSvc: ConfirmService) {
     this.chapterForm = this.fb.group({
       title: ['', Validators.required],
       objective: ['']
@@ -147,4 +150,24 @@ export class ChapterManageComponent implements OnInit {
       error: () => { this.savingCourse = false; }
     });
   }
+  startEditSub(sub: any) {
+    this.editingSub = { ...sub };
+  }
+
+  saveEditSub(chapterId: number) {
+    if (!this.editingSub) return;
+    const body = { title: this.editingSub.title, content: this.editingSub.content };
+    this.courseService.updateSubChapter(this.course.id, chapterId, this.editingSub.id, body).subscribe({
+      next: () => {
+        const chapter = this.chapters.find((c: any) => c.id === chapterId);
+        if (chapter) {
+          const idx = chapter.sub_chapters.findIndex((s: any) => s.id === this.editingSub.id);
+          if (idx !== -1) chapter.sub_chapters[idx] = { ...chapter.sub_chapters[idx], ...body };
+        }
+        this.editingSub = null;
+      },
+      error: (err: any) => console.error('Erreur sauvegarde:', err)
+    });
+  }
+
 }

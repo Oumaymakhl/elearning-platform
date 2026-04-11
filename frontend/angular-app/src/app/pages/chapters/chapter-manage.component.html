@@ -102,9 +102,22 @@
 
         <div class="subchapters">
           <div class="subchapter" *ngFor="let sub of chapter.sub_chapters || chapter.subChapters || []">
-            <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>
-              <a *ngIf="sub.is_lab" [routerLink]="['/courses', course.id, 'td', sub.id]" class="btn-td">⚙️ TD</a>
-            <button class="btn-del-sm" (click)="deleteSubChapter(chapter.id, sub.id)">🗑️</button>
+            <div *ngIf="editingSub?.id !== sub.id" style="display:flex;align-items:center;justify-content:space-between;width:100%">
+              <span>{{ sub.is_lab ? '🔬' : '📄' }} {{ sub.title }}</span>
+              <div style="display:flex;align-items:center;gap:.3rem">
+                <a *ngIf="sub.is_lab" [routerLink]="['/courses', course.id, 'td', sub.id]" class="btn-td">⚙️ TD</a>
+                <button class="btn-edit-sm" (click)="startEditSub(sub)">✏️</button>
+                <button class="btn-del-sm" (click)="deleteSubChapter(chapter.id, sub.id)">🗑️</button>
+              </div>
+            </div>
+            <div *ngIf="editingSub?.id === sub.id" class="edit-sub-form">
+              <input [(ngModel)]="editingSub.title" placeholder="Titre" class="edit-input"/>
+              <app-rich-editor [(ngModel)]="editingSub.content"></app-rich-editor>
+              <div class="edit-actions">
+                <button class="btn-save" (click)="saveEditSub(chapter.id)">💾 Sauvegarder</button>
+                <button class="btn-cancel" (click)="editingSub = null">Annuler</button>
+              </div>
+            </div>
           </div>
           <div class="no-sub" *ngIf="!(chapter.subChapters?.length || chapter.sub_chapters?.length)">
             Aucun sous-chapitre

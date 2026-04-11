@@ -99,6 +99,45 @@ declare const Prism: any;
             <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
           </button>
         </div>
+        <div class="re-sep"></div>
+        <div class="re-toolbar-group" style="position:relative">
+          <button type="button" class="re-btn re-btn-media" title="Inserer une image" (mousedown)="toggleImagePanel($event)">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span class="re-label">Image</span>
+          </button>
+          <div class="re-code-panel" *ngIf="showImagePanel" (click)="$event.stopPropagation()">
+            <div class="re-cp-header">Inserer une image</div>
+            <div class="re-cp-row">
+              <label>URL de l'image</label>
+              <input type="text" [(ngModel)]="imageUrl" placeholder="https://..." style="width:100%;padding:.4rem .65rem;border:1px solid #d1d9e6;border-radius:7px;font-size:.82rem;box-sizing:border-box"/>
+            </div>
+            <div class="re-cp-row">
+              <label>Ou uploader</label>
+              <input type="file" accept="image/*" (change)="onImageFile($event)" style="font-size:.82rem"/>
+            </div>
+            <div class="re-cp-actions">
+              <button type="button" class="re-cp-insert" (click)="insertImage()">Inserer</button>
+              <button type="button" class="re-cp-cancel" (click)="showImagePanel=false">Annuler</button>
+            </div>
+          </div>
+        </div>
+        <div class="re-toolbar-group" style="position:relative">
+          <button type="button" class="re-btn re-btn-media" title="Inserer une video" (mousedown)="toggleVideoPanel($event)">
+            <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            <span class="re-label">Video</span>
+          </button>
+          <div class="re-code-panel" *ngIf="showVideoPanel" (click)="$event.stopPropagation()">
+            <div class="re-cp-header">Inserer une video</div>
+            <div class="re-cp-row">
+              <label>URL YouTube ou lien direct</label>
+              <input type="text" [(ngModel)]="videoUrl" placeholder="https://youtube.com/watch?v=..." style="width:100%;padding:.4rem .65rem;border:1px solid #d1d9e6;border-radius:7px;font-size:.82rem;box-sizing:border-box"/>
+            </div>
+            <div class="re-cp-actions">
+              <button type="button" class="re-cp-insert" (click)="insertVideo()">Inserer</button>
+              <button type="button" class="re-cp-cancel" (click)="showVideoPanel=false">Annuler</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div #editorEl class="re-editor" contenteditable="true"
            [attr.data-placeholder]="placeholder"
@@ -154,6 +193,11 @@ declare const Prism: any;
     .re-editor ::ng-deep .re-cb-del:hover{background:#e53e3e;color:#fff}
     .re-editor ::ng-deep .re-cb-pre{margin:0!important;background:#1a2332!important;padding:.85rem 1rem!important;overflow-x:auto;line-height:1.65;font-size:.8rem}
     .re-editor ::ng-deep .re-cb-pre code{font-family:'Courier New',monospace!important;font-size:.8rem!important;background:transparent!important;color:#e2e8f0;padding:0}
+    .re-btn-media{width:auto;padding:0 10px;gap:5px;background:#0ea5e9;color:#fff;border-color:#0284c7}
+    .re-btn-media:hover{background:#0284c7;color:#fff}
+    .re-editor ::ng-deep .re-img{max-width:100%;border-radius:8px;margin:.5rem 0;display:block}
+    .re-editor ::ng-deep .re-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.5rem 0}
+    .re-editor ::ng-deep .re-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%}
     .re-status{display:flex;justify-content:flex-end;gap:12px;padding:5px 12px;background:#f6f8fc;border-top:1px solid #e2e8f0;border-radius:0 0 10px 10px;font-size:.7rem;color:#94a3b8}
   `]
 })
@@ -164,6 +208,10 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   showCodePanel = false;
   codeBlockLang = 'python';
   codeBlockContent = '';
+  showImagePanel = false;
+  imageUrl = '';
+  showVideoPanel = false;
+  videoUrl = '';
   wordCount = 0;
   codeBlockCount = 0;
   private _value = '';
@@ -297,6 +345,71 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
     });
     return clone.innerHTML;
   }
+  toggleImagePanel(e: MouseEvent): void {
+    e.preventDefault(); e.stopPropagation();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) this.savedRange = sel.getRangeAt(0).cloneRange();
+    this.showImagePanel = !this.showImagePanel;
+    this.showVideoPanel = false;
+    this.imageUrl = '';
+    this.cdr.markForCheck();
+  }
+
+  toggleVideoPanel(e: MouseEvent): void {
+    e.preventDefault(); e.stopPropagation();
+    const sel = window.getSelection();
+    if (sel && sel.rangeCount > 0) this.savedRange = sel.getRangeAt(0).cloneRange();
+    this.showVideoPanel = !this.showVideoPanel;
+    this.showImagePanel = false;
+    this.videoUrl = '';
+    this.cdr.markForCheck();
+  }
+
+  onImageFile(e: Event): void {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      this.imageUrl = ev.target?.result as string;
+      this.cdr.markForCheck();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  insertImage(): void {
+    if (!this.imageUrl.trim()) { this.showImagePanel = false; return; }
+    const img = document.createElement('img');
+    img.src = this.imageUrl;
+    img.className = 're-img';
+    img.alt = 'image';
+    const p = document.createElement('p');
+    p.innerHTML = '<br>';
+    this.editorEl.nativeElement.appendChild(img);
+    this.editorEl.nativeElement.appendChild(p);
+    this.onInput();
+    this.showImagePanel = false;
+    this.imageUrl = '';
+    this.cdr.markForCheck();
+  }
+
+  insertVideo(): void {
+    if (!this.videoUrl.trim()) { this.showVideoPanel = false; return; }
+    let embedUrl = this.videoUrl;
+    const ytMatch = this.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (ytMatch) embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
+    const html = '<div class="re-video-wrap" contenteditable="false"><iframe src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe></div><p><br></p>';
+    this.editorEl.nativeElement.focus();
+    if (this.savedRange) {
+      const sel = window.getSelection();
+      if (sel) { sel.removeAllRanges(); sel.addRange(this.savedRange); }
+    }
+    document.execCommand('insertHTML', false, html);
+    this.onInput();
+    this.showVideoPanel = false;
+    this.videoUrl = '';
+    this.cdr.markForCheck();
+  }
+
   private updateStats(): void {
     if (!this.editorEl) return;
     const text = this.editorEl.nativeElement.innerText || '';

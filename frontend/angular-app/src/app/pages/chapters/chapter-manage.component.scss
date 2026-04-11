@@ -61,3 +61,10 @@ input[type=text],textarea,select{width:100%;padding:.65rem;border:1px solid #ddd
 .btn-td { background:#e8f0fe; color:#1E3A5F; padding:.2rem .6rem; border-radius:6px; text-decoration:none; font-size:.75rem; font-weight:600; margin-left:.5rem; }
 .btn-quiz{padding:.4rem .85rem;background:#7C3AED;color:white;border:none;border-radius:6px;cursor:pointer;font-size:.85rem;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;}
 .btn-quiz:hover{background:#6D28D9;}
+
+.btn-edit-sm { background: #4361ee; color: #fff; border: none; border-radius: 6px; padding: .2rem .5rem; cursor: pointer; font-size: .75rem; margin-right: .3rem; }
+.edit-sub-form { padding: .5rem; background: #f8faff; border-radius: 8px; border: 1px solid #e0e6f0; margin: .3rem 0; }
+.edit-input { width: 100%; padding: .4rem .65rem; border: 1px solid #d1d9e6; border-radius: 7px; font-size: .85rem; margin-bottom: .5rem; box-sizing: border-box; }
+.edit-actions { display: flex; gap: .5rem; margin-top: .5rem; }
+.btn-save { background: #4361ee; color: #fff; border: none; border-radius: 7px; padding: .4rem .9rem; cursor: pointer; }
+.btn-cancel { background: #f0f4ff; color: #4361ee; border: 1px solid #d5dcf9; border-radius: 7px; padding: .4rem .9rem; cursor: pointer; }
