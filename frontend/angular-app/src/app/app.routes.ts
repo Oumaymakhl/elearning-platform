@@ -27,5 +27,7 @@ export const routes: Routes = [
   { path: 'chatbot', loadComponent: () => import('./pages/chatbot/chatbot.component').then(m => m.ChatbotComponent), canActivate: [authGuard] },
   { path: 'certificates', loadComponent: () => import('./pages/certificates/certificates.component').then(m => m.CertificatesComponent), canActivate: [authGuard] },
   { path: 'courses/:id/forum', loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent), canActivate: [authGuard] },
+  { path: 'search', loadComponent: () => import('./pages/search/search.component').then(m => m.SearchComponent), canActivate: [authGuard] },
+  { path: 'messages', loadComponent: () => import('./pages/messaging/messaging.component').then(m => m.MessagingComponent), canActivate: [authGuard] },
   { path: '**', redirectTo: '/dashboard' }
 ];

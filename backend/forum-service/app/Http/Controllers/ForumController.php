@@ -14,6 +14,22 @@ class ForumController extends Controller
         return json_decode(base64_decode($userData), true);
     }
 
+    // Envoyer une notification au service de notifications
+    private function notify(int $userId, string $type, array $data, string $actionUrl = '')
+    {
+        try {
+            $client = new \Illuminate\Http\Client\Factory();
+            \Illuminate\Support\Facades\Http::timeout(3)->post('http://localhost:8006/api/internal/send', [
+                'user_id'    => $userId,
+                'type'       => $type,
+                'data'       => $data,
+                'action_url' => $actionUrl,
+            ]);
+        } catch (\Exception $e) {
+            // Ne pas bloquer si le service est indisponible
+        }
+    }
+
     // GET /api/forum/courses/{courseId}/posts
     public function getPosts($courseId)
     {
@@ -81,7 +97,24 @@ class ForumController extends Controller
             'updated_at'=> now(),
         ]);
 
-        return response()->json(DB::table('forum_replies')->find($id), 201);
+        $reply = DB::table('forum_replies')->find($id);
+
+        // Notifier l'auteur du post (si ce n'est pas lui-même qui répond)
+        if ($post->user_id != $user['id']) {
+            $this->notify(
+                $post->user_id,
+                'forum_reply',
+                [
+                    'message'    => $user['name'] . ' a répondu à votre discussion : ' . $post->title,
+                    'post_title' => $post->title,
+                    'reply_by'   => $user['name'],
+                    'course_id'  => $post->course_id,
+                ],
+                '/courses/' . $post->course_id . '/forum'
+            );
+        }
+
+        return response()->json($reply, 201);
     }
 
     // PUT /api/forum/posts/{postId}

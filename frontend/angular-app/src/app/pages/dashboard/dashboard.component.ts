@@ -85,24 +85,81 @@ import { FormsModule } from '@angular/forms';
 
           <!-- Cours récents -->
           <div class="section" *ngIf="recentCourses.length > 0">
-            <h2>Cours récents</h2>
+            <div class="section-header">
+              <h2>📚 Mes cours</h2>
+              <a routerLink="/my-courses" class="see-all">Voir tout →</a>
+            </div>
             <div class="course-grid">
               <div class="course-card" *ngFor="let course of recentCourses" [routerLink]="['/courses', course.id]">
                 <div class="course-img">
                   <img *ngIf="course.image_path" [src]="course.image_path" alt="{{ course.title }}" class="course-img-photo">
                   <span *ngIf="!course.image_path">📘</span>
+                  <div class="course-badge" *ngIf="course.progress === 100">✅</div>
                 </div>
                 <div class="course-info">
                   <h3>{{ course.title }}</h3>
-                  <p>{{ course.description | slice:0:80 }}...</p>
-                  <div class="progress-bar" *ngIf="isStudent">
-                    <div class="progress-fill" [style.width]="(course.progress || 0) + '%'"></div>
+                  <div class="progress-wrap">
+                    <div class="progress-bar">
+                      <div class="progress-fill"
+                        [style.width]="(course.progress || 0) + '%'"
+                        [class.done]="course.progress === 100"
+                        [class.mid]="course.progress >= 50 && course.progress < 100"
+                        [class.low]="course.progress < 50"></div>
+                    </div>
+                    <span class="prog-label">{{ course.progress || 0 }}%</span>
                   </div>
-                  <div class="prog-label" *ngIf="isStudent">{{ course.progress || 0 }}% complété</div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Certificats & Forum (2 colonnes) -->
+          <div class="two-cols" *ngIf="isStudent">
+
+            <!-- Certificats -->
+            <div class="panel">
+              <div class="section-header">
+                <h2>🏆 Mes certificats</h2>
+                <a routerLink="/certificates" class="see-all">Voir tout →</a>
+              </div>
+              <div class="cert-empty" *ngIf="certificates.length === 0">
+                <div>🎓</div>
+                <p>Complétez un cours pour obtenir votre certificat !</p>
+              </div>
+              <div class="cert-list" *ngIf="certificates.length > 0">
+                <div class="cert-item" *ngFor="let cert of certificates | slice:0:3">
+                  <div class="cert-icon">🏆</div>
+                  <div class="cert-body">
+                    <div class="cert-title">{{ cert.course_title || cert.title }}</div>
+                    <div class="cert-date">{{ cert.issued_at | date:'dd/MM/yyyy' }}</div>
+                  </div>
+                  <a [routerLink]="['/courses', cert.course_id, 'certificate']" class="cert-link">Voir →</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Forum récent -->
+            <div class="panel">
+              <div class="section-header">
+                <h2>💬 Forum récent</h2>
+              </div>
+              <div class="cert-empty" *ngIf="forumPosts.length === 0">
+                <div>💬</div>
+                <p>Aucune discussion récente</p>
+              </div>
+              <div class="forum-list" *ngIf="forumPosts.length > 0">
+                <div class="forum-item" *ngFor="let post of forumPosts">
+                  <div class="forum-avatar">{{ getInitials(post.user_name) }}</div>
+                  <div class="forum-body">
+                    <div class="forum-title">{{ post.title }}</div>
+                    <div class="forum-meta">{{ post.reply_count }} réponse(s) · {{ post.user_name }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
           <div class="empty" *ngIf="recentCourses.length === 0">
             Aucun cours pour l'instant. <a routerLink="/courses">Parcourir les cours</a>
           </div>
@@ -193,12 +250,43 @@ import { FormsModule } from '@angular/forms';
     .mini-fill { height:100%; border-radius:3px; }
     .mini-fill.high{background:#10b981} .mini-fill.mid{background:#f59e0b} .mini-fill.low{background:#ef4444}
     .empty-row { text-align:center; color:#94a3b8; padding:1.5rem; }
+    .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; }
+    .section-header h2 { margin:0; color:#1E3A5F; font-size:1rem; font-weight:700; }
+    .see-all { font-size:.8rem; color:#4361ee; text-decoration:none; font-weight:600; }
+    .see-all:hover { text-decoration:underline; }
+    .course-badge { position:absolute; top:6px; right:6px; font-size:1.2rem; }
+    .course-img { position:relative; }
+    .progress-wrap { display:flex; align-items:center; gap:.5rem; margin-top:.5rem; }
+    .progress-fill.done { background:#22c55e; }
+    .progress-fill.mid { background:#f59e0b; }
+    .progress-fill.low { background:#4A90D9; }
+    .two-cols { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1.5rem; }
+    .panel { background:white; border-radius:12px; padding:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .cert-empty { text-align:center; padding:1.5rem; color:#94a3b8; }
+    .cert-empty div { font-size:2rem; margin-bottom:.5rem; }
+    .cert-empty p { font-size:.82rem; margin:0; }
+    .cert-list { display:flex; flex-direction:column; gap:.75rem; }
+    .cert-item { display:flex; align-items:center; gap:.75rem; padding:.6rem; border-radius:8px; background:#f8faff; }
+    .cert-icon { font-size:1.5rem; flex-shrink:0; }
+    .cert-body { flex:1; min-width:0; }
+    .cert-title { font-size:.85rem; font-weight:600; color:#1a2340; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .cert-date { font-size:.72rem; color:#94a3b8; }
+    .cert-link { font-size:.75rem; color:#4361ee; text-decoration:none; font-weight:600; white-space:nowrap; }
+    .forum-list { display:flex; flex-direction:column; gap:.75rem; }
+    .forum-item { display:flex; align-items:flex-start; gap:.75rem; padding:.6rem; border-radius:8px; background:#f8faff; }
+    .forum-avatar { width:32px; height:32px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:700; flex-shrink:0; }
+    .forum-body { flex:1; min-width:0; }
+    .forum-title { font-size:.85rem; font-weight:600; color:#1a2340; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .forum-meta { font-size:.72rem; color:#94a3b8; margin-top:.15rem; }
   `]
 })
 export class DashboardComponent implements OnInit {
   user: any;
   recentCourses: any[] = [];
   stats = { courses: 0, completed: 0, score: 0, completion: 0 };
+  certificates: any[] = [];
+  forumPosts: any[] = [];
+  streakDays = 0;
   adminStats: any = null;
   activeTab = 'overview';
   today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -238,6 +326,24 @@ export class DashboardComponent implements OnInit {
             ...e.course, progress: parseFloat(e.progress || 0)
           }));
           this.stats.completed = enrollments.filter((e: any) => parseFloat(e.progress) === 100).length;
+        },
+        error: () => {}
+      });
+      // Certificats
+      this.courseService.getMyCertificates().subscribe({
+        next: (certs) => { this.certificates = certs; },
+        error: () => {}
+      });
+      // Forum posts récents
+      this.courseService.myCourses().subscribe({
+        next: (enrollments) => {
+          const courseIds = enrollments.map((e: any) => e.course?.id || e.course_id).filter(Boolean);
+          if (courseIds.length > 0) {
+            this.http.get<any[]>(`/api/forum/courses/${courseIds[0]}/posts`).subscribe({
+              next: (posts) => { this.forumPosts = posts.slice(0, 3); },
+              error: () => {}
+            });
+          }
         },
         error: () => {}
       });
@@ -285,6 +391,11 @@ export class DashboardComponent implements OnInit {
         error: () => {}
       });
     }
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
   }
 
   getRankClass(i: number): string {

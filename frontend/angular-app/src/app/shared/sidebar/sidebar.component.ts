@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { Subscription } from 'rxjs';
@@ -8,7 +9,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
   template: `
     <aside class="sidebar">
       <div class="logo">
@@ -82,6 +83,16 @@ import { Subscription } from 'rxjs';
         </div>
       </div>
 
+      <!-- Barre de recherche -->
+      <div class="search-wrap">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="sidebar-search" type="text" [(ngModel)]="searchQuery"
+          (keyup.enter)="goSearch()"
+          (input)="onSearchInput()"
+          placeholder="Rechercher..."/>
+        <button class="search-go" *ngIf="searchQuery" (click)="goSearch()">→</button>
+      </div>
+
       <nav>
         <a routerLink="/dashboard" class="nav-item" routerLinkActive="active">🏠 Tableau de bord</a>
         <a routerLink="/courses" class="nav-item" routerLinkActive="active" *ngIf="!isAdmin">📚 Cours</a>
@@ -91,6 +102,7 @@ import { Subscription } from 'rxjs';
         <a routerLink="/analytics" class="nav-item" routerLinkActive="active" *ngIf="isTeacher || isAdmin">📊 Analytics</a>
         <a routerLink="/admin" class="nav-item" routerLinkActive="active" *ngIf="isAdmin">⚙️ Administration</a>
         <a routerLink="/chatbot" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🤖 Assistant IA</a>
+        <a routerLink="/messages" class="nav-item" routerLinkActive="active">✉️ Messages</a>
         <a routerLink="/certificates" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🏆 Mes certificats</a>
       </nav>
 
@@ -124,6 +136,12 @@ import { Subscription } from 'rxjs';
     .sidebar{width:260px;background:linear-gradient(180deg,#0f2544,#1E3A5F);color:white;position:fixed;height:100vh;display:flex;flex-direction:column;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.15)}
     .logo{padding:1.75rem 1.5rem;font-size:1.3rem;font-weight:800;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between}
     nav{flex:1;padding:1.25rem 0;overflow-y:auto}
+    .search-wrap{margin:.75rem 1rem;display:flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:7px 12px;transition:.2s}
+    .search-wrap:focus-within{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
+    .sidebar-search{flex:1;background:none;border:none;outline:none;color:white;font-size:.82rem}
+    .sidebar-search::placeholder{color:rgba(255,255,255,.4)}
+    .search-go{background:rgba(255,255,255,.15);border:none;color:white;border-radius:6px;padding:2px 7px;cursor:pointer;font-size:.85rem}
+    .search-go:hover{background:rgba(255,255,255,.25)}
     .nav-item{display:block;padding:.85rem 1.5rem;color:rgba(255,255,255,.7);text-decoration:none;transition:.25s;border-left:3px solid transparent;font-size:.95rem}
     .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.08);color:white;border-left-color:#4A90D9;padding-left:1.75rem}
     .sidebar-footer{padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:.75rem}
@@ -246,6 +264,16 @@ export class SidebarComponent implements OnInit, OnDestroy {
     this.notifService.stopPolling();
     this.subs.unsubscribe();
   }
+
+  searchQuery = '';
+
+  goSearch() {
+    if (!this.searchQuery.trim()) return;
+    this.router.navigate(['/search'], { queryParams: { q: this.searchQuery } });
+    this.searchQuery = '';
+  }
+
+  onSearchInput() {}
 
   toggleNotif(): void { this.notifOpen = !this.notifOpen; }
 

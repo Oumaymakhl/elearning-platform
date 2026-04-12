@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
+import { Router } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { forkJoin } from 'rxjs';
@@ -100,6 +101,7 @@ interface StudentRow {
                 <td class="student-name">
                   <div class="avatar">{{ getInitials(s.name) }}</div>
                   <span>{{ s.name || 'Étudiant #' + s.user_id }}</span>
+                  <button class="msg-btn" (click)="messageStudent(s, $event)" title="Envoyer un message">✉️</button>
                 </td>
                 <td class="email">{{ s.email || '—' }}</td>
                 <td class="courses-cell">
@@ -182,6 +184,8 @@ interface StudentRow {
     .student-name { display:flex; align-items:center; gap:.75rem; font-weight:600; color:#1a2340; }
     .avatar { width:34px; height:34px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
     .email { color:#64748b; }
+    .msg-btn { background:#e8edf8; border:none; border-radius:6px; padding:3px 7px; cursor:pointer; font-size:.85rem; margin-left:.5rem; transition:.2s; }
+    .msg-btn:hover { background:#1E3A5F; color:white; }
     .courses-cell { min-width:200px; }
     .course-select {
       width:100%; padding:7px 32px 7px 12px;
@@ -222,7 +226,7 @@ export class StudentsComponent implements OnInit {
   selectedCourse = '';
   loading = true;
 
-  constructor(private courseService: CourseService, private auth: AuthService) {}
+  constructor(private courseService: CourseService, private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
     const user = this.auth.getCurrentUser();
@@ -287,6 +291,13 @@ export class StudentsComponent implements OnInit {
       data = data.filter(s => s.name.toLowerCase().includes(q) || s.email.toLowerCase().includes(q));
     }
     this.filtered = data;
+  }
+
+  messageStudent(student: StudentRow, event: Event) {
+    event.stopPropagation();
+    this.router.navigate(['/messages'], {
+      queryParams: { with: student.user_id, name: student.name, avatar: '' }
+    });
   }
 
   get totalStudents(): number { return this.allStudentRows.length; }

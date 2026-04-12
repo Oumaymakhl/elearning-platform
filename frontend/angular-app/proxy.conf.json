@@ -112,5 +112,10 @@
     "target": "http://localhost:8008",
     "secure": false,
     "changeOrigin": true
+  },
+  "/api/messaging": {
+    "target": "http://localhost:8009",
+    "secure": false,
+    "changeOrigin": true
   }
 }
