@@ -9,6 +9,10 @@ sudo chmod 777 /tmp/executor
 mkdir -p /tmp/go-cache /tmp/gopath
 sudo chmod 777 /tmp/go-cache /tmp/gopath
 echo "✅ Plateforme démarrée !"
+echo "💬 Démarrage du forum service..."
+cd ~/projects/elearning-platform/backend/forum-service && php artisan serve --port=8008 &
+echo "💬 Forum    : http://localhost:8008"
+
 echo "🎨 Démarrage du frontend Angular..."
 cd ~/projects/elearning-platform/frontend/angular-app && ng serve &
 echo "🌐 Frontend : http://localhost:4200"

@@ -40,6 +40,7 @@
             <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer</a>
             <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
             <a [routerLink]="['/courses', course.id, 'certificate']" class="btn-cert" *ngIf="isStudent && enrolled">🏆 Mon Certificat</a>
+            <a [routerLink]="['/courses', course.id, 'forum']" class="btn-forum">💬 Forum</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
             <button class="btn-chat" *ngIf="enrolled" (click)="showChat = !showChat">
               🤖 {{ showChat ? 'Fermer assistant' : 'Assistant IA' }}
