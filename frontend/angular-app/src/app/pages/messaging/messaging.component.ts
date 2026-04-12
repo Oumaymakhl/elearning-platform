@@ -29,7 +29,7 @@ import { ActivatedRoute } from '@angular/router';
                 <input type="text" [(ngModel)]="userSearch" placeholder="Rechercher..." (input)="filterUsers()"/>
               </div>
               <div class="users-list">
-                <div class="user-item" *ngFor="let u of filteredUsers" (click)="startOrOpenConv(u.id || u.auth_id, u.name, u.avatar_url)">
+                <div class="user-item" *ngFor="let u of filteredUsers" (click)="startOrOpenConv(u.id, u.name, u.avatar_url)">
                   <div class="conv-avatar">
                     <img *ngIf="u.avatar_url" [src]="u.avatar_url" class="avatar-img" alt=""/>
                     <span *ngIf="!u.avatar_url">{{ getInitials(u.name) }}</span>
@@ -50,8 +50,9 @@ import { ActivatedRoute } from '@angular/router';
             <div class="conv-list">
               <div class="conv-empty" *ngIf="conversations.length === 0">
                 <div>💬</div>
-                <p>Aucune conversation</p>
+                <p>Aucune conversation pour l'instant</p>
               </div>
+              <div class="section-label" *ngIf="conversations.length > 0">Messages récents</div>
               <div class="conv-item"
                 *ngFor="let conv of filteredConvs"
                 [class.active]="activeConv?.id === conv.id"
@@ -81,7 +82,11 @@ import { ActivatedRoute } from '@angular/router';
               </div>
               <div class="chat-header-info">
                 <div class="chat-name">{{ activeConv.other_name }}</div>
-                <div class="chat-status">En ligne</div>
+                <div class="chat-status">● En ligne</div>
+              </div>
+              <div class="header-actions">
+                <button class="icon-btn" title="Appel vidéo">📹</button>
+                <button class="icon-btn" title="Infos">ℹ️</button>
               </div>
             </div>
 
@@ -90,7 +95,7 @@ import { ActivatedRoute } from '@angular/router';
                 <div class="spinner"></div>
               </div>
               <div class="messages" *ngIf="!loadingMessages">
-                <div class="day-sep">Aujourd'hui</div>
+                <div class="day-sep"><span>Aujourd'hui</span></div>
                 <div class="msg-group" *ngFor="let msg of messages"
                   [class.mine]="msg.sender_id === currentUser?.id || msg.sender_id === currentUser?.auth_id">
                   <div class="msg-avatar" *ngIf="msg.sender_id !== currentUser?.id && msg.sender_id !== currentUser?.auth_id">
@@ -104,7 +109,8 @@ import { ActivatedRoute } from '@angular/router';
                 </div>
                 <div class="empty-chat" *ngIf="messages.length === 0">
                   <div>👋</div>
-                  <p>Commencez la conversation !</p>
+                  <h4>Début de la conversation</h4>
+                  <p>Envoyez un message pour démarrer la discussion avec {{ activeConv.other_name }}</p>
                 </div>
               </div>
             </div>
@@ -122,10 +128,11 @@ import { ActivatedRoute } from '@angular/router';
           </div>
 
           <!-- Pas de conversation sélectionnée -->
-          <div class="chat-panel empty-state" *ngIf="!activeConv">
-            <div>💬</div>
-            <h3>Sélectionnez une conversation</h3>
-            <p>Choisissez une conversation à gauche pour commencer à discuter</p>
+          <div class="chat-panel empty-state" *ngIf="!activeConv" style="display:flex;">
+            <div class="empty-icon">💬</div>
+            <h3>Vos messages</h3>
+            <p>Sélectionnez une conversation ou démarrez-en une nouvelle avec un professeur</p>
+            <button class="empty-cta" (click)="toggleNewConv()">✏️ Nouveau message</button>
           </div>
 
         </div>
@@ -133,86 +140,214 @@ import { ActivatedRoute } from '@angular/router';
     </div>
   `,
   styles: [`
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     .layout { display:flex; min-height:100vh; }
-    .main { margin-left:260px; flex:1; background:#f0f4ff; display:flex; }
+    .main { margin-left:260px; flex:1; display:flex; background:#f0f4f8; }
     .messenger { display:flex; flex:1; height:100vh; overflow:hidden; }
 
-    /* Conv panel */
-    .conv-panel { width:300px; min-width:300px; background:white; border-right:1px solid #e2e8f0; display:flex; flex-direction:column; }
-    .conv-header { padding:1.25rem 1rem .75rem; display:flex; align-items:center; gap:.75rem; border-bottom:1px solid #f1f5f9; }
-    .conv-header h2 { margin:0; font-size:1.1rem; color:#1E3A5F; flex:1; }
-    .unread-badge { background:#ef4444; color:white; font-size:.72rem; font-weight:700; padding:2px 7px; border-radius:20px; }
-    .users-panel { border-bottom:1px solid #e2e8f0; max-height:300px; display:flex; flex-direction:column; }
-    .users-search { padding:.6rem 1rem; border-bottom:1px solid #f1f5f9; }
-    .users-search input { width:100%; padding:.45rem .75rem; border:1.5px solid #e2e8f0; border-radius:20px; font-size:.82rem; outline:none; box-sizing:border-box; }
-    .users-search input:focus { border-color:#1E3A5F; }
-    .users-list { overflow-y:auto; flex:1; }
-    .user-item { display:flex; align-items:center; gap:.75rem; padding:.7rem 1rem; cursor:pointer; border-bottom:1px solid #f8fafc; transition:.15s; }
-    .user-item:hover { background:#f0f4ff; }
-    .new-conv-btn { background:rgba(30,58,95,.1); border:none; border-radius:8px; padding:4px 8px; cursor:pointer; font-size:1rem; transition:.2s; }
-    .new-conv-btn:hover { background:#1E3A5F; color:white; }
-    .new-conv-form { padding:.75rem 1rem; border-bottom:1px solid #f1f5f9; display:flex; flex-direction:column; gap:.5rem; }
-    .new-conv-form input { padding:.5rem .75rem; border:1.5px solid #e2e8f0; border-radius:8px; font-size:.83rem; outline:none; }
-    .new-conv-form input:focus { border-color:#1E3A5F; }
-    .new-conv-form button { background:#1E3A5F; color:white; border:none; border-radius:8px; padding:.5rem; cursor:pointer; font-size:.85rem; font-weight:600; }
-    .conv-search { padding:.75rem 1rem; border-bottom:1px solid #f1f5f9; }
-    .conv-search input { width:100%; padding:.5rem .75rem; border:1.5px solid #e2e8f0; border-radius:20px; font-size:.83rem; outline:none; box-sizing:border-box; }
-    .conv-search input:focus { border-color:#1E3A5F; }
-    .conv-list { flex:1; overflow-y:auto; }
-    .conv-empty { text-align:center; padding:3rem 1rem; color:#94a3b8; }
-    .conv-empty div { font-size:2.5rem; margin-bottom:.75rem; }
-    .conv-empty p { margin:0; font-size:.85rem; }
-    .conv-item { display:flex; align-items:center; gap:.75rem; padding:.85rem 1rem; cursor:pointer; border-bottom:1px solid #f8fafc; transition:.15s; }
-    .conv-item:hover { background:#f8faff; }
-    .conv-item.active { background:#e8edf8; }
-    .conv-avatar { width:42px; height:42px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.8rem; font-weight:700; flex-shrink:0; overflow:hidden; position:relative; }
-    .conv-avatar.has-unread::after { content:''; position:absolute; top:1px; right:1px; width:10px; height:10px; background:#22c55e; border-radius:50%; border:2px solid white; }
-    .avatar-img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+    /* ── LEFT PANEL ── */
+    .conv-panel {
+      width:340px; min-width:340px; display:flex; flex-direction:column;
+      background:#1a2340;
+    }
+    .conv-header {
+      padding:1.5rem 1.25rem 1rem;
+      display:flex; align-items:center; gap:.75rem;
+    }
+    .conv-header h2 { color:#fff; font-size:1.2rem; font-weight:700; flex:1; letter-spacing:-.3px; }
+    .unread-badge {
+      background:#ef4444; color:#fff; font-size:.68rem; font-weight:700;
+      padding:2px 8px; border-radius:20px;
+    }
+    .new-conv-btn {
+      width:34px; height:34px; border-radius:10px;
+      background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.15);
+      color:#fff; font-size:1.1rem; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:.2s;
+    }
+    .new-conv-btn:hover { background:rgba(255,255,255,.2); transform:scale(1.05); }
+
+    .conv-search { padding:.5rem 1.25rem .75rem; }
+    .conv-search input {
+      width:100%; padding:.6rem 1rem; border-radius:12px;
+      border:none; background:rgba(255,255,255,.08);
+      color:#fff; font-size:.82rem; outline:none;
+    }
+    .conv-search input::placeholder { color:rgba(255,255,255,.35); }
+    .conv-search input:focus { background:rgba(255,255,255,.14); }
+
+    .conv-list { flex:1; overflow-y:auto; padding-bottom:1rem; }
+    .conv-list::-webkit-scrollbar { width:3px; }
+    .conv-list::-webkit-scrollbar-thumb { background:rgba(255,255,255,.12); border-radius:3px; }
+
+    .conv-empty { text-align:center; padding:3rem 1rem; color:rgba(255,255,255,.4); }
+    .conv-empty div { font-size:2rem; margin-bottom:.75rem; }
+    .conv-empty p { font-size:.82rem; }
+
+    .section-label {
+      padding:.75rem 1.25rem .35rem; font-size:.68rem; font-weight:700;
+      color:rgba(255,255,255,.35); text-transform:uppercase; letter-spacing:1px;
+    }
+
+    .conv-item {
+      display:flex; align-items:center; gap:.85rem;
+      padding:.75rem 1.25rem; cursor:pointer; transition:.15s;
+      border-left:3px solid transparent;
+    }
+    .conv-item:hover { background:rgba(255,255,255,.06); }
+    .conv-item.active { background:rgba(255,255,255,.1); border-left-color:#4361ee; }
+
+    .conv-avatar {
+      width:44px; height:44px; border-radius:14px;
+      background:linear-gradient(135deg,#4361ee,#7c3aed);
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:.82rem; font-weight:700; flex-shrink:0; overflow:hidden; position:relative;
+    }
+    .conv-avatar.has-unread::after {
+      content:''; position:absolute; top:-1px; right:-1px;
+      width:12px; height:12px; background:#22c55e;
+      border-radius:50%; border:2px solid #1a2340;
+    }
+    .avatar-img { width:100%; height:100%; object-fit:cover; }
+
     .conv-info { flex:1; min-width:0; }
-    .conv-name { font-weight:600; color:#1a2340; font-size:.88rem; }
-    .conv-last { font-size:.75rem; color:#94a3b8; margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .conv-right { display:flex; flex-direction:column; align-items:flex-end; gap:.3rem; flex-shrink:0; }
-    .conv-time { font-size:.68rem; color:#94a3b8; }
-    .unread-dot { background:#4361ee; color:white; font-size:.65rem; font-weight:700; min-width:18px; height:18px; border-radius:9px; padding:0 4px; display:flex; align-items:center; justify-content:center; }
+    .conv-name { font-weight:600; color:#fff; font-size:.88rem; }
+    .conv-last { font-size:.74rem; color:rgba(255,255,255,.4); margin-top:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* Chat panel */
-    .chat-panel { flex:1; display:flex; flex-direction:column; }
-    .chat-header { padding:1rem 1.5rem; background:white; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; gap:.9rem; box-shadow:0 1px 4px rgba(0,0,0,.04); }
-    .avatar { width:38px; height:38px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; overflow:hidden; }
-    .avatar.sm { width:38px; height:38px; }
-    .chat-name { font-weight:700; color:#1a2340; font-size:.95rem; }
-    .chat-status { font-size:.75rem; color:#22c55e; }
-    .messages-wrap { flex:1; overflow-y:auto; padding:1.5rem; background:#f0f4ff; }
+    .conv-right { display:flex; flex-direction:column; align-items:flex-end; gap:.35rem; flex-shrink:0; }
+    .conv-time { font-size:.68rem; color:rgba(255,255,255,.3); }
+    .unread-dot {
+      background:#4361ee; color:#fff; font-size:.62rem; font-weight:700;
+      min-width:18px; height:18px; border-radius:9px; padding:0 4px;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    /* Users panel */
+    .users-panel { background:rgba(255,255,255,.04); border-top:1px solid rgba(255,255,255,.08); max-height:300px; display:flex; flex-direction:column; }
+    .users-search { padding:.6rem 1.25rem; border-bottom:1px solid rgba(255,255,255,.06); }
+    .users-search input { width:100%; padding:.5rem .85rem; border-radius:10px; border:none; background:rgba(255,255,255,.08); color:#fff; font-size:.8rem; outline:none; }
+    .users-search input::placeholder { color:rgba(255,255,255,.3); }
+    .users-list { overflow-y:auto; flex:1; }
+    .user-item { display:flex; align-items:center; gap:.85rem; padding:.65rem 1.25rem; cursor:pointer; transition:.15s; }
+    .user-item:hover { background:rgba(255,255,255,.07); }
+
+    /* ── CHAT AREA ── */
+    .chat-panel { flex:1; display:flex; flex-direction:column; background:#f0f4f8; }
+
+    .chat-header {
+      padding:.9rem 1.75rem; background:#fff;
+      border-bottom:1px solid #e8edf5;
+      display:flex; align-items:center; gap:1rem;
+      box-shadow:0 1px 0 rgba(0,0,0,.05);
+    }
+    .avatar {
+      width:42px; height:42px; border-radius:14px;
+      background:linear-gradient(135deg,#4361ee,#7c3aed);
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:.8rem; font-weight:700; flex-shrink:0; overflow:hidden;
+    }
+    .avatar.sm { width:42px; height:42px; }
+    .chat-header-info { flex:1; }
+    .chat-name { font-weight:700; color:#0f1729; font-size:.98rem; }
+    .chat-status { font-size:.72rem; color:#22c55e; font-weight:600; margin-top:1px; }
+
+    .header-actions { display:flex; gap:.5rem; }
+    .icon-btn {
+      width:36px; height:36px; border-radius:10px;
+      background:#f5f7ff; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      color:#64748b; font-size:.95rem; transition:.2s;
+    }
+    .icon-btn:hover { background:#eef2ff; color:#4361ee; }
+
+    /* Messages */
+    .messages-wrap { flex:1; overflow-y:auto; padding:1.5rem 2rem; }
+    .messages-wrap::-webkit-scrollbar { width:4px; }
+    .messages-wrap::-webkit-scrollbar-thumb { background:#d1d9f0; border-radius:4px; }
+
     .loading { display:flex; justify-content:center; padding:2rem; }
-    .spinner { width:24px; height:24px; border:3px solid #e2e8f0; border-top-color:#1E3A5F; border-radius:50%; animation:spin 1s linear infinite; }
+    .spinner { width:28px; height:28px; border:3px solid #e2e8f0; border-top-color:#4361ee; border-radius:50%; animation:spin 1s linear infinite; }
     @keyframes spin { to { transform:rotate(360deg); } }
-    .day-sep { text-align:center; font-size:.72rem; color:#94a3b8; margin:1rem 0; position:relative; }
-    .day-sep::before { content:''; position:absolute; top:50%; left:0; right:0; height:1px; background:#e2e8f0; z-index:0; }
-    .day-sep { background:transparent; }
 
-    .msg-group { display:flex; align-items:flex-end; gap:.5rem; margin-bottom:.75rem; }
+    .day-sep {
+      text-align:center; font-size:.7rem; color:#94a3b8; margin:1.5rem 0;
+      display:flex; align-items:center; gap:.75rem;
+    }
+    .day-sep::before,.day-sep::after { content:''; flex:1; height:1px; background:#e2e8f0; }
+    .day-sep span { white-space:nowrap; background:#f0f4f8; padding:0 .5rem; }
+
+    .msg-group { display:flex; align-items:flex-end; gap:.6rem; margin-bottom:1.25rem; }
     .msg-group.mine { flex-direction:row-reverse; }
-    .msg-avatar { width:28px; height:28px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.6rem; font-weight:700; flex-shrink:0; overflow:hidden; }
-    .msg-bubble { max-width:65%; }
-    .msg-body { background:white; padding:.6rem .9rem; border-radius:18px 18px 18px 4px; font-size:.88rem; color:#1a2340; line-height:1.5; box-shadow:0 1px 3px rgba(0,0,0,.07); word-break:break-word; }
-    .mine .msg-body { background:#1E3A5F; color:white; border-radius:18px 18px 4px 18px; }
-    .msg-time { font-size:.65rem; color:#94a3b8; margin-top:.25rem; text-align:right; }
+
+    .msg-avatar {
+      width:32px; height:32px; border-radius:10px;
+      background:linear-gradient(135deg,#4361ee,#7c3aed);
+      color:#fff; display:flex; align-items:center; justify-content:center;
+      font-size:.62rem; font-weight:700; flex-shrink:0; overflow:hidden;
+    }
+
+    .msg-bubble { max-width:58%; display:flex; flex-direction:column; }
+
+    .msg-sender { font-size:.68rem; color:#94a3b8; margin-bottom:.25rem; padding-left:.25rem; }
+    .mine .msg-sender { text-align:right; padding-right:.25rem; }
+
+    .msg-body {
+      background:#fff; padding:.75rem 1.1rem;
+      border-radius:16px 16px 16px 4px;
+      font-size:.88rem; color:#1a2340; line-height:1.6;
+      box-shadow:0 1px 4px rgba(0,0,0,.06); word-break:break-word;
+    }
+    .mine .msg-body {
+      background:#4361ee; color:#fff;
+      border-radius:16px 16px 4px 16px;
+      box-shadow:0 2px 12px rgba(67,97,238,.25);
+    }
+
+    .msg-time { font-size:.65rem; color:#94a3b8; margin-top:.3rem; padding:0 .35rem; }
     .mine .msg-time { text-align:right; }
-    .empty-chat { text-align:center; padding:3rem; color:#94a3b8; }
-    .empty-chat div { font-size:2.5rem; margin-bottom:.75rem; }
-    .empty-chat p { margin:0; font-size:.85rem; }
 
-    .chat-input { padding:1rem 1.5rem; background:white; border-top:1px solid #e2e8f0; display:flex; align-items:flex-end; gap:.75rem; }
-    .chat-input textarea { flex:1; border:1.5px solid #e2e8f0; border-radius:12px; padding:.65rem 1rem; font-size:.9rem; resize:none; outline:none; font-family:inherit; max-height:120px; }
-    .chat-input textarea:focus { border-color:#1E3A5F; }
-    .send-btn { background:#1E3A5F; color:white; border:none; border-radius:12px; padding:.65rem .9rem; cursor:pointer; display:flex; align-items:center; transition:.2s; flex-shrink:0; }
-    .send-btn:hover:not(:disabled) { background:#0f2544; }
-    .send-btn:disabled { opacity:.4; cursor:not-allowed; }
+    .empty-chat { text-align:center; padding:5rem 2rem; color:#94a3b8; }
+    .empty-chat div { font-size:3.5rem; margin-bottom:1.25rem; }
+    .empty-chat h4 { color:#1E3A5F; font-size:1.1rem; margin-bottom:.5rem; }
+    .empty-chat p { font-size:.85rem; max-width:260px; margin:0 auto; line-height:1.6; }
 
-    .empty-state { align-items:center; justify-content:center; flex-direction:column; gap:1rem; color:#94a3b8; background:#f8faff; }
-    .empty-state div { font-size:4rem; }
-    .empty-state h3 { margin:0; color:#1E3A5F; }
-    .empty-state p { margin:0; font-size:.85rem; }
+    /* Input */
+    .chat-input {
+      padding:1rem 1.75rem 1.25rem; background:#fff;
+      border-top:1px solid #e8edf5;
+      display:flex; align-items:flex-end; gap:.85rem;
+    }
+    .chat-input textarea {
+      flex:1; border:1.5px solid #e8edf5; border-radius:16px;
+      padding:.75rem 1.25rem; font-size:.9rem; resize:none; outline:none;
+      font-family:inherit; max-height:120px; background:#f8faff;
+      color:#1a2340; line-height:1.5; transition:.2s;
+    }
+    .chat-input textarea:focus { border-color:#4361ee; background:#fff; box-shadow:0 0 0 3px rgba(67,97,238,.08); }
+    .chat-input textarea::placeholder { color:#94a3b8; }
+
+    .send-btn {
+      width:46px; height:46px; border-radius:14px;
+      background:#4361ee; color:#fff; border:none; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; transition:.2s;
+      box-shadow:0 4px 14px rgba(67,97,238,.3); flex-shrink:0;
+    }
+    .send-btn:hover:not(:disabled) { background:#3451d1; transform:translateY(-1px); box-shadow:0 6px 18px rgba(67,97,238,.38); }
+    .send-btn:active:not(:disabled) { transform:translateY(0); }
+    .send-btn:disabled { opacity:.4; cursor:not-allowed; box-shadow:none; }
+
+    /* Empty state */
+    .empty-state {
+      align-items:center; justify-content:center; flex-direction:column; gap:1.25rem;
+      color:#94a3b8; background:#f0f4f8;
+    }
+    .empty-icon {
+      width:80px; height:80px; border-radius:24px; background:#eef2ff;
+      display:flex; align-items:center; justify-content:center; font-size:2.5rem;
+    }
+    .empty-state h3 { margin:0; color:#1E3A5F; font-size:1.3rem; font-weight:700; }
+    .empty-state p { margin:0; font-size:.88rem; max-width:260px; text-align:center; line-height:1.7; }
+    .empty-cta { background:#4361ee; color:#fff; border:none; border-radius:12px; padding:.65rem 1.5rem; font-size:.88rem; font-weight:600; cursor:pointer; margin-top:.5rem; }
   `]
 })
 export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -287,23 +422,17 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.showNewConv && this.users.length === 0) {
       const myId = this.currentUser?.auth_id || this.currentUser?.id;
       // Récupérer les profs depuis les cours
-      this.http.get<any[]>('/api/courses').subscribe({
-        next: (courses) => {
-          const seen = new Set();
-          const users: any[] = [];
-          courses.forEach((c: any) => {
-            if (c.instructor && !seen.has(c.instructor.id)) {
-              seen.add(c.instructor.id);
-              if (c.instructor.id != myId) {
-                users.push({ ...c.instructor, role: 'teacher' });
-              }
-            }
-            // Ajouter aussi instructor_id si pas d'objet instructor
-            if (!c.instructor && c.instructor_id && c.instructor_id != myId && !seen.has(c.instructor_id)) {
-              seen.add(c.instructor_id);
-              users.push({ id: c.instructor_id, auth_id: c.instructor_id, name: c.instructor_name || 'Professeur', role: 'teacher', avatar_url: null });
-            }
-          });
+      this.http.get<any>('http://localhost:8001/api/teachers').subscribe({
+        next: (teachers: any[]) => {
+          const users = teachers
+            .filter((u: any) => (u.auth_id || u.id) != myId)
+            .map((u: any) => ({
+              id: u.auth_id || u.id,
+              name: u.name,
+              email: u.email,
+              role: 'teacher',
+              avatar_url: u.avatar ? `/storage/${u.avatar}` : null
+            }));
           this.users = users;
           this.filteredUsers = [...users];
         },
@@ -328,7 +457,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   loadConversations() {
-    this.http.get<any[]>('/api/messaging/conversations', {
+    this.http.get<any[]>('http://localhost:8009/api/messaging/conversations', {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
       next: (convs) => {
@@ -343,7 +472,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.loadingMessages = true;
     this.sseSource?.close();
 
-    this.http.get<any[]>(`/api/messaging/conversations/${conv.id}/messages`, {
+    this.http.get<any[]>(`http://localhost:8009/api/messaging/conversations/${conv.id}/messages`, {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
       next: (msgs) => {
@@ -361,7 +490,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     const uid = this.currentUser?.auth_id || this.currentUser?.id;
     const userData = this.getUserHeader();
     this.sseSource = new EventSource(
-      `/api/messaging/conversations/${convId}/stream?lastId=${lastId}&X-User-Data=${encodeURIComponent(userData)}`
+      `http://localhost:8009/api/messaging/conversations/${convId}/stream?lastId=${lastId}&X-User-Data=${encodeURIComponent(userData)}`
     );
     this.sseSource.onmessage = (e) => {
       const msg = JSON.parse(e.data);
@@ -377,7 +506,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     const body = this.newMessage.trim();
     this.newMessage = '';
 
-    this.http.post<any>(`/api/messaging/conversations/${this.activeConv.id}/messages`,
+    this.http.post<any>(`http://localhost:8009/api/messaging/conversations/${this.activeConv.id}/messages`,
       { body },
       { headers: { 'X-User-Data': this.getUserHeader() } }
     ).subscribe({
@@ -395,7 +524,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     const existing = this.conversations.find(c => c.other_id === otherId);
     if (existing) { this.openConv(existing); return; }
 
-    this.http.post<any>('/api/messaging/conversations',
+    this.http.post<any>('http://localhost:8009/api/messaging/conversations',
       { other_id: otherId, other_name: otherName, other_avatar: otherAvatar },
       { headers: { 'X-User-Data': this.getUserHeader() } }
     ).subscribe({
