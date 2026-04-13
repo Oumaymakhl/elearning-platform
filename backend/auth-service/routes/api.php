@@ -19,3 +19,5 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/users',           [AuthController::class, 'users']);
     Route::put('/users/{id}/role', [AuthController::class, 'updateRole']);
 });
+Route::get('/teachers', [AuthController::class, 'teachers']);
+Route::get('/students', [AuthController::class, 'students']);

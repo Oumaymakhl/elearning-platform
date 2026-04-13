@@ -81,6 +81,11 @@ class UserController extends Controller
         return response()->json(User::where('role', 'teacher')->where('is_active', true)->get()->map(fn($u) => $this->withAvatarUrl($u)));
     }
 
+    public function students()
+    {
+        return response()->json(User::where('role', 'student')->where('is_active', true)->get()->map(fn($u) => $this->withAvatarUrl($u)));
+    }
+
     public function toggleActive(Request $request, $id)
     {
         if ($request->auth_user_role !== 'admin') return response()->json(['message' => 'Forbidden'], 403);

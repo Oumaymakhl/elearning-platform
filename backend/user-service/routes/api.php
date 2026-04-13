@@ -7,6 +7,7 @@ Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
 // Publiques
 Route::get('/teachers',    [UserController::class, 'teachers']);
+Route::get('/students',    [UserController::class, 'students']);
 Route::get('/users/{id}',  [UserController::class, 'show']);
 
 // Protégées

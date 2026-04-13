@@ -212,4 +212,33 @@ class MessagingController extends Controller
 
         return response()->json(['unread' => $count]);
     }
+
+    // DELETE /api/messaging/conversations/{id}
+    public function deleteConversation(Request $request, $id)
+    {
+        $user = $this->getUser($request);
+        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
+        $conv = DB::table('conversations')->find($id);
+        if (!$conv) return response()->json(['message' => 'Not found'], 404);
+        if ($conv->user1_id != $user['id'] && $conv->user2_id != $user['id']) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        DB::table('messages')->where('conversation_id', $id)->delete();
+        DB::table('conversations')->where('id', $id)->delete();
+        return response()->json(['message' => 'Deleted']);
+    }
+
+    // POST /api/messaging/upload
+    public function uploadFile(Request $request)
+    {
+        $user = $this->getUser($request);
+        if (!$user) return response()->json(['message' => 'Unauthorized'], 401);
+
+        $request->validate(['file' => 'required|file|max:10240']);
+
+        $path = $request->file('file')->store('messaging', 'public');
+        $url  = url('storage/' . $path);
+
+        return response()->json(['url' => $url, 'name' => $request->file('file')->getClientOriginalName()]);
+    }
 }
