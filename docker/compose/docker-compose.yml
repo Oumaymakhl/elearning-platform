@@ -465,6 +465,132 @@ services:
       - elearning-network
     restart: unless-stopped
 
+  # --- Forum Service ---
+  mysql-forum:
+    image: mysql:8.0
+    container_name: mysql-forum
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: forum_db
+      MYSQL_USER: forum_user
+      MYSQL_PASSWORD: forum_password
+    ports:
+      - "3314:3306"
+    volumes:
+      - mysql-forum-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  forum-service:
+    build:
+      context: /home/ouma/projects/elearning-platform/backend/forum-service
+      dockerfile: Dockerfile
+    container_name: forum-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/forum-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-forum:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-forum:
+    image: nginx:alpine
+    container_name: nginx-forum
+    ports:
+      - "8008:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/forum-service:/var/www/html
+      - ./nginx/forum.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - forum-service
+    restart: unless-stopped
+
+  phpmyadmin-forum:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-forum
+    environment:
+      PMA_HOST: mysql-forum
+      PMA_PORT: 3306
+    ports:
+      - "8088:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-forum
+    restart: unless-stopped
+
+  # --- Messaging Service ---
+  mysql-messaging:
+    image: mysql:8.0
+    container_name: mysql-messaging
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: messaging_db
+      MYSQL_USER: messaging_user
+      MYSQL_PASSWORD: messaging_password
+    ports:
+      - "3315:3306"
+    volumes:
+      - mysql-messaging-data:/var/lib/mysql
+    networks:
+      - elearning-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    restart: unless-stopped
+
+  messaging-service:
+    build:
+      context: /home/ouma/projects/elearning-platform/backend/messaging-service
+      dockerfile: Dockerfile
+    container_name: messaging-service
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/messaging-service:/var/www/html
+    networks:
+      - elearning-network
+    depends_on:
+      mysql-messaging:
+        condition: service_healthy
+    restart: unless-stopped
+
+  nginx-messaging:
+    image: nginx:alpine
+    container_name: nginx-messaging
+    ports:
+      - "8009:80"
+    volumes:
+      - /home/ouma/projects/elearning-platform/backend/messaging-service:/var/www/html
+      - ./nginx/messaging.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - messaging-service
+    restart: unless-stopped
+
+  phpmyadmin-messaging:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-messaging
+    environment:
+      PMA_HOST: mysql-messaging
+      PMA_PORT: 3306
+    ports:
+      - "8089:80"
+    networks:
+      - elearning-network
+    depends_on:
+      - mysql-messaging
+    restart: unless-stopped
+
   chatbot-service:
     build:
       context: /home/ouma/projects/elearning-platform/backend/chatbot-service
@@ -490,3 +616,5 @@ volumes:
   mysql-notification-data:
   mysql-quiz-data:
   mysql-executor-data:
+  mysql-forum-data:
+  mysql-messaging-data:
