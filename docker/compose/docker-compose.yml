@@ -590,7 +590,6 @@ services:
     depends_on:
       - mysql-messaging
     restart: unless-stopped
-
   chatbot-service:
     build:
       context: /home/ouma/projects/elearning-platform/backend/chatbot-service

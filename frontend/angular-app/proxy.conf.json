@@ -109,12 +109,24 @@
     "changeOrigin": true
   },
   "/api/forum": {
-    "target": "http://127.0.0.1:8008",
+    "target": "http://127.0.0.1:8080",
     "secure": false,
     "changeOrigin": true
   },
   "/api/messaging": {
-    "target": "http://127.0.0.1:8009",
+    "target": "http://127.0.0.1:8080",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": { "^/api/messaging": "/api/messaging" }
+  },
+  "/api/students": {
+    "target": "http://127.0.0.1:8001",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/teachers": {
+    "target": "http://127.0.0.1:8001",
     "secure": false,
     "changeOrigin": true
   }
