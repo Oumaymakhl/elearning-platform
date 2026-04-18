@@ -624,18 +624,17 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   downloadFile(body: string) {
-    const parts = body.replace('📎 ', '').split('||');
-    if (parts[1]) {
-      const fileUrl = parts[1];
-      const filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-      const downloadUrl = `http://localhost:8080/api/messaging/download/${encodeURIComponent(filename)}`;
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = filename;
-      a.target = '_blank';
-      a.click();
-    }
+  const parts = body.replace('📎 ', '').split('||');
+  if (parts[0]) {
+    const filename = encodeURIComponent(parts[0]);
+    const url = `http://localhost:8080/api/messaging/download/`;
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = parts[0];
+    a.target = '_blank';
+    a.click();
   }
+}
 
   onFileSelected(event: any) {
     const file = event.target.files[0];

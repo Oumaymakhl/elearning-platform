@@ -11,3 +11,10 @@ Route::get('/messaging/conversations/{id}/stream',          [MessagingController
 Route::post('/messaging/upload',                          [MessagingController::class, 'uploadFile']);
 Route::delete('/messaging/conversations/{id}',              [MessagingController::class, 'deleteConversation']);
 Route::get('/messaging/unread-count',                       [MessagingController::class, 'unreadCount']);
+Route::get('/messaging/download/{filename}', function ($filename) {
+    $path = storage_path("app/public/messaging/{$filename}");
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->download($path);
+});

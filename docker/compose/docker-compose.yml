@@ -454,6 +454,8 @@ services:
       - nginx-course
       - nginx-content
       - nginx-executor
+      - nginx-messaging
+      - nginx-forum   
     restart: unless-stopped
   mailpit:
     image: axllent/mailpit:latest
