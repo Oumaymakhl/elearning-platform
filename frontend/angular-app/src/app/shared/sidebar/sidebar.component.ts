@@ -101,6 +101,7 @@ import { Subscription } from 'rxjs';
         <a routerLink="/students" class="nav-item" routerLinkActive="active" *ngIf="isTeacher">👥 Étudiants</a>
         <a routerLink="/analytics" class="nav-item" routerLinkActive="active" *ngIf="isTeacher || isAdmin">📊 Analytics</a>
         <a routerLink="/admin" class="nav-item" routerLinkActive="active" *ngIf="isAdmin">⚙️ Administration</a>
+        <a routerLink="/teacher-approvals" class="nav-item" routerLinkActive="active" *ngIf="isAdmin">👨‍🏫 Approbations enseignants</a>
         <a routerLink="/chatbot" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🤖 Assistant IA</a>
         <a routerLink="/messages" class="nav-item" routerLinkActive="active">✉️ Messages</a>
         <a routerLink="/certificates" class="nav-item" routerLinkActive="active" *ngIf="isStudent">🏆 Mes certificats</a>

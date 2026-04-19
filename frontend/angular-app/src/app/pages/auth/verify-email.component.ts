@@ -76,7 +76,7 @@ export class VerifyEmailComponent implements OnInit {
     this.token = token;
     this.status = 'loading';
     // Vérifier et activer directement au chargement — un seul usage possible
-    this.http.post('/auth-api/verify-email', { token: this.token }).subscribe({
+    this.http.get('/auth-api/verify-email?token=' + this.token).subscribe({
       next: () => { this.status = 'success'; },
       error: () => { this.status = 'error'; }
     });

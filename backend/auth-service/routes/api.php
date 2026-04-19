@@ -2,22 +2,21 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
-Route::get('/ping', fn() => response()->json(['status' => 'ok']));
-
-Route::post('/register',     [AuthController::class, 'register']);
-Route::post('/login',        [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-Route::post('/reset-password',  [AuthController::class, 'resetPassword']);
 Route::post('/verify-reset-token', [AuthController::class, 'verifyResetToken']);
-Route::get('/verify-email',  [AuthController::class, 'verifyEmail']);
-Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::middleware('auth:api')->group(function () {
-    Route::post('/logout',         [AuthController::class, 'logout']);
-    Route::post('/refresh',        [AuthController::class, 'refresh']);
-    Route::get('/me',              [AuthController::class, 'me']);
-    Route::get('/users',           [AuthController::class, 'users']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/users', [AuthController::class, 'users']);
     Route::put('/users/{id}/role', [AuthController::class, 'updateRole']);
+
+    Route::get('/teachers/pending', [AuthController::class, 'pendingTeachers']);
+    Route::post('/teachers/{id}/approve', [AuthController::class, 'approveTeacher']);
+    Route::get('/teachers/{id}/cv', [AuthController::class, 'getCv']);
 });
-Route::get('/teachers', [AuthController::class, 'teachers']);
-Route::get('/students', [AuthController::class, 'students']);

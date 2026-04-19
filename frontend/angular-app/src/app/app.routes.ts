@@ -22,6 +22,7 @@ export const routes: Routes = [
   { path: 'quiz-manage/:courseId/:chapterId', loadComponent: () => import('./pages/quiz-manage/quiz-manage.component').then(m => m.QuizManageComponent), canActivate: [authGuard] },
   { path: 'quiz/:id', loadComponent: () => import('./pages/quiz/quiz.component').then(m => m.QuizComponent), canActivate: [authGuard] },
   { path: 'exercise/:id', loadComponent: () => import('./pages/exercise/exercise.component').then(m => m.ExerciseComponent), canActivate: [authGuard] },
+  { path: 'teacher-approvals', loadComponent: () => import('./pages/admin/teacher-approval.component').then(m => m.TeacherApprovalComponent), canActivate: [authGuard] },
   { path: 'admin', loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent), canActivate: [authGuard] },
   { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent), canActivate: [authGuard] },
   { path: 'chatbot', loadComponent: () => import('./pages/chatbot/chatbot.component').then(m => m.ChatbotComponent), canActivate: [authGuard] },
