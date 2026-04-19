@@ -47,7 +47,7 @@ class AuthController extends Controller
             'password'           => Hash::make($request->password),
             'role'               => $request->role ?? 'student',
             'cv_path'            => $cvPath,
-            'is_approved'        => !$isTeacher,
+            'is_approved'        => $isTeacher ? null : true,
             'verification_token' => $verificationToken,
             'email_verified_at'  => null,
         ]);
@@ -77,8 +77,12 @@ class AuthController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $userExists = \App\Models\User::where('email', $request->email)->exists();
+        if (!$userExists) {
+            return response()->json(['status' => 'error', 'message' => 'Aucun compte trouvé avec cet email'], 401);
+        }
         if (!$token = auth()->attempt($request->only('email', 'password'))) {
-            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+            return response()->json(['status' => 'error', 'message' => 'Mot de passe incorrect'], 401);
         }
 
         $user = auth()->user();
@@ -88,9 +92,17 @@ class AuthController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Email not verified'], 403);
         }
 
-        if ($user->role === 'teacher' && !$user->is_approved) {
+
+        if (!$user->is_active) {
             auth()->logout();
-            return response()->json(['status' => 'error', 'message' => 'Account pending admin approval'], 403);
+            return response()->json(['status' => 'error', 'message' => 'Account disabled'], 403);
+        }
+        if ($user->role === 'teacher' && $user->is_approved !== true) {
+            auth()->logout();
+            $msg = $user->is_approved === false
+                ? 'Your account has been rejected by the admin'
+                : 'Account pending admin approval';
+            return response()->json(['status' => 'error', 'message' => $msg], 403);
         }
 
         return response()->json([
@@ -167,7 +179,7 @@ class AuthController extends Controller
         }
 
         $teachers = User::where('role', 'teacher')
-            ->where('is_approved', false)
+            ->whereNull('is_approved')
             ->whereNotNull('email_verified_at')
             ->get();
 
@@ -283,5 +295,19 @@ class AuthController extends Controller
         $user->update(['password' => bcrypt($request->password)]);
         \Illuminate\Support\Facades\DB::table('password_reset_tokens')->where('email', $request->email)->delete();
         return response()->json(['message' => 'Mot de passe réinitialisé avec succès']);
+    }
+
+    public function deleteUser($id)
+    {
+        $user = App\Models\User::find($id);
+        if (!$user) return response()->json(['message' => 'User not found'], 404);
+        // Supprimer les tokens JWT blacklistés
+        \Illuminate\Support\Facades\DB::table('personal_access_tokens')
+            ->where('tokenable_id', $user->id)
+            ->delete();
+        $user->is_active = false;
+        $user->save();
+        $user->delete();
+        return response()->json(['message' => 'User deleted']);
     }
 }

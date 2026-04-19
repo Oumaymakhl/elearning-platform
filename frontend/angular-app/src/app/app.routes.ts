@@ -3,7 +3,7 @@ import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
-  { path: 'login', loadComponent: () => import('./pages/auth/login.component').then(m => m.LoginComponent), canActivate: [guestGuard] },
+  { path: 'login', loadComponent: () => import('./pages/auth/login.component').then(m => m.LoginComponent) },
   { path: 'register', loadComponent: () => import('./pages/auth/register.component').then(m => m.RegisterComponent), canActivate: [guestGuard] },
   { path: 'dashboard', loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent), canActivate: [authGuard] },
   { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent), canActivate: [authGuard] },

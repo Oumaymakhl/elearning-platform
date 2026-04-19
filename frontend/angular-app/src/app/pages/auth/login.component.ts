@@ -155,7 +155,7 @@ export class LoginComponent {
       next: () => this.router.navigate(['/dashboard']),
       error: (e) => {
         const status = e.status;
-        if (status === 401) this.error = 'Mot de passe incorrect';
+        if (status === 401) this.error = e.error?.message || 'Email ou mot de passe incorrect';
         else if (status === 404) this.error = 'Aucun compte trouvé avec cet email';
         else this.error = e.error?.message || 'Une erreur est survenue';
         this.loading = false;

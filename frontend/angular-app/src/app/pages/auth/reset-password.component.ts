@@ -48,7 +48,7 @@ export class ResetPasswordComponent implements OnInit {
     }
 
     // Vérifier le token au chargement
-    this.http.post('/api/auth/verify-reset-token', {
+    this.http.post('/auth-api/verify-reset-token', {
       email: this.email,
       token: this.token
     }).subscribe({
@@ -71,7 +71,7 @@ export class ResetPasswordComponent implements OnInit {
     if (!this.isValid) return;
     this.loading = true;
     this.error = '';
-    this.http.post('/api/auth/reset-password', {
+    this.http.post('/auth-api/reset-password', {
       email: this.email,
       token: this.token,
       password: this.password,

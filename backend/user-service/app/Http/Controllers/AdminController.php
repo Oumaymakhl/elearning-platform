@@ -54,7 +54,17 @@ class AdminController extends Controller
     public function deleteUser(Request $request, $id)
     {
         $this->checkAdmin($request);
-        User::findOrFail($id)->delete();
+        $user = User::findOrFail($id);
+        $email = $user->email;
+        $user->delete();
+        // Supprimer aussi dans auth_db directement
+        try {
+            $pdo = new \PDO('mysql:host=mysql-auth;port=3306;dbname=auth_db', 'auth_user', 'auth_password');
+            $stmt = $pdo->prepare("DELETE FROM users WHERE email = ?");
+            $stmt->execute([$email]);
+        } catch (\Exception $e) {
+            // Log erreur silencieuse
+        }
         return response()->json(["message" => "User deleted"]);
     }
 

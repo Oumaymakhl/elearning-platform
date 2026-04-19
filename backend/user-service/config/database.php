@@ -43,6 +43,17 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        'auth_mysql' => [
+            'driver'    => 'mysql',
+            'host'      => 'mysql-auth',
+            'port'      => '3306',
+            'database'  => 'auth_db',
+            'username'  => 'auth_user',
+            'password'  => 'auth_password',
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+        ],
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
