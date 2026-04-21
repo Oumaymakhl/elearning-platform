@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-service
+  namespace: elearning
+  labels:
+    app: chatbot-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-service
+  template:
+    metadata:
+      labels:
+        app: chatbot-service
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: chatbot-service
+          image: ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/elearning-chatbot-service:latest
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: chatbot-service-config
+            - secretRef:
+                name: chatbot-service-secrets
+          resources:
+            requests: { memory: "256Mi", cpu: "100m" }
+            limits:   { memory: "512Mi", cpu: "500m" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 9000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 9000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          volumeMounts:
+            - name: tmp-vol
+              mountPath: /tmp
+            - name: storage-vol
+              mountPath: /var/www/html/storage
+      volumes:
+        - name: tmp-vol
+          emptyDir: {}
+        - name: storage-vol
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-service
+  namespace: elearning
+spec:
+  selector:
+    app: chatbot-service
+  ports:
+    - port: 80
+      targetPort: 9000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: chatbot-service-hpa
+  namespace: elearning
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: chatbot-service
+  minReplicas: 1
+  maxReplicas: 8
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

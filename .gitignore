@@ -1,2 +1,17 @@
 .chatbot-backup-*/
 *.bak
+ 
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/tfplan
+terraform/.terraform.lock.hcl
+ 
+# Trivy reports locaux
+trivy-*.json
+trivy-*.sarif
+security-dashboard.html
+ 
+# AWS
+.aws/

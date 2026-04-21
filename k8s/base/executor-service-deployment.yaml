@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: executor-service
+  namespace: elearning
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: executor-service
+  template:
+    metadata:
+      labels:
+        app: executor-service
+    spec:
+      # Node dédié avec taint executor=true
+      tolerations:
+        - key: "executor"
+          operator: "Equal"
+          value: "true"
+          effect: "NoSchedule"
+      nodeSelector:
+        role: executor
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: executor-service
+          image: ACCOUNT_ID.dkr.ecr.eu-west-1.amazonaws.com/elearning-executor-service:latest
+          ports:
+            - containerPort: 9000
+          envFrom:
+            - configMapRef:
+                name: executor-service-config
+            - secretRef:
+                name: executor-service-secrets
+          resources:
+            requests: { memory: "512Mi", cpu: "250m" }
+            limits:   { memory: "1Gi",   cpu: "1000m" }
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false   # executor a besoin d'écrire
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: tmp-vol
+              mountPath: /tmp
+      volumes:
+        - name: tmp-vol
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: executor-service
+  namespace: elearning
+spec:
+  selector:
+    app: executor-service
+  ports:
+    - port: 80
+      targetPort: 9000
+  type: ClusterIP

@@ -1,0 +1,319 @@
+name: CI/CD + Security Trivy
+ 
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+ 
+env:
+  AWS_REGION: eu-west-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.eu-west-1.amazonaws.com
+  IMAGE_TAG: ${{ github.sha }}
+ 
+jobs:
+  # ── 1. Détecter les services modifiés ──────────────────────────
+  detect-changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    outputs:
+      auth-service:         ${{ steps.f.outputs.auth-service }}
+      user-service:         ${{ steps.f.outputs.user-service }}
+      course-service:       ${{ steps.f.outputs.course-service }}
+      content-service:      ${{ steps.f.outputs.content-service }}
+      quiz-service:         ${{ steps.f.outputs.quiz-service }}
+      forum-service:        ${{ steps.f.outputs.forum-service }}
+      messaging-service:    ${{ steps.f.outputs.messaging-service }}
+      notification-service: ${{ steps.f.outputs.notification-service }}
+      chatbot-service:      ${{ steps.f.outputs.chatbot-service }}
+      executor-service:     ${{ steps.f.outputs.executor-service }}
+      frontend:             ${{ steps.f.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: f
+        with:
+          filters: |
+            auth-service:
+              - 'backend/auth-service/**'
+            user-service:
+              - 'backend/user-service/**'
+            course-service:
+              - 'backend/course-service/**'
+            content-service:
+              - 'backend/content-service/**'
+            quiz-service:
+              - 'backend/quiz-service/**'
+            forum-service:
+              - 'backend/forum-service/**'
+            messaging-service:
+              - 'backend/messaging-service/**'
+            notification-service:
+              - 'backend/notification-service/**'
+            chatbot-service:
+              - 'backend/chatbot-service/**'
+            executor-service:
+              - 'backend/executor-service/**'
+            frontend:
+              - 'frontend/**'
+ 
+  # ── 2. Build + Trivy scan (tous les services backend) ──────────
+  build-scan-backend:
+    name: Build + Trivy [${{ matrix.service }}]
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - service: auth-service
+            context: backend/auth-service
+          - service: user-service
+            context: backend/user-service
+          - service: course-service
+            context: backend/course-service
+          - service: content-service
+            context: backend/content-service
+          - service: quiz-service
+            context: backend/quiz-service
+          - service: forum-service
+            context: backend/forum-service
+          - service: messaging-service
+            context: backend/messaging-service
+          - service: notification-service
+            context: backend/notification-service
+          - service: chatbot-service
+            context: backend/chatbot-service
+          - service: executor-service
+            context: backend/executor-service
+ 
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+ 
+      - name: Login ECR
+        uses: aws-actions/amazon-ecr-login@v2
+ 
+      - name: Build Image
+        id: build
+        run: |
+          IMAGE="${{ env.ECR_REGISTRY }}/elearning-${{ matrix.service }}:${{ env.IMAGE_TAG }}"
+          docker build -t $IMAGE ${{ matrix.context }}/
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+ 
+      # Trivy — scan code source
+      - name: Trivy FS Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: ${{ matrix.context }}
+          format: table
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+ 
+      # Trivy — scan image (bloque si CRITICAL)
+      - name: Trivy Image Scan (JSON)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.build.outputs.image }}
+          format: json
+          output: trivy-${{ matrix.service }}.json
+          severity: CRITICAL,HIGH,MEDIUM,LOW
+          ignore-unfixed: true
+          exit-code: '1'
+ 
+      # Trivy — SARIF pour onglet Security de GitHub
+      - name: Trivy Image Scan (SARIF)
+        uses: aquasecurity/trivy-action@master
+        if: always()
+        with:
+          image-ref: ${{ steps.build.outputs.image }}
+          format: sarif
+          output: trivy-${{ matrix.service }}.sarif
+          severity: CRITICAL,HIGH
+          exit-code: '0'
+ 
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-${{ matrix.service }}.sarif
+          category: trivy-${{ matrix.service }}
+ 
+      - name: Upload Trivy JSON report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-${{ matrix.service }}
+          path: trivy-${{ matrix.service }}.json
+          retention-days: 30
+ 
+      - name: Push to ECR
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker push ${{ steps.build.outputs.image }}
+          docker tag ${{ steps.build.outputs.image }} \
+            ${{ env.ECR_REGISTRY }}/elearning-${{ matrix.service }}:latest
+          docker push ${{ env.ECR_REGISTRY }}/elearning-${{ matrix.service }}:latest
+ 
+  # ── 3. Build + Trivy Frontend Angular ──────────────────────────
+  build-scan-frontend:
+    name: Build + Trivy [frontend]
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+ 
+      - name: Login ECR
+        uses: aws-actions/amazon-ecr-login@v2
+ 
+      - name: Build Frontend
+        id: build
+        run: |
+          IMAGE="${{ env.ECR_REGISTRY }}/elearning-frontend:${{ env.IMAGE_TAG }}"
+          docker build -t $IMAGE frontend/angular-app/
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+ 
+      - name: Trivy Scan Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ steps.build.outputs.image }}
+          format: json
+          output: trivy-frontend.json
+          severity: CRITICAL,HIGH,MEDIUM
+          ignore-unfixed: true
+          exit-code: '1'
+ 
+      - name: Upload Frontend Trivy Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-frontend
+          path: trivy-frontend.json
+          retention-days: 30
+ 
+      - name: Push Frontend to ECR
+        if: github.ref == 'refs/heads/main'
+        run: |
+          docker push ${{ steps.build.outputs.image }}
+          docker tag ${{ steps.build.outputs.image }} \
+            ${{ env.ECR_REGISTRY }}/elearning-frontend:latest
+          docker push ${{ env.ECR_REGISTRY }}/elearning-frontend:latest
+ 
+  # ── 4. Dashboard sécurité consolidé ────────────────────────────
+  security-dashboard:
+    name: Security Dashboard
+    runs-on: ubuntu-latest
+    needs: [build-scan-backend, build-scan-frontend]
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Download all Trivy reports
+        uses: actions/download-artifact@v4
+        with:
+          pattern: trivy-*
+          merge-multiple: true
+          path: trivy-reports/
+ 
+      - name: Generate HTML Dashboard
+        run: |
+          pip install jinja2 --quiet
+          python3 scripts/generate-security-dashboard.py \
+            --reports-dir trivy-reports/ \
+            --output security-dashboard.html \
+            --commit "${{ github.sha }}" \
+            --branch "${{ github.ref_name }}"
+ 
+      - name: Upload Dashboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-dashboard
+          path: security-dashboard.html
+          retention-days: 90
+ 
+      - name: Comment PR with security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let criticals=0, highs=0, mediums=0, rows='';
+            const files = fs.readdirSync('trivy-reports/').filter(f=>f.endsWith('.json'));
+            for (const f of files) {
+              try {
+                const d = JSON.parse(fs.readFileSync(`trivy-reports/${f}`));
+                const svc = f.replace('trivy-','').replace('.json','');
+                let c=0,h=0,m=0;
+                (d.Results||[]).forEach(r=>(r.Vulnerabilities||[]).forEach(v=>{
+                  if(v.Severity==='CRITICAL'){c++;criticals++;}
+                  else if(v.Severity==='HIGH'){h++;highs++;}
+                  else if(v.Severity==='MEDIUM'){m++;mediums++;}
+                }));
+                const icon = c>0?'🔴':h>0?'🟠':m>0?'🟡':'🟢';
+                rows += `| ${icon} \`${svc}\` | ${c} | ${h} | ${m} |\n`;
+              } catch(e){}
+            }
+            const body = `## 🛡️ Trivy Security Scan\n\n| Service | 🔴 Critical | 🟠 High | 🟡 Medium |\n|---------|------------|---------|----------|\n${rows}\n**Total → 🔴 ${criticals} Critical | 🟠 ${highs} High | 🟡 ${mediums} Medium**\n\n${criticals>0?'> ⛔ Build bloqué — CVE Critical détectées.':'> ✅ Aucune CVE Critical.'}`;
+            github.rest.issues.createComment({issue_number:context.issue.number,owner:context.repo.owner,repo:context.repo.repo,body});
+ 
+  # ── 5. Deploy EKS (main uniquement) ────────────────────────────
+  deploy:
+    name: Deploy to EKS
+    runs-on: ubuntu-latest
+    needs: [build-scan-backend, build-scan-frontend]
+    if: github.ref == 'refs/heads/main' && needs.build-scan-backend.result == 'success'
+    environment:
+      name: production
+      url: https://elearning.yourdomain.com
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - name: Configure AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+ 
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: v1.29.0
+ 
+      - name: Connect to EKS
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name elearning-cluster-prod
+ 
+      - name: Update image tags
+        run: |
+          for svc in auth-service user-service course-service content-service \
+                     quiz-service forum-service messaging-service \
+                     notification-service chatbot-service executor-service; do
+            sed -i "s|elearning-${svc}:.*|elearning-${svc}:${{ env.IMAGE_TAG }}|g" \
+              k8s/base/${svc}-deployment.yaml 2>/dev/null || true
+          done
+ 
+      - name: Apply manifests
+        run: |
+          kubectl apply -f k8s/base/
+          kubectl rollout status deployment --timeout=300s -n elearning
+ 
+      - name: Show pods
+        run: kubectl get pods -n elearning
