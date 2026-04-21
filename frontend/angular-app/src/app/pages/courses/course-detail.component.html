@@ -35,7 +35,27 @@
           </div>
           <p>{{ course.description }}</p>
           <div class="hero-actions">
-            <button class="btn-enroll" *ngIf="isStudent && !enrolled" (click)="enroll()">🚀 S'inscrire gratuitement</button>
+            <!-- Cours gratuit -->
+            <button class="btn-enroll"
+              *ngIf="isStudent && !enrolled && !course.price"
+              (click)="enroll()">
+              🚀 S'inscrire gratuitement
+            </button>
+
+            <!-- Cours payant déjà payé -->
+            <button class="btn-enroll"
+              *ngIf="isStudent && !enrolled && course.price && hasPaid"
+              (click)="enroll()">
+              ✅ Accéder au cours
+            </button>
+
+            <!-- Cours payant pas encore payé -->
+            <button class="btn-buy"
+              *ngIf="isStudent && !enrolled && course.price && !hasPaid"
+              (click)="buyAndEnroll()"
+              [disabled]="paymentLoading">
+              {{ paymentLoading ? '⏳ Redirection...' : '💳 Acheter — ' + course.price + ' $' }}
+            </button>
             <button class="btn-unenroll" *ngIf="isStudent && enrolled" (click)="unenroll()">Se désinscrire</button>
             <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer</a>
             <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>

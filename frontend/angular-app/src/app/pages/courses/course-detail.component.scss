@@ -864,3 +864,18 @@
   margin-left: .5rem;
 }
 .btn-forum:hover { background: #1E3A5F; }
+
+.btn-buy {
+  background: linear-gradient(135deg, #6772e5, #4361ee);
+  color: white;
+  border: none;
+  padding: .7rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 15px rgba(99,114,229,.4);
+}
+.btn-buy:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,114,229,.5); }
+.btn-buy:disabled { opacity: .7; cursor: not-allowed; transform: none; }

@@ -12,6 +12,7 @@ import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { LessonContentComponent } from '../../shared/lesson-content/lesson-content.component';
 import { QuizService } from '../../services/quiz.service';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-course-detail',
@@ -27,6 +28,8 @@ export class CourseDetailComponent implements OnInit {
   enrolled = false;
   courseRating: { average: number | null; count: number } | null = null;
   showChat = false;
+  paymentLoading = false;
+  hasPaid = false;
   chatMessage = "";
   chatMessages: { role: string; content: string }[] = [];
   chatLoading = false;
@@ -56,7 +59,7 @@ export class CourseDetailComponent implements OnInit {
     ruby: '# Ruby\nputs "Hello, World!"'
   };
 
-  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService, private confirmSvc: ConfirmService) {}
+  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService, private confirmSvc: ConfirmService, private paymentService: PaymentService) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -65,6 +68,7 @@ export class CourseDetailComponent implements OnInit {
       next: (course) => {
         this.course = course;
         this.chapters = (course.chapters || []).map((c: any) => ({ ...c, expanded: false, sub_chapters: c.sub_chapters || c.subChapters || [] }));
+        this.checkPayment();
         // 2. Charger la progression APRES le cours
         if (this.isStudent) {
           this.courseService.getProgress(id).subscribe({
@@ -711,4 +715,37 @@ export class CourseDetailComponent implements OnInit {
     doc.save(clean(this.course?.title || 'cours') + '-resume.pdf');
   }
 
+
+  checkPayment() {
+    if (!this.isStudent || !this.course?.price) return;
+    this.paymentService.hasPaid(this.course.id).subscribe({
+      next: (res) => {
+        this.hasPaid = (res.data || []).some((p: any) =>
+          p.course_id == this.course.id && p.status === 'paid'
+        );
+      },
+      error: () => {}
+    });
+  }
+
+  buyAndEnroll() {
+    if (this.paymentLoading) return;
+    this.paymentLoading = true;
+    const user = this.auth.getCurrentUser();
+    const price = this.course.price && this.course.price > 0 ? this.course.price : 50;
+    this.paymentService.initiatePayment(
+      this.course.id,
+      price,
+      user?.email || 'test@test.com'
+    ).subscribe({
+      next: (res) => {
+        this.paymentLoading = false;
+        if (res.payment_url) window.location.href = res.payment_url;
+      },
+      error: (e) => {
+        this.paymentLoading = false;
+        alert('Erreur paiement : ' + (e.error?.message || 'Réessayez'));
+      }
+    });
+  }
 }
