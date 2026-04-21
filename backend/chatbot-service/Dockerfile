@@ -1,9 +1,9 @@
-FROM php:8.3-fpm
-RUN apt-get update && apt-get install -y nginx curl && rm -rf /var/lib/apt/lists/*
+FROM php:8.3-fpm-alpine
+
+RUN apk add --no-cache \
+    git curl libpng-dev oniguruma-dev libxml2-dev zip unzip nginx
+
 WORKDIR /var/www/html
 COPY . .
-RUN chown -R www-data:www-data storage bootstrap/cache
-COPY php-fpm.conf /usr/local/etc/php-fpm.d/zz-timeout.conf
-COPY nginx.conf /etc/nginx/sites-available/default
-EXPOSE 80
-CMD service nginx start && php-fpm
+RUN chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
+CMD ["php-fpm"]
