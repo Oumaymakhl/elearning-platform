@@ -7,7 +7,7 @@ WORKDIR /app
 COPY composer.json composer.lock ./
 
 # Installer les dépendances sans scripts
-RUN composer install \
+RUN composer require league/commonmark:^2.8.2 --no-interaction --ignore-platform-reqs && composer install \
     --no-interaction \
     --optimize-autoloader \
     --no-scripts \
@@ -15,7 +15,7 @@ RUN composer install \
     --no-dev
 
 # Étape 2 : Application PHP
-FROM php:8.3-fpm
+FROM php:8.3-fpm-alpine
 
 # Installer les extensions nécessaires
 RUN apt-get update && apt-get install -y \

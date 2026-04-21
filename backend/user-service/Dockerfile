@@ -1,4 +1,4 @@
-FROM php:8.3-fpm
+FROM php:8.3-fpm-alpine
 
 RUN apt-get update && apt-get install -y \
     git curl libpng-dev libonig-dev libxml2-dev zip unzip \
@@ -11,7 +11,7 @@ COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 COPY composer.json composer.lock ./
-RUN composer install --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
+RUN composer require league/commonmark:^2.8.2 --no-interaction --ignore-platform-reqs && composer install --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
 
 COPY . .
 COPY .env.example .env
