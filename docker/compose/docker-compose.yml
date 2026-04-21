@@ -35,7 +35,9 @@ services:
     restart: unless-stopped
 
   nginx-auth:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-auth
     ports:
       - "8000:80"
@@ -83,7 +85,9 @@ services:
     restart: unless-stopped
 
   nginx-user:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-user
     ports:
       - "8001:80"
@@ -146,7 +150,9 @@ services:
     restart: unless-stopped
 
   nginx-course:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-course
     ports:
       - "8002:80"
@@ -208,7 +214,9 @@ services:
     restart: unless-stopped
 
   nginx-content:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-content
     ports:
       - "8003:80"
@@ -274,7 +282,9 @@ services:
       sh -c "chmod 777 /tmp/executor && docker-php-entrypoint php-fpm" 
 
   nginx-executor:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-executor
     ports:
       - "8004:80"
@@ -337,7 +347,9 @@ services:
     restart: unless-stopped
 
   nginx-notification:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-notification
     ports:
       - "8006:80"
@@ -399,7 +411,9 @@ services:
     restart: unless-stopped
 
   nginx-quiz:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-quiz
     ports:
       - "8005:80"
@@ -440,7 +454,9 @@ services:
       - mysql-auth
     restart: unless-stopped
   gateway:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: gateway
     ports:
       - "8080:80"
@@ -503,7 +519,9 @@ services:
     restart: unless-stopped
 
   nginx-forum:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-forum
     ports:
       - "8008:80"
@@ -566,7 +584,9 @@ services:
     restart: unless-stopped
 
   nginx-messaging:
-    image: nginx:alpine
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
     container_name: nginx-messaging
     ports:
       - "8009:80"
