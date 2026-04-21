@@ -31,6 +31,7 @@ jobs:
       chatbot-service:      ${{ steps.f.outputs.chatbot-service }}
       executor-service:     ${{ steps.f.outputs.executor-service }}
       frontend:             ${{ steps.f.outputs.frontend }}
+      payment-service:      ${{ steps.f.outputs.payment-service }}
     steps:
       - uses: actions/checkout@v4
       - uses: dorny/paths-filter@v3
@@ -59,6 +60,8 @@ jobs:
               - 'backend/executor-service/**'
             frontend:
               - 'frontend/**'
+            payment-service:
+              - 'backend/payment-service/**'
 
   # ── 2. Build + Trivy par service (matrix) ───────────────────
   build-and-scan:
@@ -92,6 +95,8 @@ jobs:
             context: backend/executor-service
           - service: frontend
             context: frontend/angular-app
+          - service: payment-service
+            context: backend/payment-service
 
     steps:
       - name: Checkout
