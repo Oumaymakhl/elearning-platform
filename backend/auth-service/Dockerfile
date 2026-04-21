@@ -1,52 +1,16 @@
-# Étape 1 : Builder
-FROM composer:2.6 as builder
-
-WORKDIR /app
-
-# Copier les fichiers composer
-COPY composer.json composer.lock ./
-
-# Installer les dépendances sans scripts
-RUN composer require league/commonmark:^2.8.2 --no-interaction --ignore-platform-reqs && composer install \
-    --no-interaction \
-    --optimize-autoloader \
-    --no-scripts \
-    --ignore-platform-reqs \
-    --no-dev
-
-# Étape 2 : Application PHP
 FROM php:8.3-fpm-alpine
 
-# Installer les extensions nécessaires
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
+RUN apk add --no-cache \
+    git curl libpng-dev oniguruma-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
-# Définir le répertoire de travail
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
-
-# Copier les dépendances depuis le builder
-COPY --from=builder /app/vendor ./vendor
-
-# Copier l'application Laravel
+COPY composer.json composer.lock ./
+RUN composer install --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
 COPY . .
-
-# Copier le fichier .env
 COPY .env.example .env
-
-# Définir les permissions
-RUN chown -R www-data:www-data /var/www/html/storage
-RUN chmod -R 775 /var/www/html/storage
-
-# Générer la clé Laravel
-RUN php artisan key:generate --no-interaction --force
-
-EXPOSE 9000
-
+RUN chown -R www-data:www-data storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache
+RUN sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf 2>/dev/null || true
 CMD ["php-fpm"]
