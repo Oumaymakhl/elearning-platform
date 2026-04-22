@@ -13,71 +13,62 @@ use App\Http\Controllers\AnalyticsController;
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 
 // Publiques
-Route::get('/courses', [CourseController::class, 'index']);
-Route::get('/courses/{id}', [CourseController::class, 'show']);
-Route::get('/courses/{courseId}/chapters', [ChapterController::class, 'index']);
-Route::get('/courses/{courseId}/chapters/{id}', [ChapterController::class, 'show']);
-Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters', [SubChapterController::class, 'index']);
-Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}', [SubChapterController::class, 'show']);
-Route::get('/exercises', [ExerciseController::class, 'index']);
+Route::get('/courses',            [CourseController::class, 'index']);
+Route::get('/courses/{id}',       [CourseController::class, 'show']);
 Route::get('/courses/{courseId}/ratings', [RatingController::class, 'stats']);
-Route::get('/exercises/{id}', [ExerciseController::class, 'show']);
+Route::get('/exercises',          [ExerciseController::class, 'index']);
+Route::get('/exercises/{id}',     [ExerciseController::class, 'show']);
 
-// Protégées
-Route::middleware('jwt')->group(function () {
-    // Cours
-    Route::post('/courses', [CourseController::class, 'store']);
-    Route::put('/courses/{id}', [CourseController::class, 'update']);
-    Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
-
-    // Chapitres
-    Route::post('/courses/{courseId}/chapters', [ChapterController::class, 'store']);
-    Route::put('/courses/{courseId}/chapters/{id}', [ChapterController::class, 'update']);
-    Route::delete('/courses/{courseId}/chapters/{id}', [ChapterController::class, 'destroy']);
-
-    // Sous-chapitres
-    Route::post('/courses/{courseId}/chapters/{chapterId}/subchapters', [SubChapterController::class, 'store']);
-    Route::put('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}', [SubChapterController::class, 'update']);
-    Route::delete('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}', [SubChapterController::class, 'destroy']);
-
-    // Inscriptions
-    Route::get('/my-courses', [EnrollmentController::class, 'myCourses']);
-    Route::post('/courses/{courseId}/enroll', [EnrollmentController::class, 'enroll']);
-    Route::delete('/courses/{courseId}/enroll', [EnrollmentController::class, 'unenroll']);
-    Route::get('/courses/{courseId}/students', [EnrollmentController::class, 'courseStudents']);
-
-    // Progression
-    Route::get('/courses/{courseId}/progress', [ProgressController::class, 'show']);
-    Route::post('/courses/{courseId}/progress', [ProgressController::class, 'update']);
-
-    // Exercices TD (formateur)
-    Route::post('/exercises', [ExerciseController::class, 'store']);
-    Route::put('/exercises/{id}', [ExerciseController::class, 'update']);
-    Route::delete('/exercises/{id}', [ExerciseController::class, 'destroy']);
-
-    // Questions TD
-    Route::post('/exercises/{exerciseId}/questions', [ExerciseController::class, 'storeQuestion']);
-    Route::put('/exercises/{exerciseId}/questions/{questionId}', [ExerciseController::class, 'updateQuestion']);
-    Route::delete('/exercises/{exerciseId}/questions/{questionId}', [ExerciseController::class, 'destroyQuestion']);
-
-    // Test cases
-    Route::post('/exercises/{exerciseId}/questions/{questionId}/test-cases', [ExerciseController::class, 'storeTestCase']);
-    Route::delete('/exercises/{exerciseId}/questions/{questionId}/test-cases/{testCaseId}', [ExerciseController::class, 'destroyTestCase']);
-
-    // Soumission & évaluation
-    Route::post('/exercises/{exerciseId}/questions/{questionId}/submit', [ExerciseController::class, 'submit']);
-
-    // Résultats
-    Route::get('/exercises/{exerciseId}/results', [ExerciseController::class, 'results']);
-    Route::get('/exercises/{exerciseId}/participation', [ExerciseController::class, 'participation']);
-    Route::get('/exercises/{exerciseId}/my-submissions', [ExerciseController::class, 'mySubmissions']);
-    Route::post('/courses/{courseId}/ratings', [RatingController::class, 'store']);
-    Route::get('/courses/{courseId}/ratings/mine', [RatingController::class, 'myRating']);
-    Route::delete('/courses/{courseId}/ratings', [RatingController::class, 'destroy']);
+// Réservé aux inscrits
+Route::middleware(['jwt', 'enrolled'])->group(function () {
+    Route::get('/courses/{courseId}/chapters',                                      [ChapterController::class, 'index']);
+    Route::get('/courses/{courseId}/chapters/{id}',                                 [ChapterController::class, 'show']);
+    Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters',              [SubChapterController::class, 'index']);
+    Route::get('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',         [SubChapterController::class, 'show']);
 });
 
-// Sous-chapitres visités
-Route::middleware("jwt")->group(function () {
+// Protégées JWT
+Route::middleware('jwt')->group(function () {
+    Route::post('/courses',        [CourseController::class, 'store']);
+    Route::put('/courses/{id}',    [CourseController::class, 'update']);
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+
+    Route::post('/courses/{courseId}/chapters',              [ChapterController::class, 'store']);
+    Route::put('/courses/{courseId}/chapters/{id}',          [ChapterController::class, 'update']);
+    Route::delete('/courses/{courseId}/chapters/{id}',       [ChapterController::class, 'destroy']);
+
+    Route::post('/courses/{courseId}/chapters/{chapterId}/subchapters',              [SubChapterController::class, 'store']);
+    Route::put('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',          [SubChapterController::class, 'update']);
+    Route::delete('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',       [SubChapterController::class, 'destroy']);
+
+    Route::get('/my-courses',                        [EnrollmentController::class, 'myCourses']);
+    Route::post('/courses/{courseId}/enroll',        [EnrollmentController::class, 'enroll']);
+    Route::delete('/courses/{courseId}/enroll',      [EnrollmentController::class, 'unenroll']);
+    Route::get('/courses/{courseId}/students',       [EnrollmentController::class, 'courseStudents']);
+
+    Route::get('/courses/{courseId}/progress',       [ProgressController::class, 'show']);
+    Route::post('/courses/{courseId}/progress',      [ProgressController::class, 'update']);
+
+    Route::post('/exercises',                        [ExerciseController::class, 'store']);
+    Route::put('/exercises/{id}',                    [ExerciseController::class, 'update']);
+    Route::delete('/exercises/{id}',                 [ExerciseController::class, 'destroy']);
+
+    Route::post('/exercises/{exerciseId}/questions',                                    [ExerciseController::class, 'storeQuestion']);
+    Route::put('/exercises/{exerciseId}/questions/{questionId}',                        [ExerciseController::class, 'updateQuestion']);
+    Route::delete('/exercises/{exerciseId}/questions/{questionId}',                     [ExerciseController::class, 'destroyQuestion']);
+
+    Route::post('/exercises/{exerciseId}/questions/{questionId}/test-cases',            [ExerciseController::class, 'storeTestCase']);
+    Route::delete('/exercises/{exerciseId}/questions/{questionId}/test-cases/{testCaseId}', [ExerciseController::class, 'destroyTestCase']);
+
+    Route::post('/exercises/{exerciseId}/questions/{questionId}/submit',                [ExerciseController::class, 'submit']);
+    Route::get('/exercises/{exerciseId}/results',       [ExerciseController::class, 'results']);
+    Route::get('/exercises/{exerciseId}/participation', [ExerciseController::class, 'participation']);
+    Route::get('/exercises/{exerciseId}/my-submissions',[ExerciseController::class, 'mySubmissions']);
+
+    Route::post('/courses/{courseId}/ratings',       [RatingController::class, 'store']);
+    Route::get('/courses/{courseId}/ratings/mine',   [RatingController::class, 'myRating']);
+    Route::delete('/courses/{courseId}/ratings',     [RatingController::class, 'destroy']);
+
     Route::get('/courses/{courseId}/visited-subs', function($courseId) {
         $userId = request()->auth_user_id;
         $ids = \DB::table('visited_sub_chapters')
@@ -86,22 +77,21 @@ Route::middleware("jwt")->group(function () {
             ->pluck('sub_chapter_id');
         return response()->json($ids);
     });
-    // Certificats
-    Route::get('/certificates', [CertificateController::class, 'myCertificates']);
-    Route::get('/courses/{courseId}/certificate', [CertificateController::class, 'get']);
-    Route::post('/courses/{courseId}/certificate/check', [CertificateController::class, 'check']);
 
     Route::post('/courses/{courseId}/visited-subs/{subId}', function($courseId, $subId) {
         $userId = request()->auth_user_id;
         \DB::table('visited_sub_chapters')->insertOrIgnore([
-            'user_id' => $userId,
-            'course_id' => $courseId,
+            'user_id'        => $userId,
+            'course_id'      => $courseId,
             'sub_chapter_id' => $subId
         ]);
         return response()->json(['ok' => true]);
     });
- 
-    // Analytics
-    Route::get('/analytics/teacher',            [AnalyticsController::class, 'teacherStats']);
-    Route::get('/analytics/courses/{courseId}', [AnalyticsController::class, 'courseStats']);
+
+    Route::get('/certificates',                          [CertificateController::class, 'myCertificates']);
+    Route::get('/courses/{courseId}/certificate',        [CertificateController::class, 'get']);
+    Route::post('/courses/{courseId}/certificate/check', [CertificateController::class, 'check']);
+
+    Route::get('/analytics/teacher',             [AnalyticsController::class, 'teacherStats']);
+    Route::get('/analytics/courses/{courseId}',  [AnalyticsController::class, 'courseStats']);
 });
