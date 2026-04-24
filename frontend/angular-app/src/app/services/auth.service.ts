@@ -27,7 +27,7 @@ export class AuthService {
           // Charger le profil complet avec avatar
           this.http.get<any>('/api/me', { headers: { Authorization: 'Bearer ' + res.authorization.token } })
             .subscribe(profile => {
-              const full = { ...res.user, ...profile, avatar_url: profile.avatar_url ? profile.avatar_url.replace('http://localhost:8001', 'http://localhost:8001') : null };
+              const full = { ...res.user, ...profile, avatar_url: profile.avatar ? '/storage/' + profile.avatar : null };
               localStorage.setItem('user', JSON.stringify(full));
               this.currentUserSubject.next(full);
             });

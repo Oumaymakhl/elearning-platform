@@ -25,7 +25,6 @@ services:
       context: ../../backend/auth-service
       dockerfile: Dockerfile
     container_name: auth-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -73,7 +72,6 @@ services:
       context: ../../backend/user-service
       dockerfile: Dockerfile
     container_name: user-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -136,7 +134,6 @@ services:
       context: ../../backend/course-service
       dockerfile: Dockerfile
     container_name: course-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -198,7 +195,6 @@ services:
       context: ../../backend/content-service
       dockerfile: Dockerfile
     container_name: content-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -313,7 +309,6 @@ services:
       context: ../../backend/notification-service
       dockerfile: Dockerfile
     container_name: notification-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -326,7 +321,6 @@ services:
       context: ../../backend/notification-service
       dockerfile: Dockerfile.worker
     container_name: notification-worker
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -388,7 +382,6 @@ services:
       context: ../../backend/quiz-service
       dockerfile: Dockerfile
     container_name: quiz-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -494,7 +487,6 @@ services:
       context: ../../backend/forum-service
       dockerfile: Dockerfile
     container_name: forum-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -557,7 +549,6 @@ services:
       context: ../../backend/messaging-service
       dockerfile: Dockerfile
     container_name: messaging-service
-    volumes:
     networks:
       - elearning-network
     depends_on:
@@ -598,7 +589,6 @@ services:
       context: ../../backend/chatbot-service
       dockerfile: Dockerfile
     container_name: chatbot-service
-    volumes:
     ports:
       - "8007:80"
     networks:
@@ -631,7 +621,6 @@ services:
       context: ../../backend/payment-service
       dockerfile: Dockerfile
     container_name: payment-service
-    volumes:
     networks:
       - elearning-network
     depends_on:

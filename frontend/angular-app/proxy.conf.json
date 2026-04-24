@@ -7,84 +7,8 @@
       "^/auth-api": "/api"
     }
   },
-  "/api/users": {
-    "target": "http://127.0.0.1:8001",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/courses": {
-    "target": "http://127.0.0.1:8002",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  },
-  "/api/exercises": {
-    "target": "http://127.0.0.1:8002",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/my-courses": {
-    "target": "http://127.0.0.1:8002",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/certificates": {
-    "target": "http://127.0.0.1:8002",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/contents": {
-    "target": "http://127.0.0.1:8003",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/execute": {
-    "target": "http://127.0.0.1:8004",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/quizzes": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/attempts": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/quiz-stats": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/stats": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/notifications": {
-    "target": "http://127.0.0.1:8006",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/chat": {
-    "target": "http://127.0.0.1:8007",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/analytics": {
-    "target": "http://127.0.0.1:8002",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/admin": {
-    "target": "http://127.0.0.1:8001",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/me": {
-    "target": "http://127.0.0.1:8001",
+  "/api": {
+    "target": "http://127.0.0.1:8080",
     "secure": false,
     "changeOrigin": true
   },
@@ -93,56 +17,13 @@
     "secure": false,
     "changeOrigin": true
   },
-  "/api/generate-quiz": {
+  "/api/courses": {
+    "target": "http://127.0.0.1:8002",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/chat": {
     "target": "http://127.0.0.1:8007",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/chapters": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/auth": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/api/auth": "/api"
-    }
-  },
-  "/api/forum": {
-    "target": "http://127.0.0.1:8008",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/messaging/conversations": {
-    "target": "http://127.0.0.1:8009",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug",
-    "pathRewrite": {
-      "^/api/messaging/conversations": "/api/messaging/conversations"
-    }
-  },
-  "/api/messaging": {
-    "target": "http://127.0.0.1:8009",
-    "secure": false,
-    "changeOrigin": true,
-    "logLevel": "debug"
-  },
-  "/api/students": {
-    "target": "http://127.0.0.1:8001",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/teachers": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/payments": {
-    "target": "http://127.0.0.1:8010",
     "secure": false,
     "changeOrigin": true
   }

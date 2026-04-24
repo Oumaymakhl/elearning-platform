@@ -1,13 +1,12 @@
 <?php
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PaymeeController;
+use App\Http\Controllers\StripeController;
 
-Route::get("/health", function () {
-    return response()->json(["status" => "ok"]);
+Route::prefix('payments')->group(function () {
+    Route::post('/initiate', [StripeController::class, 'initiate']);
+    Route::get('/success',   [StripeController::class, 'success']);
+    Route::get('/',          function() {
+        $payments = \App\Models\Payment::all();
+        return response()->json(['success' => true, 'data' => $payments]);
+    });
 });
-
-Route::post("/payments/initiate", [PaymeeController::class, "initiate"]);
-Route::post("/payments/webhook",  [PaymeeController::class, "webhook"]);
-Route::get("/payments/success",   [PaymeeController::class, "success"]);
-Route::get("/payments/cancel",    [PaymeeController::class, "cancel"]);
-Route::get("/payments",           [PaymeeController::class, "index"]);

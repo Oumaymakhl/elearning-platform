@@ -60,12 +60,12 @@
             <a [routerLink]="['/courses', course.id, 'manage']" class="btn-manage" *ngIf="isTeacher || isAdmin">⚙️ Gérer</a>
             <a [routerLink]="['/courses', course.id, 'students']" class="btn-students" *ngIf="isTeacher || isAdmin">👥 Étudiants</a>
             <a [routerLink]="['/courses', course.id, 'certificate']" class="btn-cert" *ngIf="isStudent && enrolled">🏆 Mon Certificat</a>
-            <a [routerLink]="['/courses', course.id, 'forum']" class="btn-forum">💬 Forum</a>
+            <a [routerLink]="['/courses', course.id, 'forum']" class="btn-forum" *ngIf="enrolled || isTeacher || isAdmin">💬 Forum</a>
             <button class="btn-delete" *ngIf="isTeacher || isAdmin" (click)="deleteCourse()">🗑️ Supprimer</button>
             <button class="btn-chat" *ngIf="enrolled" (click)="showChat = !showChat">
               🤖 {{ showChat ? 'Fermer assistant' : 'Assistant IA' }}
             </button>
-            <button class="btn-chat" (click)="exportCoursePDF()" style="background:#e74c3c">📄 Résumé PDF</button>
+            <button class="btn-chat" (click)="exportCoursePDF()" style="background:#e74c3c" *ngIf="enrolled || isTeacher || isAdmin">📄 Résumé PDF</button>
           </div>
         </div>
         <div class="hero-right" *ngIf="isStudent && enrolled">
@@ -109,7 +109,7 @@
                 <span class="lock-chapter" *ngIf="isStudent && enrolled && !isChapterUnlocked(i)">🔒</span>
                 <span class="chapter-arrow" *ngIf="!isStudent || !enrolled || isChapterUnlocked(i)">{{ chapter.expanded ? '▲' : '▼' }}</span>
               </div>
-              <div class="subchapters" *ngIf="chapter.expanded">
+              <div class="subchapters" *ngIf="chapter.expanded && (enrolled || isTeacher || isAdmin)">
                 <div class="subchapter"
                   *ngFor="let sub of chapter.sub_chapters || []; let i = index"
                   [class.clickable]="isUnlocked(sub, i, chapter.sub_chapters || [])"

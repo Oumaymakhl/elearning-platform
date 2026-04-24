@@ -740,12 +740,7 @@ export class CourseDetailComponent implements OnInit {
     ).subscribe({
       next: (res) => {
         this.paymentLoading = false;
-        if (res.payment_url || res.session_url) {
-          window.location.href = res.payment_url || res.session_url;
-        } else if (res.free) {
-          this.enrolled = true;
-          this.ngOnInit();
-        }
+        if (res.session_url) window.location.href = res.session_url; else if (res.session_url) window.location.href = res.session_url;
       },
       error: (e) => {
         this.paymentLoading = false;

@@ -475,7 +475,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   loadConversations() {
     this.loadingConvs = this.conversations.length === 0;
-    this.http.get<any[]>('http://localhost:8080/api/messaging/conversations', {
+    this.http.get<any[]>('/api/messaging/conversations', {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
       next: (convs) => {
@@ -491,7 +491,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.loadingMessages = true;
     this.showEmoji = false;
     if (this.pollInterval) { clearInterval(this.pollInterval); this.pollInterval = null; }
-    this.http.get<any[]>(`http://localhost:8080/api/messaging/conversations/${conv.id}/messages`, {
+    this.http.get<any[]>(`/api/messaging/conversations/${conv.id}/messages`, {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
       next: (msgs) => {
@@ -509,7 +509,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   startPolling(convId: number, lastId: number) {
     let lastMsgId = lastId;
     this.pollInterval = setInterval(() => {
-      this.http.get<any[]>(`http://localhost:8080/api/messaging/conversations/${convId}/messages`, {
+      this.http.get<any[]>(`/api/messaging/conversations/${convId}/messages`, {
         headers: { 'X-User-Data': this.getUserHeader() }
       }).subscribe({
         next: (msgs) => {
@@ -538,7 +538,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.pendingFile = null;
     this.sending = true;
     this.showEmoji = false;
-    this.http.post<any>(`http://localhost:8080/api/messaging/conversations/${this.activeConv.id}/messages`,
+    this.http.post<any>(`/api/messaging/conversations/${this.activeConv.id}/messages`,
       { body }, { headers: { 'X-User-Data': this.getUserHeader() } }
     ).subscribe({
       next: () => {
@@ -555,7 +555,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.userSearch = '';
     const existing = this.conversations.find(c => c.other_id === otherId);
     if (existing) { this.openConv(existing); return; }
-    this.http.post<any>('http://localhost:8080/api/messaging/conversations',
+    this.http.post<any>('/api/messaging/conversations',
       { other_id: otherId, other_name: otherName, other_avatar: otherAvatar },
       { headers: { 'X-User-Data': this.getUserHeader() } }
     ).subscribe({
@@ -603,7 +603,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
       okColor: '#ef4444'
     });
     if (!ok) return;
-    this.http.delete(`http://localhost:8080/api/messaging/conversations/${this.activeConv.id}`,
+    this.http.delete(`/api/messaging/conversations/${this.activeConv.id}`,
       { headers: { 'X-User-Data': this.getUserHeader() } }
     ).subscribe({
       next: () => {
@@ -628,7 +628,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (parts[1]) {
       const fileUrl = parts[1];
       const filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-      const downloadUrl = `http://localhost:8080/api/messaging/download/${encodeURIComponent(filename)}`;
+      const downloadUrl = `/api/messaging/download/${encodeURIComponent(filename)}`;
       const a = document.createElement('a');
       a.href = downloadUrl;
       a.download = filename;
@@ -646,7 +646,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.pendingFile = { name: fname, size: fsize, url: null, uploading: true };
     const formData = new FormData();
     formData.append('file', file);
-    this.http.post<any>('http://localhost:8080/api/messaging/upload', formData, {
+    this.http.post<any>('/api/messaging/upload', formData, {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
       next: (res) => { this.pendingFile = { name: res.name, size: fsize, url: res.url, uploading: false }; },
