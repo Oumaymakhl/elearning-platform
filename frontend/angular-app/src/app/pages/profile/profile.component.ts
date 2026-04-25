@@ -139,7 +139,7 @@ export class ProfileComponent implements OnInit {
   getAvatarUrl(): string {
     const url = this.user?.avatar_url || '';
     if (!url) return '';
-    return url.replace('http://nginx-user', 'http://localhost:8001');
+    return url.replace('http://nginx-user', 'http://localhost:8080').replace('http://127.0.0.1', 'http://localhost:8080').replace('http://localhost:8001', 'http://localhost:8080');
   }
   getInitials(): string {
     return (this.user?.name || 'U')

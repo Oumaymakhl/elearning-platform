@@ -342,7 +342,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   getAvatarUrl(): string {
     const url = this.user?.avatar_url || '';
-    if (url.startsWith('/storage')) return 'http://localhost:8001' + url;
+    if (url.startsWith('/storage')) return 'http://localhost:8080' + url;
+    if (url.startsWith('avatars/')) return 'http://localhost:8080/storage/' + url;
     return url;
   }
   getInitials(): string {

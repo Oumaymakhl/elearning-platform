@@ -13,17 +13,22 @@
     "changeOrigin": true
   },
   "/storage": {
-    "target": "http://127.0.0.1:8001",
+    "target": "http://127.0.0.1:8080",
     "secure": false,
     "changeOrigin": true
   },
-  "/api/courses": {
-    "target": "http://127.0.0.1:8002",
+  "/api/quiz-stats": {
+    "target": "http://127.0.0.1:8005",
     "secure": false,
     "changeOrigin": true
   },
-  "/api/chat": {
-    "target": "http://127.0.0.1:8007",
+  "/api/notifications": {
+    "target": "http://127.0.0.1:8006",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/notifications/stream": {
+    "target": "http://127.0.0.1:8006",
     "secure": false,
     "changeOrigin": true
   }

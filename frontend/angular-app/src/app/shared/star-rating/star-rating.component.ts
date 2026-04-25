@@ -193,10 +193,11 @@ export class StarRatingComponent implements OnInit, OnChanges {
 
   fixUrl(url: string): string {
     if (!url) return '';
-    if (url.startsWith('/storage')) return 'http://localhost:8001' + url;
+    if (url.startsWith('/storage')) return 'http://localhost:8080' + url;
+    if (url.startsWith('avatars/')) return 'http://localhost:8080/storage/' + url;
     // Remplacer les noms Docker internes par localhost
-    return url.replace('http://nginx-user', 'http://localhost:8001')
-              .replace('http://localhost:8001/storage', 'http://localhost:8001/storage');
+    return url.replace('http://nginx-user', 'http://localhost:8080').replace('http://127.0.0.1', 'http://localhost:8080').replace('http://localhost:8001', 'http://localhost:8080')
+              
   }
   getInitials(name: string): string {
     if (!name) return 'E';

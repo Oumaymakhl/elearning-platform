@@ -9,12 +9,42 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    // Rafraîchir le profil au démarrage si token existe
+    this.refreshProfile();
+  }
 
   private getUserFromStorage(): any {
     if (typeof localStorage === 'undefined') return null;
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
+  }
+
+  private refreshProfile() {
+    const token = this.getToken();
+    if (!token) return;
+    this.http.get<any>('/api/me', {
+      headers: { Authorization: 'Bearer ' + token }
+    }).subscribe({
+      next: (profile) => {
+        const current = this.currentUserSubject.value;
+        const full = {
+          ...current,
+          ...profile,
+          avatar_url: profile.avatar ? '/storage/' + profile.avatar : current?.avatar_url || null
+        };
+        localStorage.setItem('user', JSON.stringify(full));
+        this.currentUserSubject.next(full);
+      },
+      error: (e) => {
+        // Token expiré ou invalide
+        if (e.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          this.currentUserSubject.next(null);
+        }
+      }
+    });
   }
 
   login(email: string, password: string): Observable<any> {
@@ -24,24 +54,19 @@ export class AuthService {
           localStorage.setItem('token', res.authorization.token);
           localStorage.setItem('user', JSON.stringify(res.user));
           this.currentUserSubject.next(res.user);
-          // Charger le profil complet avec avatar
           this.http.get<any>('/api/me', { headers: { Authorization: 'Bearer ' + res.authorization.token } })
             .subscribe(profile => {
-              const full = { ...res.user, ...profile, avatar_url: profile.avatar ? '/storage/' + profile.avatar : null };
+              const full = {
+                ...res.user,
+                ...profile,
+                avatar_url: profile.avatar ? '/storage/' + profile.avatar : null
+              };
               localStorage.setItem('user', JSON.stringify(full));
               this.currentUserSubject.next(full);
             });
         }
       })
     );
-  }
-
-  registerWithFormData(formData: FormData): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, formData);
-  }
-
-  register(userData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, userData);
   }
 
   logout(): Observable<any> {
@@ -62,7 +87,7 @@ export class AuthService {
   isTeacher(): boolean { return this.getCurrentUser()?.role === 'teacher'; }
   isStudent(): boolean { return this.getCurrentUser()?.role === 'student'; }
 
-  me(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/me`);
+  registerWithFormData(formData: FormData): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, formData);
   }
 }

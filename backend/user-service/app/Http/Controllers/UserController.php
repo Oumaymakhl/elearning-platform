@@ -66,7 +66,7 @@ class UserController extends Controller
         }
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->update(['avatar' => $path]);
-        return response()->json(['avatar' => $path, 'avatar_url' => asset('storage/' . $path)]);
+        return response()->json(['avatar' => $path, 'avatar_url' => 'http://localhost:8080/storage/' . $path]);
     }
 
     public function sync(Request $request)
@@ -79,11 +79,6 @@ class UserController extends Controller
     public function teachers()
     {
         return response()->json(User::where('role', 'teacher')->where('is_active', true)->get()->map(fn($u) => $this->withAvatarUrl($u)));
-    }
-
-    public function students()
-    {
-        return response()->json(User::where('role', 'student')->where('is_active', true)->get()->map(fn($u) => $this->withAvatarUrl($u)));
     }
 
     public function toggleActive(Request $request, $id)
@@ -108,7 +103,7 @@ class UserController extends Controller
     private function withAvatarUrl(User $user): array
     {
         $data = $user->toArray();
-        $data['avatar_url'] = $user->avatar ? asset('storage/' . $user->avatar) : null;
+        $data['avatar_url'] = $user->avatar ? 'http://localhost:8080/storage/' . $user->avatar : null;
         return $data;
     }
 }
