@@ -17,12 +17,14 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   if (user) {
-    headers['X-User-Data'] = btoa(unescape(encodeURIComponent(JSON.stringify({
-      id: user.auth_id || user.id,
-      name: user.name,
-      role: user.role,
-      avatar_url: user.avatar_url || null
-    }))));
+    try {
+      headers['X-User-Data'] = btoa(unescape(encodeURIComponent(JSON.stringify({
+        id: user.auth_id || user.id,
+        name: user.name,
+        role: user.role,
+        avatar_url: user.avatar_url || null
+      }))));
+    } catch(e) {}
   }
 
   if (Object.keys(headers).length > 0) {
@@ -32,8 +34,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error) => {
       if (error.status === 401) {
-        if (typeof localStorage !== 'undefined') localStorage.removeItem('token');
-        router.navigate(['/login']);
+        // Nettoyer le storage
+        if (typeof localStorage !== 'undefined') {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+        // Rediriger vers login avec rechargement complet
+        router.navigate(['/login']).then(() => {
+          window.location.reload();
+        });
       }
       return throwError(() => error);
     })
