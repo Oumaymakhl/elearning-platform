@@ -293,6 +293,16 @@ import { AuthService } from '../../services/auth.service';
 
       </div>
     </div>
+
+    <!-- Error Popup -->
+    <div class="ep-overlay" *ngIf="errorPopup.show" (click)="errorPopup.show=false">
+      <div class="ep-box" (click)="$event.stopPropagation()">
+        <div class="ep-icon">⚠️</div>
+        <h3 class="ep-title">Action impossible</h3>
+        <p class="ep-msg">{{ errorPopup.message }}</p>
+        <button class="ep-btn" (click)="errorPopup.show=false">Compris</button>
+      </div>
+    </div>
   `,
   styles: [`
     .layout{display:flex;min-height:100vh;background:#f4f6fb}
@@ -399,6 +409,15 @@ import { AuthService } from '../../services/auth.service';
     .preview-body{max-height:52vh}
     .success-step{text-align:center;padding:3rem 2rem}.success-icon{font-size:3.5rem;margin-bottom:1rem}
     .success-step h2{font-size:1.3rem;font-weight:800;color:#1a2340;margin:0 0 .5rem}.success-step p{color:#5a6a85;margin:0 0 1.5rem}
+    .ep-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99999;display:flex;align-items:center;justify-content:center;padding:1rem;animation:epFadeIn .2s ease}
+    @keyframes epFadeIn{from{opacity:0}to{opacity:1}}
+    .ep-box{background:#fff;border-radius:20px;padding:2.5rem 2rem 2rem;max-width:380px;width:100%;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,.3);animation:epSlideUp .25s ease}
+    @keyframes epSlideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .ep-icon{font-size:3rem;margin-bottom:.75rem;display:block}
+    .ep-title{font-size:1.1rem;font-weight:800;color:#1a2340;margin:0 0 .6rem}
+    .ep-msg{font-size:.88rem;color:#5a6a85;line-height:1.6;margin:0 0 1.75rem}
+    .ep-btn{background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;border:none;border-radius:10px;padding:.65rem 2rem;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .15s;width:100%}
+    .ep-btn:hover{opacity:.88}
   `]
 })
 export class QuizManageComponent implements OnInit {
@@ -418,6 +437,7 @@ export class QuizManageComponent implements OnInit {
   aiConfig = { content: '', num_questions: 5, difficulty: 'moyen', quiz_title: '', passing_score: 70 };
 
   subChapters: any[] = [];
+  errorPopup: { show: boolean; message: string } = { show: false, message: '' };
   loadingSubs = false;
 
   private readonly QUIZ_API = '/api';
@@ -469,6 +489,11 @@ export class QuizManageComponent implements OnInit {
 
   createQuiz(): void {
     if (!this.quizForm.title || this.saving) return;
+    // Vérifier si un quiz existe déjà pour ce chapitre
+    if (this.quizzes.length > 0) {
+      this.showErrorPopup("Ce chapitre a déjà un quiz. Supprimez-le avant d'en créer un nouveau.");
+      return;
+    }
     this.saving = true;
     this.http.post<any>(`${this.QUIZ_API}/quizzes`, { ...this.quizForm, chapter_id: this.chapterId }, { headers: this.headers() }).subscribe({
       next: (quiz) => {
@@ -479,7 +504,7 @@ export class QuizManageComponent implements OnInit {
         this.http.post<any>(`${this.COURSE_API}/courses/${this.courseId}/chapters/${this.chapterId}/subchapters`,
           { title: quiz.title, content: '', is_lab: false, passing_score: quiz.passing_score || 70, quiz_id: quiz.id },
           { headers: this.headers() }).subscribe({ error: () => {} });
-      }, error: () => { this.saving = false; }
+      }, error: (e) => { this.saving = false; this.showErrorPopup(e.error?.message || 'Erreur création quiz.'); }
     });
   }
 
@@ -646,6 +671,26 @@ export class QuizManageComponent implements OnInit {
   importAiQuiz(): void {
     if (!this.aiResult?.questions?.length || this.importing) return;
     this.importing = true;
+    this.http.get<any[]>(`${this.QUIZ_API}/chapters/${this.chapterId}/quizzes`,
+      { headers: this.headers() }).subscribe({
+      next: (existing) => {
+        if (existing && existing.length > 0) {
+          this.importing = false;
+          this.showErrorPopup("Ce chapitre a déjà un quiz. Supprimez-le avant d'en créer un nouveau.");
+          return;
+        }
+        this._doImportAiQuiz();
+      },
+      error: () => this._doImportAiQuiz()
+    });
+  }
+
+  showErrorPopup(message: string): void {
+    this.errorPopup = { show: true, message };
+    setTimeout(() => { this.errorPopup.show = false; }, 6000);
+  }
+
+  private _doImportAiQuiz(): void {
     this.http.post<any>(`${this.QUIZ_API}/quizzes`, {
       title: this.aiResult.quiz_title,
       description: `Généré par IA — Difficulté : ${this.aiConfig.difficulty}`,
@@ -653,6 +698,11 @@ export class QuizManageComponent implements OnInit {
     }, { headers: this.headers() }).subscribe({
       next: (quiz) => {
         this.importQuestionsSequentially(quiz.id, this.aiResult.questions, 0, () => {
+          this.http.post<any>(
+            `${this.COURSE_API}/courses/${this.courseId}/chapters/${this.chapterId}/subchapters`,
+            { title: quiz.title, content: '', is_lab: false, passing_score: quiz.passing_score || 70, quiz_id: quiz.id, order: 9999 },
+            { headers: this.headers() }
+          ).subscribe({ error: () => {} });
           this.importing = false;
           this.importedCount = this.aiResult.questions.length;
           this.importedQuizTitle = quiz.title;

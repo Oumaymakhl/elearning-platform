@@ -189,13 +189,33 @@ export class QuizComponent implements OnInit {
 
   goToNext() {
     const cid = this.courseId || this.quiz?.course_id;
-    if (cid) this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex + 1 } });
-    else this.router.navigate(['/courses']);
+    if (!cid) { this.router.navigate(['/courses']); return; }
+    const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
+    const nextIdx = this.subIndex + 1;
+    if (nextIdx >= allSubs.length) return;
+    const next = allSubs[nextIdx];
+    if (next.quiz_id) {
+      this.router.navigate(['/quiz', next.quiz_id], { queryParams: { course_id: cid, sub_id: next.id, sub_index: nextIdx } });
+    } else if (next.is_lab && next.exercise_id) {
+      this.router.navigate(['/exercise', next.exercise_id], { queryParams: { course_id: cid, sub_index: nextIdx } });
+    } else {
+      window.location.href = '/courses/' + cid + '?openSub=' + nextIdx;
+    }
   }
 
   goToPrev() {
     const cid = this.courseId || this.quiz?.course_id;
-    if (cid) this.router.navigate(['/courses', cid], { queryParams: { openSub: this.subIndex - 1 } });
-    else this.router.navigate(['/courses']);
+    if (!cid) { this.router.navigate(['/courses']); return; }
+    const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
+    const prevIdx = this.subIndex - 1;
+    if (prevIdx < 0) return;
+    const prev = allSubs[prevIdx];
+    if (prev.quiz_id) {
+      this.router.navigate(['/quiz', prev.quiz_id], { queryParams: { course_id: cid, sub_id: prev.id, sub_index: prevIdx } });
+    } else if (prev.is_lab && prev.exercise_id) {
+      this.router.navigate(['/exercise', prev.exercise_id], { queryParams: { course_id: cid, sub_index: prevIdx } });
+    } else {
+      window.location.href = '/courses/' + cid + '?openSub=' + prevIdx;
+    }
   }
 }

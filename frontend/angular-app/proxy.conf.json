@@ -1,34 +1,6 @@
 {
-  "/auth-api": {
-    "target": "http://127.0.0.1:8000",
-    "secure": false,
-    "changeOrigin": true,
-    "pathRewrite": {
-      "^/auth-api": "/api"
-    }
-  },
   "/api": {
-    "target": "http://127.0.0.1:8080",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/storage": {
-    "target": "http://127.0.0.1:8080",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/quiz-stats": {
-    "target": "http://127.0.0.1:8005",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/notifications": {
-    "target": "http://127.0.0.1:8006",
-    "secure": false,
-    "changeOrigin": true
-  },
-  "/api/notifications/stream": {
-    "target": "http://127.0.0.1:8006",
+    "target": "http://localhost:8080",
     "secure": false,
     "changeOrigin": true
   }

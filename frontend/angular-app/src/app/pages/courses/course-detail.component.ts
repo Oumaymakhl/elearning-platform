@@ -95,7 +95,15 @@ export class CourseDetailComponent implements OnInit {
                       const sub = allSubs[idx];
                       const ch = this.chapters.find((c: any) => (c.sub_chapters||[]).some((s: any) => s.id === sub.id));
                       if (ch) ch.expanded = true;
-                      setTimeout(() => { this.activeSubChapter = sub; }, 100);
+                      setTimeout(() => {
+                        if (sub.quiz_id) {
+                          this.router.navigate(['/quiz', sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: sub.id, sub_index: idx } });
+                        } else if (sub.is_lab && sub.exercise_id) {
+                          this.router.navigate(['/exercise', sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: idx } });
+                        } else {
+                          this.activeSubChapter = sub;
+                        }
+                      }, 100);
                     }
                   } else {
                     this.resumeProgress();
@@ -270,6 +278,20 @@ export class CourseDetailComponent implements OnInit {
   }
 
   openSubChapterDirect(sub: any) {
+    // Si c'est un quiz, rediriger vers la page quiz
+    if (sub.quiz_id) {
+      const allSubs = this.getAllSubs();
+      const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
+      this.router.navigate(['/quiz', sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: sub.id, sub_index: subIdx } });
+      return;
+    }
+    // Si c'est un lab, rediriger vers l'exercice
+    if (sub.is_lab && sub.exercise_id) {
+      const allSubs = this.getAllSubs();
+      const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
+      this.router.navigate(['/exercise', sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: subIdx } });
+      return;
+    }
     this.activeSubChapter = sub;
     if (!this.visitedSubs.has(sub.id)) {
       this.visitedSubs.add(sub.id);
