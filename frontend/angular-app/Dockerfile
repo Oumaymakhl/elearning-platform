@@ -8,7 +8,7 @@ RUN npm run build -- --configuration=production
  
 # ── Étape 2 : Serveur Nginx ──────────────────────────────────────
 FROM nginx:1.28-alpine
-RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 libpng musl musl-utils zlib libuuid && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 libpng musl musl-utils zlib libuuid libxpm && rm -rf /var/cache/apk/*
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/dist/angular-app/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
