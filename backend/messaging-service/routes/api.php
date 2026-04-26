@@ -16,5 +16,13 @@ Route::get('/messaging/download/{filename}', function ($filename) {
     if (!file_exists($path)) {
         abort(404);
     }
-    return response()->download($path);
+    $displayName = request()->query('name', $filename);
+    return response()->file($path, ['Content-Disposition' => 'inline; filename="' . $displayName . '"', 'Content-Type' => mime_content_type($path)]);
+});
+
+Route::get('/messaging/file/{filename}', function ($filename) {
+    $path = storage_path("app/public/messaging/{$filename}");
+    if (!file_exists($path)) abort(404);
+    $displayName = request()->query('name', $filename);
+    return response()->file($path, ['Content-Disposition' => 'inline; filename="' . $displayName . '"']);
 });

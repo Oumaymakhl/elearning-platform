@@ -152,7 +152,7 @@ export class LoginComponent {
     this.error = '';
     const { email, password } = this.form.value;
     this.auth.login(email, password).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => { console.log('LOGIN OK, token:', localStorage.getItem('token')); this.router.navigate(['/dashboard']); },
       error: (e) => {
         const status = e.status;
         if (status === 401) this.error = e.error?.message || 'Email ou mot de passe incorrect';

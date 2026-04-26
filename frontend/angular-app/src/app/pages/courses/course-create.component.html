@@ -47,6 +47,16 @@
           </select>
         </div>
 
+        <div class="field">
+          <label>Prix</label>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+              <input type="checkbox" formControlName="is_free"> Cours gratuit
+            </label>
+          </div>
+          <input type="number" formControlName="price" placeholder="Ex: 29.99" min="0" step="0.01" *ngIf="!form.get('is_free')?.value">
+        </div>
+
         <div class="error" *ngIf="error">{{ error }}</div>
         <div class="success" *ngIf="success">{{ success }}</div>
         <button type="submit" [disabled]="loading || form.invalid">

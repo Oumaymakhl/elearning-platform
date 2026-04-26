@@ -6,3 +6,4 @@ RUN apk update && apk upgrade --no-cache \
     zlib \
     libuuid && \
     rm -rf /var/cache/apk/*
+COPY gateway.conf /etc/nginx/conf.d/default.conf

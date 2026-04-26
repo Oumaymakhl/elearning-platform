@@ -22,10 +22,10 @@ import { ConfirmService } from '../../services/confirm.service';
             <div class="conv-header">
               <h2>💬 Messages</h2>
               <span class="unread-badge" *ngIf="totalUnread > 0">{{ totalUnread }}</span>
-              <button class="new-conv-btn" (click)="toggleNewConv()" title="Nouveau message">✏️</button>
+              <button class="new-conv-btn" *ngIf="currentUser?.role !== 'teacher'" (click)="toggleNewConv()" title="Nouveau message">✏️</button>
             </div>
 
-            <div class="users-panel" *ngIf="showNewConv">
+            <div class="users-panel" *ngIf="showNewConv && currentUser?.role !== 'teacher'">
               <div class="users-search">
                 <input type="text" [(ngModel)]="userSearch" placeholder="🔍 Rechercher un utilisateur..." (input)="filterUsers()" autofocus/>
               </div>
@@ -57,7 +57,7 @@ import { ConfirmService } from '../../services/confirm.service';
               <div class="conv-empty" *ngIf="conversations.length === 0 && !loadingConvs">
                 <div>💬</div>
                 <p>Aucune conversation</p>
-                <button class="empty-cta-sm" (click)="toggleNewConv()">Démarrer une discussion</button>
+                <button class="empty-cta-sm" *ngIf="currentUser?.role !== 'teacher'" (click)="toggleNewConv()">Démarrer une discussion</button>
               </div>
               <div class="conv-empty" *ngIf="loadingConvs">
                 <div class="spinner-sm"></div>
@@ -204,7 +204,7 @@ import { ConfirmService } from '../../services/confirm.service';
             <div class="empty-icon">💬</div>
             <h3>Vos messages</h3>
             <p>Sélectionnez une conversation ou démarrez-en une nouvelle</p>
-            <button class="empty-cta" (click)="toggleNewConv()">✏️ Nouveau message</button>
+            <button class="empty-cta" *ngIf="currentUser?.role !== 'teacher'" (click)="toggleNewConv()">✏️ Nouveau message</button>
           </div>
 
         </div>
@@ -417,7 +417,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.currentUser = this.auth.getCurrentUser();
     this.currentUser.myId = this.currentUser?.auth_id || this.currentUser?.id;
     this.loadConversations();
-    this.convPollInterval = setInterval(() => this.loadConversations(), 10000);
+    this.convPollInterval = setInterval(() => this.loadConversations(), 15000);
     this.route.queryParams.subscribe(params => {
       if (params['with'] && params['name']) {
         this.startOrOpenConv(+params['with'], params['name'], params['avatar'] || null);
@@ -526,7 +526,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         }
       });
-    }, 1500);
+    }, 5000);
   }
 
   sendMessage() {
@@ -624,15 +624,12 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   downloadFile(body: string) {
-    const parts = body.replace('📎 ', '').split('||');
+    const parts = body.replace("📎 ", "").split("||");
     if (parts[1]) {
-      const fileUrl = parts[1];
-      const filename = fileUrl.substring(fileUrl.lastIndexOf('/') + 1);
-      const downloadUrl = `/api/messaging/download/${encodeURIComponent(filename)}`;
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = filename;
-      a.target = '_blank';
+      const a = document.createElement("a");
+      a.href = parts[1];
+      a.target = "_blank";
+      a.rel = "noopener";
       a.click();
     }
   }

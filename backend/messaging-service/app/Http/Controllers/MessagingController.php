@@ -237,7 +237,7 @@ class MessagingController extends Controller
         $request->validate(['file' => 'required|file|max:10240']);
 
         $path = $request->file('file')->store('messaging', 'public');
-        $url  = url('storage/' . $path);
+        $url  = '/api/messaging/file/' . basename($path);
 
         return response()->json(['url' => $url, 'name' => $request->file('file')->getClientOriginalName()]);
     }

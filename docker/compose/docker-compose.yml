@@ -441,8 +441,6 @@ services:
     container_name: gateway
     ports:
       - "8080:80"
-    volumes:
-      - ./nginx/gateway.conf:/etc/nginx/conf.d/default.conf
     networks:
       - elearning-network
     depends_on:

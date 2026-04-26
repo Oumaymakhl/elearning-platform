@@ -15,6 +15,8 @@ class CourseController extends Controller
             "language"    => "nullable|string|max:10",
             "image_path"  => "nullable|string",
             "level"       => "nullable|string|in:debutant,intermediaire,avance",
+            "price"       => "nullable|numeric|min:0",
+            "is_free"     => "nullable|boolean",
         ]);
         $data["instructor_id"] = (int) $request->auth_user_id;
         $course = Course::create($data);
@@ -50,6 +52,8 @@ class CourseController extends Controller
             "language"    => "nullable|string|max:10",
             "image_path"  => "nullable|string",
             "level"       => "nullable|string|in:debutant,intermediaire,avance",
+            "price"       => "nullable|numeric|min:0",
+            "is_free"     => "nullable|boolean",
         ]));
         return response()->json($course);
     }

@@ -25,6 +25,8 @@ export class CourseCreateComponent {
       title:       ['', [Validators.required, Validators.minLength(3)]],
       description: ['', Validators.required],
       level:       ['debutant'],
+      price:       [0],
+      is_free:     [true],
       image_path:  ['']
     });
   }
