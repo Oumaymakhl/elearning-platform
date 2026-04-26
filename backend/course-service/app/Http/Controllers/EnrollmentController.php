@@ -88,7 +88,8 @@ class EnrollmentController extends Controller
         try {
             $response = Http::post('http://nginx-user/api/internal/students-by-ids', ['ids' => $userIds]);
             foreach ($response->json() as $user) {
-                $usersData[$user['auth_id']] = $user;
+                $usersData[$user["auth_id"]] = $user;
+                if (isset($user["id"])) $usersData[$user["id"]] = $user;
             }
         } catch (\Exception $e) {}
         $result = $enrollments->map(function($e) use ($usersData) {

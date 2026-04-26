@@ -69,6 +69,27 @@ export class CourseDetailComponent implements OnInit {
         this.course = course;
         this.chapters = (course.chapters || []).map((c: any) => ({ ...c, expanded: false, sub_chapters: c.sub_chapters || c.subChapters || [] }));
         this.checkPayment();
+        // Gérer openSub pour tous les rôles
+        const _qp = this.route.snapshot.queryParamMap;
+        const _openSub = _qp.get('openSub');
+        if (_openSub !== null) {
+          setTimeout(() => {
+            const _allSubs = this.getAllSubs();
+            const _idx = +_openSub;
+            if (_idx >= 0 && _idx < _allSubs.length) {
+              const _sub = _allSubs[_idx];
+              const _ch = this.chapters.find((c: any) => (c.sub_chapters||[]).some((s: any) => s.id === _sub.id));
+              if (_ch) _ch.expanded = true;
+              if (_sub.quiz_id) {
+                this.router.navigate(["/quiz", _sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: _sub.id, sub_index: _idx } });
+              } else if (_sub.is_lab && _sub.exercise_id) {
+                this.router.navigate(["/exercise", _sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: _idx } });
+              } else {
+                this.activeSubChapter = _sub;
+              }
+            }
+          }, 200);
+        }
         // 2. Charger la progression APRES le cours
         if (this.isStudent) {
           this.courseService.getProgress(id).subscribe({

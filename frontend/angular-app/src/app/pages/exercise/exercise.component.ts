@@ -106,7 +106,9 @@ interface Exercise {
           <button class="back-btn" (click)="goBackToCourse()">← Retour</button>
           <span class="ex-title">🔬 {{ exercise?.title || "TD" }}</span>
         </div>
-        <span class="lang-badge">{{ selectedLang }}</span>
+        <button class="back-btn" *ngIf="hasPrev()" (click)="goToPrev()" style="color:#4361ee;border-color:#4361ee;">← Précédent</button>
+          <button class="back-btn" *ngIf="hasNext()" (click)="goToNext()" style="color:#4361ee;border-color:#4361ee;">Suivant →</button>
+          <span class="lang-badge">{{ selectedLang }}</span>
       </div>
 
       <div class="body" style="position:relative">
@@ -219,6 +221,7 @@ interface Exercise {
               ⭐ Score : {{ submitResult?.score }}/{{ submitResult?.max_score || 100 }} pts
             </div>
             <div class="success-actions">
+              <button class="btn-course" *ngIf="hasPrev()" (click)="goToPrev()" style="background:#f1f5f9;color:#1E3A5F;">← Sous-chapitre précédent</button>
               <button class="btn-next" (click)="goToNext()">
                 → Sous-chapitre suivant
               </button>
@@ -406,16 +409,22 @@ export class ExerciseComponent implements OnInit {
     }
   }
 
+  hasPrev(): boolean {
+    return this.subIndex !== null && this.subIndex > 0;
+  }
+
+  hasNext(): boolean {
+    return this.subIndex !== null;
+  }
+
+  goToPrev() {
+    if (this.courseId === null || this.subIndex === null || this.subIndex <= 0) return;
+    this.router.navigate(["/courses", this.courseId], { queryParams: { openSub: this.subIndex - 1 } });
+  }
+
   goToNext() {
-    if (this.courseId !== null && this.subIndex !== null) {
-      this.router.navigate(['/courses', this.courseId], {
-        queryParams: { openSub: this.subIndex + 1 }
-      });
-    } else if (this.courseId) {
-      this.router.navigate(['/courses', this.courseId]);
-    } else {
-      this.router.navigate(['/courses']);
-    }
+    if (this.courseId === null || this.subIndex === null) { this.router.navigate(["/courses"]); return; }
+    this.router.navigate(["/courses", this.courseId], { queryParams: { openSub: this.subIndex + 1 } });
   }
 
   goBackToCourse() {

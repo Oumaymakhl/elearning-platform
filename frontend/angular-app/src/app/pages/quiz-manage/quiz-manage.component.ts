@@ -508,8 +508,15 @@ export class QuizManageComponent implements OnInit {
     });
   }
 
-  deleteQuiz(quizId: number): void {
-    if (!confirm('Supprimer ce quiz et toutes ses questions ?')) return;
+  async deleteQuiz(quizId: number): Promise<void> {
+    const ok = await this.confirmSvc.open({
+      icon: '🗑️',
+      title: 'Supprimer ce quiz ?',
+      message: 'Cette action est irréversible. Le quiz et toutes ses questions seront supprimés.',
+      okLabel: 'Supprimer',
+      okColor: '#e53e3e'
+    });
+    if (!ok) return;
     this.http.delete(`${this.QUIZ_API}/quizzes/${quizId}`, { headers: this.headers() }).subscribe({
       next: () => { this.quizzes = this.quizzes.filter(q => q.id !== quizId); },
       error: (e) => { alert(e.error?.message || 'Erreur suppression'); }

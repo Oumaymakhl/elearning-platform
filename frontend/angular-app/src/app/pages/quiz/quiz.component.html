@@ -70,9 +70,9 @@
         👁️ Mode aperçu — les enseignants ne peuvent pas passer les quiz.
       </div>
       <div class="intro-nav">
-        <button class="nav-btn-prev" (click)="goToPrev()" [disabled]="subIndex <= 0">← Précédent</button>
+        <button class="nav-btn-prev" (click)="goToPrev()" [disabled]="!hasPrev()">← Précédent</button>
   
-        <button class="nav-btn-next" (click)="goToNext()">Suivant →</button>
+        <button class="nav-btn-next" (click)="goToNext()" [disabled]="!hasNext()">Suivant →</button>
       </div>
     </div>
 
@@ -129,10 +129,10 @@
       <div class="result-actions">
         <button class="btn-retry" (click)="retry()">🔄 Réessayer</button>
         <button class="btn-back" (click)="goBackToCourse()">← Retour au cours</button>
-        <button class="btn-prev" *ngIf="courseId" (click)="goToPrev()" [disabled]="result.score < 70">
+        <button class="btn-prev" *ngIf="courseId && hasPrev()" (click)="goToPrev()">
           ← Leçon précédente
         </button>
-        <button class="btn-next" *ngIf="courseId" (click)="goToNext()">
+        <button class="btn-next" *ngIf="courseId && hasNext()" (click)="goToNext()">
           Leçon suivante →
         </button>
       </div>

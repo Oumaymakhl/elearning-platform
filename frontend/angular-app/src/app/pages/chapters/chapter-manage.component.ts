@@ -61,7 +61,9 @@ export class ChapterManageComponent implements OnInit {
           this.subForms[ch.id] = this.fb.group({
             title: ['', Validators.required],
             content: [''],
-            is_lab: [false]
+            is_lab: [false],
+            quiz_id: [null],
+            passing_score: [70]
           });
         });
         this.loading = false;

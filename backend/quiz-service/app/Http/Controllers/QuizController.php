@@ -17,6 +17,12 @@ class QuizController extends Controller
             'chapter_id'    => 'nullable|integer',
             'passing_score' => 'nullable|integer|min:0|max:100',
         ]);
+        if (!empty($data['chapter_id'])) {
+            $exists = Quiz::where('chapter_id', $data['chapter_id'])->exists();
+            if ($exists) {
+                return response()->json(['message' => 'Ce chapitre a déjà un quiz. Supprimez-le avant d\'en créer un nouveau.'], 422);
+            }
+        }
         $data['created_by'] = (int) $request->auth_user_id;
         $quiz = Quiz::create($data);
         return response()->json($quiz, 201);

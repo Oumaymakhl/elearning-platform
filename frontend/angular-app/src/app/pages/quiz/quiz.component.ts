@@ -187,11 +187,28 @@ export class QuizComponent implements OnInit {
 
   retry() { this.answers = {}; this.result = null; this.step = 'intro'; }
 
+  private getEffectiveSubIndex(): number {
+    if (this.subIndex >= 0) return this.subIndex;
+    const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
+    const idx = allSubs.findIndex((s: any) => s.quiz_id === this.quiz?.id || s.id === this.subId);
+    if (idx >= 0) this.subIndex = idx;
+    return this.subIndex;
+  }
+
+  hasPrev(): boolean {
+    return this.getEffectiveSubIndex() > 0;
+  }
+
+  hasNext(): boolean {
+    const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
+    return this.getEffectiveSubIndex() < allSubs.length - 1;
+  }
+
   goToNext() {
     const cid = this.courseId || this.quiz?.course_id;
     if (!cid) { this.router.navigate(['/courses']); return; }
     const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
-    const nextIdx = this.subIndex + 1;
+    const nextIdx = this.getEffectiveSubIndex() + 1;
     if (nextIdx >= allSubs.length) return;
     const next = allSubs[nextIdx];
     if (next.quiz_id) {
@@ -199,7 +216,7 @@ export class QuizComponent implements OnInit {
     } else if (next.is_lab && next.exercise_id) {
       this.router.navigate(['/exercise', next.exercise_id], { queryParams: { course_id: cid, sub_index: nextIdx } });
     } else {
-      window.location.href = '/courses/' + cid + '?openSub=' + nextIdx;
+      this.router.navigate(['/courses', cid], { queryParams: { openSub: nextIdx } });
     }
   }
 
@@ -207,7 +224,7 @@ export class QuizComponent implements OnInit {
     const cid = this.courseId || this.quiz?.course_id;
     if (!cid) { this.router.navigate(['/courses']); return; }
     const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
-    const prevIdx = this.subIndex - 1;
+    const prevIdx = this.getEffectiveSubIndex() - 1;
     if (prevIdx < 0) return;
     const prev = allSubs[prevIdx];
     if (prev.quiz_id) {
@@ -215,7 +232,7 @@ export class QuizComponent implements OnInit {
     } else if (prev.is_lab && prev.exercise_id) {
       this.router.navigate(['/exercise', prev.exercise_id], { queryParams: { course_id: cid, sub_index: prevIdx } });
     } else {
-      window.location.href = '/courses/' + cid + '?openSub=' + prevIdx;
+      this.router.navigate(['/courses', cid], { queryParams: { openSub: prevIdx } });
     }
   }
 }
