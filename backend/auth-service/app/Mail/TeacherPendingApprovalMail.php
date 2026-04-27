@@ -21,7 +21,7 @@ class TeacherPendingApprovalMail extends Mailable
             ? "<p><a href='{$cvUrl}' style='color:#1E3A5F;'>📄 Consulter le CV de {$this->teacher->name}</a></p>"
             : "<p>Aucun CV soumis.</p>";
 
-        $adminUrl = 'http://localhost:4200/admin';
+        $adminUrl = 'http://localhost:4200/teacher-approvals';
 
         return $this->subject('Nouvel enseignant en attente d\'approbation')
             ->html("

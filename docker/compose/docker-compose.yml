@@ -30,6 +30,8 @@ services:
     depends_on:
       mysql-auth:
         condition: service_healthy
+    volumes:
+      - auth_storage:/var/www/html/storage/app/public
     restart: unless-stopped
 
   nginx-auth:
@@ -40,7 +42,9 @@ services:
     ports:
       - "8000:80"
     volumes:
+      - auth_storage:/var/www/html/storage/app/public
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - auth_storage:/var/www/html/storage/app/public
     networks:
       - elearning-network
     depends_on:
@@ -671,4 +675,5 @@ volumes:
   mysql-forum-data:
   mysql-messaging-data:
   mysql-payment-data:
+  auth_storage:
   user_storage:

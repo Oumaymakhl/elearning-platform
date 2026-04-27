@@ -173,6 +173,27 @@ class AuthController extends Controller
             new \App\Mail\TeacherApprovalResultMail($teacher, $request->approved, $request->reason)
         );
 
+        // Sync vers user-service si approuvé
+        if ($request->approved) {
+            try {
+                $data = json_encode([
+                    'auth_id' => $teacher->id,
+                    'name'    => $teacher->name,
+                    'email'   => $teacher->email,
+                    'role'    => 'teacher',
+                ]);
+                $ch = curl_init('http://nginx-user/api/internal/sync');
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Accept: application/json']);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 5);
+                curl_exec($ch);
+                curl_close($ch);
+            } catch (\Exception $e) {
+                \Log::warning('User sync failed: ' . $e->getMessage());
+            }
+        }
         $msg = $request->approved ? 'Enseignant approuvé.' : 'Enseignant rejeté.';
         return response()->json(['message' => $msg, 'user' => $teacher]);
     }
