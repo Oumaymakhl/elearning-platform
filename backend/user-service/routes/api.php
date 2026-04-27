@@ -12,6 +12,8 @@ Route::get('/users/{id}',  [UserController::class, 'show']);
 
 // Protégées
 Route::middleware('jwt')->group(function () {
+    // Recherche d'utilisateurs (accessible aux profs)
+    Route::get('/users', [UserController::class, 'search']);
     // Profil personnel
     Route::get('/me',  [UserController::class, 'me']);
     Route::put('/me',  [UserController::class, 'updateMe']);

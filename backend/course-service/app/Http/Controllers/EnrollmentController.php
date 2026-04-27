@@ -97,21 +97,28 @@ class EnrollmentController extends Controller
         try {
             $response = Http::post('http://nginx-user/api/internal/students-by-ids', ['ids' => $userIds]);
             foreach ($response->json() as $user) {
+                // user_id dans enrollments = auth_id dans user-service
+                // Filtrer : ignorer les teachers et admins
+                if (isset($user['role']) && $user['role'] !== 'student') continue;
                 $usersData[$user["auth_id"]] = $user;
-                if (isset($user["id"])) $usersData[$user["id"]] = $user;
             }
         } catch (\Exception $e) {}
-        $result = $enrollments->map(function($e) use ($usersData) {
-            return [
-                'id'         => $e->id,
-                'user_id'    => $e->user_id,
-                'course_id'  => $e->course_id,
-                'progress'   => $e->progress,
-                'status'     => $e->status,
-                'created_at' => $e->created_at,
-                'student'    => $usersData[$e->user_id] ?? ['name' => 'Étudiant #' . $e->user_id, 'email' => ''],
-            ];
-        });
+        $result = $enrollments
+            ->filter(function($e) use ($usersData) {
+                // Garder uniquement si auth_id correspond à un étudiant
+                return isset($usersData[$e->user_id]);
+            })
+            ->map(function($e) use ($usersData) {
+                return [
+                    'id'         => $e->id,
+                    'user_id'    => $e->user_id,
+                    'course_id'  => $e->course_id,
+                    'progress'   => $e->progress,
+                    'status'     => $e->status,
+                    'created_at' => $e->created_at,
+                    'student'    => $usersData[$e->user_id],
+                ];
+            })->values();
         return response()->json($result);
     }
 
