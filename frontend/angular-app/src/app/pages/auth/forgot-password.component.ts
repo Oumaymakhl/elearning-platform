@@ -130,7 +130,7 @@ export class ForgotPasswordComponent {
     if (this.form.invalid) { this.error = 'Veuillez entrer un email valide'; return; }
     this.loading = true;
     this.error = '';
-    this.http.post('/auth-api/forgot-password', { email: this.form.value.email }).subscribe({
+    this.http.post('/api/auth/forgot-password', { email: this.form.value.email }).subscribe({
       next: () => { this.sent = true; this.loading = false; },
       error: (e) => { this.error = e.error?.message || 'Email introuvable'; this.loading = false; }
     });
