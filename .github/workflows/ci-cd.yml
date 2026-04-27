@@ -135,7 +135,7 @@ jobs:
           output: trivy-${{ matrix.service }}.json
           exit-code: 0
           severity: CRITICAL,HIGH,MEDIUM
-          ignore-unfixed: true
+          ignore-unfixed: false
         continue-on-error: true
 
       - name: Trivy Image Scan (SARIF)
@@ -147,7 +147,7 @@ jobs:
           output: trivy-${{ matrix.service }}.sarif
           exit-code: 0
           severity: CRITICAL,HIGH,MEDIUM
-          ignore-unfixed: true
+          ignore-unfixed: false
         continue-on-error: true
 
       - name: Upload SARIF to GitHub Security
