@@ -103,7 +103,8 @@ class UserController extends Controller
     private function withAvatarUrl(User $user): array
     {
         $data = $user->toArray();
-        $data['avatar_url'] = $user->avatar ? 'http://localhost:8080/storage/' . $user->avatar : null;
+        $av = $user->avatar && is_string($user->avatar) && strlen($user->avatar) > 3 ? $user->avatar : null;
+        $data['avatar_url'] = $av ? 'http://localhost:8080/storage/' . $av : null;
         return $data;
     }
 }

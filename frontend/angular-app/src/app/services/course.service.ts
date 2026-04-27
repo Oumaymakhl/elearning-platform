@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of , catchError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class CourseService {
@@ -52,7 +52,9 @@ export class CourseService {
     return this.http.post(`${this.api}/${courseId}/progress`, data);
   }
   getProgress(courseId: number): Observable<any> {
-    return this.http.get(`${this.api}/${courseId}/progress`);
+    return this.http.get(`${this.api}/${courseId}/progress`).pipe(
+      catchError(() => of(null))
+    );
   }
 
   getRatings(courseId: number): Observable<any>  { return this.http.get(`${this.api}/${courseId}/ratings`); }

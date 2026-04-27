@@ -93,7 +93,7 @@ export class CourseDetailComponent implements OnInit {
         // 2. Charger la progression APRES le cours
         if (this.isStudent) {
           this.courseService.getProgress(id).subscribe({
-            next: (p) => {
+            next: (p) => { if (!p) return;
               this.progress = { ...p, percentage: parseFloat(p.progress || 0) };
               this.enrolled = true;
               if (parseFloat(p.progress || 0) === 0 && typeof localStorage !== "undefined") {

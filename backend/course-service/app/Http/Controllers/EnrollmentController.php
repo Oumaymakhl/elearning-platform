@@ -16,6 +16,15 @@ class EnrollmentController extends Controller
         return response()->json($enrollments);
     }
 
+    public static function enrollInternal($userId, $courseId) {
+        $enrollment = Enrollment::where('user_id', $userId)->where('course_id', $courseId)->first();
+        if (!$enrollment) {
+            Enrollment::create(['user_id' => $userId, 'course_id' => $courseId, 'status' => 'active', 'progress' => 0]);
+        } else {
+            $enrollment->update(['status' => 'active']);
+        }
+    }
+
     public function enroll(Request $request, $courseId) {
         $course     = Course::findOrFail($courseId);
         $enrollment = Enrollment::firstOrCreate(

@@ -4,7 +4,7 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = '/auth-api';
+  private apiUrl = '/api/auth';
   private currentUserSubject = new BehaviorSubject<any>(this.getUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();
   constructor(private http: HttpClient) {
@@ -25,7 +25,7 @@ export class AuthService {
         const full = {
           ...current,
           ...profile,
-          avatar_url: profile.avatar ? '/storage/' + profile.avatar : current?.avatar_url || null
+          avatar_url: profile.avatar_url || (profile.avatar ? '/storage/' + profile.avatar : current?.avatar_url) || null
         };
         localStorage.setItem('user', JSON.stringify(full));
         this.currentUserSubject.next(full);
@@ -45,7 +45,7 @@ export class AuthService {
               const full = {
                 ...res.user,
                 ...profile,
-                avatar_url: profile.avatar ? '/storage/' + profile.avatar : null
+                avatar_url: profile.avatar_url || (profile.avatar ? '/storage/' + profile.avatar : null)
               };
               localStorage.setItem('user', JSON.stringify(full));
               this.currentUserSubject.next(full);

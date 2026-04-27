@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class PaymentService {
-  private apiUrl = '/api/payments';
+  private apiUrl = '/api/payments/';
 
   constructor(private http: HttpClient, private auth: AuthService) {}
 
@@ -12,8 +12,8 @@ export class PaymentService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     const user = this.auth.getCurrentUser();
-    return this.http.post<any>(this.apiUrl + '/initiate', {
-      user_id:   user?.id || 1,
+    return this.http.post<any>(this.apiUrl + 'initiate', {
+      user_id:   user?.auth_id || user?.id || 1,
       course_id: courseId,
       amount:    amount,
       email:     email || user?.email,
@@ -24,6 +24,6 @@ export class PaymentService {
     const token = localStorage.getItem('token');
     const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     const user = this.auth.getCurrentUser();
-    return this.http.get<any>(this.apiUrl + `?user_id=${user?.id}&course_id=${courseId}`, { headers });
+    return this.http.get<any>(this.apiUrl + `?user_id=${user?.auth_id || user?.id}&course_id=${courseId}`, { headers });
   }
 }

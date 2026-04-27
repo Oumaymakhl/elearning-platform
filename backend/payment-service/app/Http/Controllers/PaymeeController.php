@@ -65,6 +65,13 @@ class PaymeeController extends Controller
         $payment = Payment::where("paymee_token", $request->session_id)->first();
         if ($payment) {
             $payment->update(["status" => "paid"]);
+            // Inscrire l'étudiant au cours
+            try {
+                \Illuminate\Support\Facades\Http::post(
+                    "http://nginx-course/api/internal/enroll",
+                    ["user_id" => $payment->user_id, "course_id" => $payment->course_id]
+                );
+            } catch (\Exception $e) {}
         }
         return response()->json(["success" => true, "message" => "Paiement réussi"]);
     }
