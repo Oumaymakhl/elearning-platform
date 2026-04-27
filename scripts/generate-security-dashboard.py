@@ -74,34 +74,50 @@ def generate_html(reports, output):
 <html lang="fr">
 <head><meta charset="UTF-8"><title>🛡️ Security Dashboard</title>
 <style>
-body{{background:#0d1117;color:#e6edf3;font-family:system-ui,sans-serif;padding:24px;margin:0}}
-h1{{font-size:1.8rem;margin-bottom:4px}} .sub{{color:#8b949e;margin-bottom:24px}}
+*{{margin:0;padding:0;box-sizing:border-box}}
+body{{background:#f8f9fa;color:#333;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;margin:0}}
+.header{{background:#1E3A5F;color:white;padding:1.5rem 2rem;box-shadow:0 2px 8px rgba(0,0,0,.15)}}
+.header h1{{font-size:1.6rem;font-weight:700;margin-bottom:4px}}
+.header .sub{{color:rgba(255,255,255,.7);font-size:.9rem}}
+.content{{padding:2rem}}
 table{{width:100%;border-collapse:collapse;margin-bottom:20px}}
-th{{padding:10px;text-align:left;color:#8b949e;border-bottom:2px solid #30363d;background:#161b22}}
-td{{padding:9px 10px;border-bottom:1px solid #21262d}}
-tr:hover td{{background:rgba(255,255,255,.04)}}
-.summary{{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}}
-.card{{background:#161b22;border:1px solid #30363d;border-radius:10px;padding:20px;text-align:center}}
-.card .n{{font-size:2.4rem;font-weight:700}} .card .l{{color:#8b949e;font-size:.85rem}}
-details{{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px;margin-bottom:12px}}
-summary{{cursor:pointer;font-weight:600;color:#58a6ff;padding:4px 0}}
+th{{padding:1rem;text-align:left;background:#f0f4f8;color:#1E3A5F;font-weight:600;font-size:.9rem;border-bottom:2px solid #1E3A5F}}
+td{{padding:.85rem 1rem;border-bottom:1px solid #f0f4f8;color:#444;font-size:.9rem}}
+tr:last-child td{{border-bottom:none}}
+tr:hover td{{background:#f0f4f8}}
+.summary{{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem}}
+.card{{background:white;border-radius:12px;padding:1.5rem;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06);border-top:4px solid #1E3A5F}}
+.card .n{{font-size:2.4rem;font-weight:700;color:#1E3A5F}} .card .l{{color:#666;font-size:.85rem;margin-top:.25rem}}
+.card.critical .n{{color:#e53e3e}} .card.critical{{border-top-color:#e53e3e}}
+.card.high .n{{color:#ed8936}} .card.high{{border-top-color:#ed8936}}
+.card.medium .n{{color:#d69e2e}} .card.medium{{border-top-color:#d69e2e}}
+.table-card{{background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);overflow:hidden;margin-bottom:2rem}}
+h2{{color:#1E3A5F;margin-bottom:1rem;font-size:1.1rem;font-weight:600}}
+details{{background:white;border:1px solid #e2e8f0;border-radius:12px;padding:1rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.06)}}
+summary{{cursor:pointer;font-weight:600;color:#1E3A5F;padding:4px 0;font-size:.95rem}}
+summary:hover{{color:#4A90D9}}
+.no-vuln{{color:#666;text-align:center;padding:2rem;background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}}
+.badge{{background:#e8f0fe;color:#1E3A5F;padding:.2rem .6rem;border-radius:12px;font-weight:600;font-size:.85rem}}
 </style></head>
 <body>
+<div class="header">
 <h1>🛡️ Security Dashboard — E-Learning</h1>
 <p class="sub">Généré le {now} — {len(reports)} services scannés</p>
+</div>
+<div class="content">
 <div class="summary">
-  <div class="card"><div class="n" style="color:#f85149">{total_c}</div><div class="l">🔴 Critical</div></div>
-  <div class="card"><div class="n" style="color:#e3b341">{total_h}</div><div class="l">🟠 High</div></div>
-  <div class="card"><div class="n" style="color:#d29922">{total_m}</div><div class="l">🟡 Medium</div></div>
+  <div class="card critical"><div class="n">{total_c}</div><div class="l">🔴 Critical</div></div>
+  <div class="card high"><div class="n">{total_h}</div><div class="l">🟠 High</div></div>
+  <div class="card medium"><div class="n">{total_m}</div><div class="l">🟡 Medium</div></div>
 </div>
 <h2>Résumé par service</h2>
-<table>
+<div class="table-card"><table>
   <tr><th>Service</th><th>🔴 Critical</th><th>🟠 High</th><th>🟡 Medium</th><th>🟢 Low</th></tr>
   {rows}
-</table>
+</table></div>
 <h2>Détails des vulnérabilités</h2>
-{detail_sections if detail_sections else '<p style="color:#8b949e">Aucune vulnérabilité détectée.</p>'}
-</body></html>"""
+{detail_sections if detail_sections else '<div class="no-vuln">✅ Aucune vulnérabilité détectée.</div>'}
+</div></body></html>"""
 
     Path(output).write_text(html)
     print(f"✅ Dashboard généré : {output}")
