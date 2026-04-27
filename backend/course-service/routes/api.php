@@ -12,8 +12,8 @@ use App\Http\Controllers\AnalyticsController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 // Route interne pour inscription depuis payment-service
-Route::post('/internal/enroll', function(\Illuminate\Http\Request \$request) {
-    \App\Http\Controllers\EnrollmentController::enrollInternal(\$request->user_id, \$request->course_id);
+Route::post('/internal/enroll', function(\Illuminate\Http\Request $request) {
+    \App\Http\Controllers\EnrollmentController::enrollInternal($request->user_id, $request->course_id);
     return response()->json(['success' => true]);
 });
 

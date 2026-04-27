@@ -87,8 +87,9 @@ export class QuizComponent implements OnInit {
         const headers = { Authorization: 'Bearer ' + token };
         allSubs.filter((s: any) => s.is_lab && s.exercise_id).forEach((s: any) => {
           this.http.get<any>(`/api/exercises/${s.exercise_id}/my-submissions`, { headers: { Authorization: 'Bearer ' + token } }).subscribe({
-            next: (res: any[]) => {
-              if (res.some((r: any) => r.passed)) this.completedLabs.add(s.exercise_id);
+            next: (res: any) => {
+              const submissions = Array.isArray(res) ? res : (res.best || res.all || []);
+              if (submissions.some((r: any) => r.passed)) this.completedLabs.add(s.exercise_id);
             },
             error: () => {}
           });
