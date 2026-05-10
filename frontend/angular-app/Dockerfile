@@ -10,7 +10,7 @@ RUN npm run build -- --configuration=production
 FROM nginx:1.28-alpine
 RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 libpng musl musl-utils zlib libuuid libxpm && rm -rf /var/cache/apk/*
 RUN rm -rf /usr/share/nginx/html/*
-COPY --from=builder /app/dist/angular-app/browser /usr/share/nginx/html
+COPY --from=builder /app/dist/learnspace/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
