@@ -32,7 +32,7 @@ import { FormsModule } from '@angular/forms';
         <!-- Tabs -->
         <div class="tab-bar">
           <button class="tab" [class.active]="activeTab==='overview'" (click)="activeTab='overview'">Vue générale</button>
-          <button *ngIf="!isStudent" class="tab" [class.active]="activeTab==='courses'" (click)="activeTab='courses'">Cours</button>
+          <button *ngIf="!isStudent && !isAdmin" class="tab" [class.active]="activeTab==='courses'" (click)="activeTab='courses'">Cours</button>
 
         </div>
 
@@ -84,7 +84,7 @@ import { FormsModule } from '@angular/forms';
           </div>
 
           <!-- Cours récents -->
-          <div class="section" *ngIf="recentCourses.length > 0">
+          <div class="section" *ngIf="recentCourses.length > 0 && !isAdmin">
             <div class="section-header">
               <h2>📚 Mes cours</h2>
               <a routerLink="/my-courses" class="see-all">Voir tout →</a>
@@ -305,6 +305,10 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.user = this.auth.getCurrentUser();
+    if (this.isAdmin) {
+      this.router.navigate(['/analytics']);
+      return;
+    }
     this.loadData();
   }
 
@@ -314,10 +318,7 @@ export class DashboardComponent implements OnInit {
         next: (s: any) => { this.adminStats = s; this.stats.courses = s.courses?.total || 0; },
         error: () => {}
       });
-      this.courseService.getCourses().subscribe({
-        next: (courses) => { this.recentCourses = courses.slice(0, 6); },
-        error: () => {}
-      });
+      // Admin : pas de cours à afficher dans le dashboard
     } else if (this.isStudent) {
       this.courseService.myCourses().subscribe({
         next: (enrollments) => {

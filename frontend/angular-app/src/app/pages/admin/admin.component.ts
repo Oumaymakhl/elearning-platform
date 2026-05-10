@@ -15,8 +15,15 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./admin.component.scss']
 })
 export class AdminComponent implements OnInit {
+
+  activeTab: 'dashboard' | 'users' = 'dashboard';
+
+  stats: any = null;
+  statsLoading = true;
+  statsError = false;
+
   users: any[] = [];
-    selectedRole: string = 'all';
+  selectedRole: string = 'all';
   searchQuery: string = '';
 
   get filteredUsers(): any[] {
@@ -30,20 +37,44 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  constructor(private http: HttpClient, private auth: AuthService, private confirmSvc: ConfirmService) {}
+  constructor(
+    private http: HttpClient,
+    private auth: AuthService,
+    private confirmSvc: ConfirmService
+  ) {}
 
   get isAdmin() { return this.auth.isAdmin(); }
 
   ngOnInit() {
+    this.loadStats();
     this.loadUsers();
   }
 
+  loadStats() {
+    this.statsLoading = true;
+    this.statsError = false;
+    this.http.get<any>('/api/admin/stats').subscribe({
+      next: (res) => { this.stats = res; this.statsLoading = false; },
+      error: () => { this.statsError = true; this.statsLoading = false; }
+    });
+  }
 
   loadUsers() {
-    this.http.get<any[]>('/api/admin/users').subscribe({
+    this.http.get<any>('/api/admin/users').subscribe({
       next: (res: any) => { this.users = res.data || res; },
       error: () => {}
     });
+  }
+
+  get userStats() { return this.stats?.users || {}; }
+  get courseStats() { return this.stats?.courses || {}; }
+  get quizStats() { return this.stats?.quizzes || {}; }
+  get recentUsers() { return this.stats?.users?.recent_users || []; }
+
+  getActiveRate(): number {
+    const total = this.userStats.total_users || 0;
+    const active = this.userStats.active_users || 0;
+    return total ? Math.round((active / total) * 100) : 0;
   }
 
   changeRole(userId: number, role: string) {
@@ -57,7 +88,13 @@ export class AdminComponent implements OnInit {
   }
 
   async deleteUser(userId: number) {
-    const ok = await this.confirmSvc.open({ icon: '🗑️', title: 'Supprimer cet utilisateur ?', message: 'Cet utilisateur sera supprimé définitivement.', okLabel: 'Supprimer', okColor: '#e53e3e' });
+    const ok = await this.confirmSvc.open({
+      icon: '🗑️',
+      title: 'Supprimer cet utilisateur ?',
+      message: 'Cet utilisateur sera supprimé définitivement.',
+      okLabel: 'Supprimer',
+      okColor: '#e53e3e'
+    });
     if (!ok) return;
     this.http.delete(`/api/admin/users/${userId}`).subscribe({
       next: () => { this.users = this.users.filter(u => u.id !== userId); },
@@ -66,14 +103,8 @@ export class AdminComponent implements OnInit {
   }
 
   editUser: any = null;
-
-  openEdit(user: any) {
-    this.editUser = { ...user };
-  }
-
-  closeEdit() {
-    this.editUser = null;
-  }
+  openEdit(user: any) { this.editUser = { ...user }; }
+  closeEdit() { this.editUser = null; }
 
   saveEdit() {
     this.http.put(`/api/admin/users/${this.editUser.id}`, {
@@ -92,7 +123,13 @@ export class AdminComponent implements OnInit {
 
   toggleActive(user: any) {
     this.http.patch(`/api/admin/users/${user.id}/toggle`, {}).subscribe({
-      next: (res: any) => { user.is_active = res.is_active; },
+      next: (res: any) => {
+        user.is_active = res.is_active;
+        if (this.stats?.users) {
+          this.stats.users.active_users = this.users.filter(u => u.is_active).length;
+          this.stats.users.inactive_users = this.users.filter(u => !u.is_active).length;
+        }
+      },
       error: (e) => { alert(e.error?.message || 'Erreur'); }
     });
   }
@@ -100,5 +137,15 @@ export class AdminComponent implements OnInit {
   getRoleClass(role: string): string {
     const classes: Record<string, string> = { admin: 'role-admin', teacher: 'role-teacher', student: 'role-student' };
     return classes[role] || '';
+  }
+
+  getRoleLabel(role: string): string {
+    const labels: Record<string, string> = { admin: 'Admin', teacher: 'Formateur', student: 'Étudiant' };
+    return labels[role] || role;
+  }
+
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
 }

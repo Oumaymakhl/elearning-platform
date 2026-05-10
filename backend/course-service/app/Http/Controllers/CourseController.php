@@ -48,10 +48,9 @@ class CourseController extends Controller
                     "type"    => "new_course",
                     "data"    => [
                         "title"        => "📚 Nouveau cours soumis",
-                        "message"      => $course->title . " a été créé et attend validation.",
+                        "message"      => $request->auth_user_name . " a ajouté le cours « " . $course->title . " ».",
                         "course_id"    => $course->id,
                         "course_title" => $course->title,
-                        "action_url"   => "/admin",
                     ]
                 ]);
             }

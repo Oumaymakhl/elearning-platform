@@ -1,25 +1,142 @@
 <div class="layout">
   <app-sidebar></app-sidebar>
   <main class="main">
-    <h1>⚙️ Administration</h1>
 
-    <!-- USERS -->
-    <div>
-      <!-- Barre de recherche -->
-      <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input
-          type="text"
-          [(ngModel)]="searchQuery"
-          placeholder="Rechercher par nom ou email..."
-          class="search-input"
-        />
-        <button *ngIf="searchQuery" (click)="searchQuery = ''" class="search-clear">✕</button>
+    <div class="page-header">
+      <div>
+        <h1>⚙️ Administration</h1>
+        <p class="page-subtitle">Gérez votre plateforme e-learning</p>
+      </div>
+      <button class="btn-refresh" (click)="loadStats()">🔄 Actualiser</button>
+    </div>
+
+    <div class="tabs">
+      <button [class.active]="activeTab === 'dashboard'" (click)="activeTab = 'dashboard'">📊 Tableau de bord</button>
+      <button [class.active]="activeTab === 'users'" (click)="activeTab = 'users'">
+        👥 Utilisateurs <span class="tab-count">{{ users.length }}</span>
+      </button>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div *ngIf="activeTab === 'dashboard'">
+
+      <div class="loading-state" *ngIf="statsLoading">
+        <div class="spinner"></div>
+        <p>Chargement des statistiques...</p>
       </div>
 
-      <!-- Filtre par rôle -->
+      <div class="error-state" *ngIf="statsError && !statsLoading">
+        <p>❌ Impossible de charger les statistiques.</p>
+        <button (click)="loadStats()">Réessayer</button>
+      </div>
+
+      <div *ngIf="!statsLoading && !statsError">
+
+        <h2 class="section-title">👥 Utilisateurs</h2>
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">👤</div>
+            <div class="stat-value">{{ userStats.total_users || 0 }}</div>
+            <div class="stat-label">Total utilisateurs</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-value">{{ userStats.students || 0 }}</div>
+            <div class="stat-label">Étudiants</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">👨‍🏫</div>
+            <div class="stat-value">{{ userStats.teachers || 0 }}</div>
+            <div class="stat-label">Formateurs</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value">{{ userStats.active_users || 0 }}</div>
+            <div class="stat-label">Comptes actifs</div>
+            <div class="stat-sub">{{ getActiveRate() }}% du total</div>
+          </div>
+          <div class="stat-card red" *ngIf="(userStats.inactive_users || 0) > 0">
+            <div class="stat-icon">🔴</div>
+            <div class="stat-value">{{ userStats.inactive_users || 0 }}</div>
+            <div class="stat-label">Comptes désactivés</div>
+          </div>
+        </div>
+
+        <h2 class="section-title">📚 Cours</h2>
+        <div class="stats-grid" *ngIf="courseStats && !courseStats.error">
+          <div class="stat-card blue">
+            <div class="stat-icon">📖</div>
+            <div class="stat-value">{{ courseStats.total_courses || 0 }}</div>
+            <div class="stat-label">Cours publiés</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">📝</div>
+            <div class="stat-value">{{ courseStats.total_enrollments || 0 }}</div>
+            <div class="stat-label">Inscriptions totales</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value">{{ courseStats.average_progress || 0 }}%</div>
+            <div class="stat-label">Progression moyenne</div>
+          </div>
+        </div>
+        <div class="service-error" *ngIf="courseStats?.error">⚠️ Service cours indisponible</div>
+
+        <h2 class="section-title">🧠 Quiz</h2>
+        <div class="stats-grid" *ngIf="quizStats && !quizStats.error">
+          <div class="stat-card blue">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value">{{ quizStats.total_quizzes || 0 }}</div>
+            <div class="stat-label">Quiz créés</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">🚀</div>
+            <div class="stat-value">{{ quizStats.total_attempts || 0 }}</div>
+            <div class="stat-label">Tentatives totales</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon">✔️</div>
+            <div class="stat-value">{{ quizStats.completed || 0 }}</div>
+            <div class="stat-label">Quiz complétés</div>
+          </div>
+          <div class="stat-card orange">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-value">{{ quizStats.pass_rate || 0 }}%</div>
+            <div class="stat-label">Taux de réussite</div>
+          </div>
+        </div>
+        <div class="service-error" *ngIf="quizStats?.error">⚠️ Service quiz indisponible</div>
+
+        <h2 class="section-title">🕐 Derniers inscrits</h2>
+        <div class="table-card" *ngIf="recentUsers.length > 0">
+          <table>
+            <thead>
+              <tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Inscription</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of recentUsers">
+                <td><div class="user-cell"><div class="avatar">{{ getInitials(u.name) }}</div><span>{{ u.name }}</span></div></td>
+                <td class="text-muted">{{ u.email }}</td>
+                <td><span [class]="getRoleClass(u.role)" class="role-badge">{{ getRoleLabel(u.role) }}</span></td>
+                <td><span class="status-badge" [class.status-active]="u.is_active" [class.status-inactive]="!u.is_active">{{ u.is_active ? '✅ Actif' : '🔴 Inactif' }}</span></td>
+                <td class="text-muted">{{ u.created_at | date:'dd/MM/yyyy' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div *ngIf="activeTab === 'users'">
+      <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher par nom ou email..." class="search-input"/>
+        <button *ngIf="searchQuery" (click)="searchQuery = ''" class="search-clear">✕</button>
+      </div>
       <div class="filter-bar">
-        <span class="filter-label">Filtrer par rôle :</span>
+        <span class="filter-label">Filtrer :</span>
         <div class="filter-buttons">
           <button [class.active]="selectedRole === 'all'" (click)="selectedRole = 'all'" class="filter-btn filter-all">Tous</button>
           <button [class.active]="selectedRole === 'student'" (click)="selectedRole = 'student'" class="filter-btn filter-student">Étudiant</button>
@@ -28,38 +145,24 @@
         </div>
         <span class="filter-count">{{ filteredUsers.length }} utilisateur(s)</span>
       </div>
-
-      <!-- Tableau -->
       <div class="table-card">
         <table>
           <thead>
-            <tr><th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr>
+            <tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let user of filteredUsers">
-              <td>{{ user.id }}</td>
-              <td>{{ user.name }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                <span [class]="getRoleClass(user.role)" class="role-badge">
-                  {{ user.role === 'admin' ? 'Admin' : user.role === 'teacher' ? 'Formateur' : 'Étudiant' }}
-                </span>
-              </td>
-              <td>
-                <button
-                  class="toggle-btn"
-                  [class.active]="user.is_active"
-                  (click)="toggleActive(user)">
-                  {{ user.is_active ? '✅ Actif' : '🔴 Inactif' }}
-                </button>
-              </td>
+              <td><div class="user-cell"><div class="avatar">{{ getInitials(user.name) }}</div><span>{{ user.name }}</span></div></td>
+              <td class="text-muted">{{ user.email }}</td>
+              <td><span [class]="getRoleClass(user.role)" class="role-badge">{{ getRoleLabel(user.role) }}</span></td>
+              <td><button class="toggle-btn" [class.active]="user.is_active" (click)="toggleActive(user)">{{ user.is_active ? '✅ Actif' : '🔴 Inactif' }}</button></td>
               <td class="actions-cell">
                 <button class="btn-edit" (click)="openEdit(user)">✏️</button>
                 <button class="btn-del" (click)="deleteUser(user.id)">🗑️</button>
               </td>
             </tr>
             <tr *ngIf="filteredUsers.length === 0">
-              <td colspan="6" class="no-results">Aucun utilisateur trouvé.</td>
+              <td colspan="5" class="no-results">Aucun utilisateur trouvé.</td>
             </tr>
           </tbody>
         </table>
@@ -68,20 +171,12 @@
 
   </main>
 
-  <!-- Modal édition -->
   <div class="modal-overlay" *ngIf="editUser" (click)="closeEdit()">
     <div class="modal" (click)="$event.stopPropagation()">
       <h3>✏️ Modifier l'utilisateur</h3>
-      <div class="field">
-        <label>Nom</label>
-        <input type="text" [(ngModel)]="editUser.name">
-      </div>
-      <div class="field">
-        <label>Email</label>
-        <input type="email" [(ngModel)]="editUser.email">
-      </div>
-      <div class="field">
-        <label>Rôle</label>
+      <div class="field"><label>Nom</label><input type="text" [(ngModel)]="editUser.name"></div>
+      <div class="field"><label>Email</label><input type="email" [(ngModel)]="editUser.email"></div>
+      <div class="field"><label>Rôle</label>
         <select [(ngModel)]="editUser.role">
           <option value="student">Étudiant</option>
           <option value="teacher">Formateur</option>
@@ -94,5 +189,4 @@
       </div>
     </div>
   </div>
-
 </div>
