@@ -104,4 +104,11 @@ class UserController extends Controller
                      ->get();
         return response()->json($users);
     }
+
+    public function allAdmins()
+    {
+        $admins = \App\Models\User::where('role', 'admin')->get(['auth_id as id', 'name', 'email', 'role']);
+        return response()->json($admins);
+    }
+
 }

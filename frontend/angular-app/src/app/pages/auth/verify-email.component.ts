@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
   template: `
     <div class="page">
       <div class="card">
-        <div class="logo">🎓 E-Learning</div>
+        <div class="logo">🎓 LearnSpace</div>
 
 
 

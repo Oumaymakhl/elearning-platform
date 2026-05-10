@@ -72,6 +72,28 @@ class EnrollmentController extends Controller
                 ], 'low');
             }
 
+
+            // Notif admin — nouvelle inscription
+            try {
+                $adminRes = \Illuminate\Support\Facades\Http::timeout(3)
+                    ->get('http://nginx-user/api/internal/admins');
+                $admins = collect($adminRes->json('data') ?? $adminRes->json() ?? [])
+                    ->pluck('id');
+                foreach ($admins as $adminId) {
+                    $this->sendNotification((int)$adminId, 'new_student', [
+                        'title'        => '📋 Nouvelle inscription',
+                        'message'      => $studentName . ' s\'est inscrit(e) au cours « ' . $course->title . ' ».',
+                        'course_id'    => $course->id,
+                        'course_title' => $course->title,
+                        'student_id'   => $studentId,
+                        'student_name' => $studentName,
+                        'action_url'   => '/admin',
+                    ], 'low');
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Admin notif failed: ' . $e->getMessage());
+            }
+
             // Notif étudiant — confirmation
             $this->sendNotification($studentId, 'course_enrolled', [
                 'title'        => '📚 Inscription confirmée',

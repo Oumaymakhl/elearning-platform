@@ -15,27 +15,29 @@ import { AuthService } from '../../services/auth.service';
   styleUrls: ['./admin.component.scss']
 })
 export class AdminComponent implements OnInit {
-  stats: any = null;
-  adminStats: any = null;
   users: any[] = [];
-  loading = true;
-  activeTab = 'stats';
+    selectedRole: string = 'all';
+  searchQuery: string = '';
+
+  get filteredUsers(): any[] {
+    return this.users.filter(u => {
+      const matchRole = this.selectedRole === 'all' || u.role === this.selectedRole;
+      const q = this.searchQuery.toLowerCase().trim();
+      const matchSearch = !q ||
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q);
+      return matchRole && matchSearch;
+    });
+  }
 
   constructor(private http: HttpClient, private auth: AuthService, private confirmSvc: ConfirmService) {}
 
   get isAdmin() { return this.auth.isAdmin(); }
 
   ngOnInit() {
-    this.loadStats();
     this.loadUsers();
   }
 
-  loadStats() {
-    this.http.get('/api/admin/stats').subscribe({
-      next: (s) => { this.stats = s; this.adminStats = s; this.loading = false; },
-      error: () => { this.loading = false; }
-    });
-  }
 
   loadUsers() {
     this.http.get<any[]>('/api/admin/users').subscribe({
@@ -84,6 +86,13 @@ export class AdminComponent implements OnInit {
         if (idx !== -1) this.users[idx] = { ...this.users[idx], ...this.editUser };
         this.closeEdit();
       },
+      error: (e) => { alert(e.error?.message || 'Erreur'); }
+    });
+  }
+
+  toggleActive(user: any) {
+    this.http.patch(`/api/admin/users/${user.id}/toggle`, {}).subscribe({
+      next: (res: any) => { user.is_active = res.is_active; },
       error: (e) => { alert(e.error?.message || 'Erreur'); }
     });
   }

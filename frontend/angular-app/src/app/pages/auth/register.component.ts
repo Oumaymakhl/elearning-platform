@@ -73,7 +73,7 @@ import { AuthService } from '../../services/auth.service';
 
         <div class="form-side">
           <div class="form-card">
-            <div class="brand">🎓 <span>E-Learning</span></div>
+            <div class="brand">🎓 <span>LearnSpace</span></div>
             <h3>Créer un compte</h3>
             <p class="sub">Remplissez les informations ci-dessous</p>
 

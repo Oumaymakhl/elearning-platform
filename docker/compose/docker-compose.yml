@@ -659,6 +659,20 @@ services:
     depends_on:
       - mysql-payment
     restart: unless-stopped
+  nginx-chatbot:
+    build:
+      context: ./nginx-secure
+      dockerfile: Dockerfile
+    container_name: nginx-chatbot
+    ports:
+      - "8011:80"
+    volumes:
+      - ./nginx/chatbot.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - elearning-network
+    depends_on:
+      - chatbot-service
+    restart: unless-stopped
 
 networks:
   elearning-network:

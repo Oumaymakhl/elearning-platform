@@ -48,7 +48,7 @@ import { AuthService } from '../../services/auth.service';
         </div>
         <div class="form-side">
           <div class="form-card">
-            <div class="brand">🎓 <span>E-Learning</span></div>
+            <div class="brand">🎓 <span>LearnSpace</span></div>
             <h3>Connexion</h3>
             <p class="sub">Bienvenue ! Entrez vos identifiants.</p>
             <form [formGroup]="form" (ngSubmit)="submit()">

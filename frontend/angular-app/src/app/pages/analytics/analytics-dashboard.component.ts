@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { AnalyticsService } from '../../services/analytics.service';
 import { AuthService } from '../../services/auth.service';
@@ -8,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-analytics-dashboard',
   standalone: true,
-  imports: [CommonModule, SidebarComponent, RouterLink],
+  imports: [CommonModule, SidebarComponent, RouterLink, FormsModule],
   template: `
     <div class="layout">
       <app-sidebar></app-sidebar>
@@ -24,6 +25,20 @@ import { AuthService } from '../../services/auth.service';
           </div>
         </div>
  
+
+        <!-- Filtre par période -->
+        <div class="period-bar">
+          <span class="period-label">📅 Période :</span>
+          <div class="period-buttons">
+            <button *ngFor="let p of periods"
+              [class.active]="selectedDays === p.days"
+              (click)="setPeriod(p.days)"
+              class="period-btn">
+              {{ p.label }}
+            </button>
+          </div>
+        </div>
+
         <div class="loading-state" *ngIf="loading">
           <div class="spinner"></div>
           <span>Chargement des données…</span>
@@ -201,6 +216,13 @@ import { AuthService } from '../../services/auth.service';
     .error-state{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:4rem;color:#64748b}
     .error-state span{font-size:2rem}
     .error-state button{padding:.5rem 1.25rem;background:#1E3A5F;color:white;border:none;border-radius:8px;cursor:pointer}
+    .period-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .period-label{color:#555;font-size:.9rem;font-weight:600;white-space:nowrap}
+    .period-buttons{display:flex;gap:.5rem;flex-wrap:wrap}
+    .period-btn{padding:.4rem 1rem;border:2px solid #e2e8f0;background:white;border-radius:20px;cursor:pointer;font-size:.85rem;font-weight:600;color:#1E3A5F;transition:all .2s}
+    .period-btn:hover{border-color:#4A90D9;color:#4A90D9}
+    .period-btn.active{background:#1E3A5F;border-color:#1E3A5F;color:white}
+
   `]
 })
 export class AnalyticsDashboardComponent implements OnInit {
@@ -208,6 +230,15 @@ export class AnalyticsDashboardComponent implements OnInit {
   quizStats: any = null;
   loading = true;
   error = false;
+  selectedDays: number = 180;
+
+  periods = [
+    { label: '7 jours',  days: 7   },
+    { label: '30 jours', days: 30  },
+    { label: '3 mois',   days: 90  },
+    { label: '6 mois',   days: 180 },
+    { label: '1 an',     days: 365 },
+  ];
  
   get isAdmin() { return this.auth.isAdmin(); }
   get maxEnrollment(): number {
@@ -225,7 +256,7 @@ export class AnalyticsDashboardComponent implements OnInit {
   load() {
     this.loading = true;
     this.error = false;
-    this.analyticsService.getTeacherStats().subscribe({
+    this.analyticsService.getTeacherStats(this.selectedDays).subscribe({
       next: (data) => { this.stats = data; this.loading = false; },
       error: () => { this.error = true; this.loading = false; }
     });
@@ -235,6 +266,11 @@ export class AnalyticsDashboardComponent implements OnInit {
     });
   }
  
+  setPeriod(days: number) {
+    this.selectedDays = days;
+    this.load();
+  }
+
   getBarHeight(count: number, max: number): number {
     return Math.max(4, Math.round((count / max) * 120));
   }

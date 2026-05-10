@@ -41,7 +41,7 @@ import { HttpClient } from '@angular/common/http';
         </div>
         <div class="form-side">
           <div class="form-card">
-            <div class="brand">🎓 <span>E-Learning</span></div>
+            <div class="brand">🎓 <span>LearnSpace</span></div>
             <h3>Réinitialiser</h3>
             <p class="sub">Entrez votre adresse email pour recevoir le lien.</p>
             <div class="success-box" *ngIf="sent">

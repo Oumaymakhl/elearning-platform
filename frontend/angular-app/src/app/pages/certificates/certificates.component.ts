@@ -40,7 +40,7 @@ import { AuthService } from '../../services/auth.service';
               <div class="cert-badge">Certifié</div>
             </div>
             <div class="cert-card-body">
-              <div class="cert-platform">E-Learning Platform</div>
+              <div class="cert-platform">LearnSpace Platform</div>
               <h3 class="cert-course-title">{{ c.course_title }}</h3>
               <div class="cert-student">{{ c.student_name }}</div>
               <div class="cert-info">

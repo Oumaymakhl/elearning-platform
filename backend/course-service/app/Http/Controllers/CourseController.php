@@ -35,6 +35,28 @@ class CourseController extends Controller
                 ]);
             }
         } catch (\Exception $e) {}
+
+        // Notif admin — nouveau cours créé
+        try {
+            $adminRes = Http::timeout(3)->get('http://nginx-user/api/internal/admins');
+            $admins = collect($adminRes->json('data') ?? $adminRes->json() ?? [])
+                ->filter(fn($u) => ($u['role'] ?? '') === 'admin')
+                ->pluck('id');
+            foreach ($admins as $adminId) {
+                Http::post("http://nginx-notification/api/internal/send", [
+                    "user_id" => (int)$adminId,
+                    "type"    => "new_course",
+                    "data"    => [
+                        "title"        => "📚 Nouveau cours soumis",
+                        "message"      => $course->title . " a été créé et attend validation.",
+                        "course_id"    => $course->id,
+                        "course_title" => $course->title,
+                        "action_url"   => "/admin",
+                    ]
+                ]);
+            }
+        } catch (\Exception $e) {}
+
         return response()->json($course, 201);
     }
     public function show($id) {

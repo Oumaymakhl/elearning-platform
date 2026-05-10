@@ -140,6 +140,23 @@ class AuthController extends Controller
             $admins = User::where('role', 'admin')->get();
             foreach ($admins as $admin) {
                 Mail::to($admin->email)->send(new \App\Mail\TeacherPendingApprovalMail($user));
+
+                // Notification in-app pour l'admin
+                try {
+                    \Illuminate\Support\Facades\Http::timeout(3)
+                        ->post('http://nginx-notification/api/internal/send', [
+                            'user_id'    => $admin->id,
+                            'type'       => 'new_student',
+                            'priority'   => 'high',
+                            'action_url' => '/teacher-approvals',
+                            'data'       => [
+                                'title'   => '👨‍🏫 Nouvel enseignant en attente',
+                                'message' => $user->name . ' (' . $user->email . ') attend votre approbation.',
+                            ],
+                        ]);
+                } catch (\Exception $e) {
+                    \Log::warning('Notif admin failed: ' . $e->getMessage());
+                }
             }
         }
 
@@ -194,6 +211,25 @@ class AuthController extends Controller
                 \Log::warning('User sync failed: ' . $e->getMessage());
             }
         }
+        // Notification in-app pour l'enseignant
+        try {
+            \Illuminate\Support\Facades\Http::timeout(3)
+                ->post('http://nginx-notification/api/internal/send', [
+                    'user_id'  => $teacher->id,
+                    'type'     => $request->approved ? 'course_completed' : 'quiz_failed',
+                    'priority' => $request->approved ? 'high' : 'medium',
+                    'data'     => [
+                        'title'   => $request->approved ? '🎉 Compte approuvé !' : '❌ Compte refusé',
+                        'message' => $request->approved
+                            ? 'Votre compte enseignant a été approuvé. Vous pouvez maintenant créer des cours.'
+                            : 'Votre compte enseignant a été refusé.' . ($request->reason ? ' Raison : ' . $request->reason : ''),
+                        'action_url' => $request->approved ? '/dashboard' : null,
+                    ],
+                ]);
+        } catch (\Exception $e) {
+            \Log::warning('Notif teacher failed: ' . $e->getMessage());
+        }
+
         $msg = $request->approved ? 'Enseignant approuvé.' : 'Enseignant rejeté.';
         return response()->json(['message' => $msg, 'user' => $teacher]);
     }
@@ -227,6 +263,16 @@ class AuthController extends Controller
         return response()->json([
             'cv_url' => 'http://localhost:8000/storage/' . $teacher->cv_path
         ]);
+    }
+
+    public function internalToggleActive(Request $request)
+    {
+        $user = User::where('id', $request->auth_id)->first();
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+        $user->forceFill(['is_active' => $request->is_active])->save();
+        return response()->json(['message' => 'Updated', 'is_active' => $user->is_active]);
     }
 
     public function logout()

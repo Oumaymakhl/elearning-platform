@@ -48,7 +48,7 @@ import { AuthService } from '../../services/auth.service';
 
               <div class="cert-header">
                 <div class="cert-logo">🎓</div>
-                <h1 class="cert-platform">E-Learning Platform</h1>
+                <h1 class="cert-platform">LearnSpace Platform</h1>
                 <p class="cert-subtitle">Certificat de Réussite</p>
               </div>
 
@@ -75,7 +75,7 @@ import { AuthService } from '../../services/auth.service';
               <div class="cert-footer">
                 <div class="cert-sig-left">
                   <div class="cert-sig-line"></div>
-                  <div class="cert-sig-name">E-Learning Platform</div>
+                  <div class="cert-sig-name">LearnSpace Platform</div>
                   <div class="cert-sig-label">Responsable Formation</div>
                 </div>
                 <div class="cert-center">
@@ -83,7 +83,7 @@ import { AuthService } from '../../services/auth.service';
                   <div class="cert-number">N° {{ certificate.certificate_number }}</div>
                 </div>
                 <div class="cert-sig-right">
-                  <div class="cert-sig-auto">E-Learning</div>
+                  <div class="cert-sig-auto">LearnSpace</div>
                   <div class="cert-sig-line"></div>
 
                 </div>

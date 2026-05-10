@@ -73,6 +73,18 @@ class AdminController extends Controller
         $this->checkAdmin($request);
         $user = User::findOrFail($id);
         $user->update(["is_active" => !$user->is_active]);
+
+        // Synchroniser avec auth-service
+        try {
+            \Illuminate\Support\Facades\Http::timeout(3)
+                ->post('http://nginx-auth/api/internal/toggle-active', [
+                    'auth_id'   => $user->auth_id,
+                    'is_active' => $user->is_active,
+                ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::warning('Sync auth toggle failed: ' . $e->getMessage());
+        }
+
         return response()->json(["is_active" => $user->is_active, "user" => $user]);
     }
 

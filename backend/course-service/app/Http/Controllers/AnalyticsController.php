@@ -12,6 +12,12 @@ class AnalyticsController extends Controller
     {
         $userId = $request->auth_user_id;
         $role   = $request->auth_user_role;
+
+        // Filtre par période
+        $days      = (int) $request->query('days', 180);
+        $allowedDays = [7, 30, 90, 180, 365];
+        if (!in_array($days, $allowedDays)) $days = 180;
+        $startDate = now()->subDays($days);
  
         $coursesQuery = Course::query();
         if ($role === 'teacher') {
@@ -21,13 +27,14 @@ class AnalyticsController extends Controller
         $courses   = $coursesQuery->withCount('enrollments')->get();
         $courseIds = $courses->pluck('id');
  
-        $totalEnrollments = Enrollment::whereIn('course_id', $courseIds)->count();
-        $completed        = Enrollment::whereIn('course_id', $courseIds)->where('progress', 100)->count();
-        $avgProgress      = Enrollment::whereIn('course_id', $courseIds)->avg('progress') ?? 0;
+        $totalEnrollments = Enrollment::whereIn('course_id', $courseIds)->where('created_at', '>=', $startDate)->count();
+        $completed        = Enrollment::whereIn('course_id', $courseIds)->where('created_at', '>=', $startDate)->where('progress', 100)->count();
+        $avgProgress      = Enrollment::whereIn('course_id', $courseIds)->where('created_at', '>=', $startDate)->avg('progress') ?? 0;
  
+        $groupFormat = $days <= 30 ? '%Y-%m-%d' : '%Y-%m';
         $enrollmentsByMonth = Enrollment::whereIn('course_id', $courseIds)
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count")
+            ->where('created_at', '>=', $startDate)
+            ->selectRaw("DATE_FORMAT(created_at, '$groupFormat') as month, COUNT(*) as count")
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -62,6 +69,7 @@ class AnalyticsController extends Controller
             ->values();
  
         $activeStudents = Enrollment::whereIn('course_id', $courseIds)
+            ->where('created_at', '>=', $startDate)
             ->where('progress', '>', 0)
             ->where('progress', '<', 100)
             ->count();

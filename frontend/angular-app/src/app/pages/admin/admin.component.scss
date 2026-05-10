@@ -46,3 +46,34 @@ tr:hover td{background:#f8f9fa}
 .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem}
 .btn-save{flex:1;padding:.75rem;background:#1E3A5F;color:white;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .btn-cancel{padding:.75rem 1.25rem;background:#f0f4f8;color:#666;border:none;border-radius:8px;cursor:pointer}
+/* ── Filtre par rôle ── */
+.filter-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;flex-wrap:wrap}
+.filter-label{color:#555;font-size:.9rem;font-weight:600;white-space:nowrap}
+.filter-buttons{display:flex;gap:.5rem;flex-wrap:wrap}
+.filter-btn{padding:.4rem 1rem;border:2px solid #e2e8f0;background:white;border-radius:20px;cursor:pointer;font-size:.85rem;font-weight:600;transition:all .2s}
+.filter-btn:hover{opacity:.85}
+.filter-all{color:#1E3A5F}
+.filter-all.active{background:#1E3A5F;border-color:#1E3A5F;color:white}
+.filter-student{color:#276749}
+.filter-student.active{background:#c6f6d5;border-color:#68d391;color:#276749}
+.filter-teacher{color:#2b6cb0}
+.filter-teacher.active{background:#bee3f8;border-color:#63b3ed;color:#2b6cb0}
+.filter-admin{color:#c53030}
+.filter-admin.active{background:#fed7d7;border-color:#fc8181;color:#c53030}
+.filter-count{margin-left:auto;color:#888;font-size:.85rem;white-space:nowrap}
+.no-results{text-align:center;color:#999;padding:2rem;font-style:italic}
+
+/* ── Barre de recherche ── */
+.search-bar{display:flex;align-items:center;gap:.5rem;background:white;border:2px solid #e2e8f0;border-radius:10px;padding:.5rem 1rem;margin-bottom:.75rem;transition:border-color .2s}
+.search-bar:focus-within{border-color:#4A90D9}
+.search-icon{font-size:1rem;color:#aaa}
+.search-input{flex:1;border:none;outline:none;font-size:.9rem;color:#333;background:transparent}
+.search-input::placeholder{color:#bbb}
+.search-clear{background:none;border:none;cursor:pointer;color:#aaa;font-size:.9rem;padding:.1rem .3rem;border-radius:4px;line-height:1}
+.search-clear:hover{color:#e53e3e;background:#fff5f5}
+
+/* ── Toggle actif/inactif ── */
+.toggle-btn{padding:.3rem .8rem;border-radius:20px;border:none;cursor:pointer;font-size:.78rem;font-weight:600;transition:all .2s}
+.toggle-btn.active{background:#c6f6d5;color:#276749}
+.toggle-btn:not(.active){background:#fed7d7;color:#c53030}
+.toggle-btn:hover{opacity:.8}

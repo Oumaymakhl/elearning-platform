@@ -13,7 +13,7 @@ import { Subscription } from 'rxjs';
   template: `
     <aside class="sidebar">
       <div class="logo">
-        <span>🎓 E-Learning</span>
+        <span>🎓 LearnSpace</span>
         <div class="notif-wrap">
           <button class="notif-btn" (click)="toggleNotif()">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

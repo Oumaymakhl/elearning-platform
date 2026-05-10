@@ -8,8 +8,9 @@ export class AnalyticsService {
 
   constructor(private http: HttpClient) {}
 
-  getTeacherStats(): Observable<any> {
-    return this.http.get(`${this.api}/analytics/teacher`);
+  getTeacherStats(days?: number): Observable<any> {
+    const params = days ? `?days=${days}` : '';
+    return this.http.get(`${this.api}/analytics/teacher${params}`);
   }
   getCourseStats(courseId: number): Observable<any> {
     return this.http.get(`${this.api}/analytics/courses/${courseId}`);

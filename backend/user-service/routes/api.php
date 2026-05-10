@@ -36,3 +36,4 @@ Route::middleware('jwt')->group(function () {
 Route::get('/internal/students', [UserController::class, 'allStudents']);
 Route::post('/internal/sync', [UserController::class, 'sync']);
 Route::post('/internal/students-by-ids', [UserController::class, 'studentsByIds']);
+Route::get('/internal/admins', [UserController::class, 'allAdmins']);
