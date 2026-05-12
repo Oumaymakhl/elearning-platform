@@ -28,7 +28,7 @@ interface Conversation { id: number; title: string; messages: Message[]; }
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: linear-gradient(135deg, #f5f0ff 0%, #f7f6f3 100%);
+      background: linear-gradient(135deg, #eef2f7 0%, #e8eef5 100%);
     }
  
     /* ── Top header bar ── */
@@ -40,8 +40,8 @@ interface Conversation { id: number; title: string; messages: Message[]; }
       justify-content: space-between;
       padding: 0 1.5rem;
       height: 58px;
-      background: #ffffff;
-      border-bottom:   1px solid #e9e4f5;
+      background: white; box-shadow: 0 2px 12px rgba(30,58,95,0.08);
+      border-bottom: 1px solid #dde3ec;
       flex-shrink: 0;
     }
  
@@ -102,13 +102,13 @@ interface Conversation { id: number; title: string; messages: Message[]; }
     .sidebar-conv {
       width: 240px;
       min-width: 240px;
-      background: #faf9fc;
+      background: #f0f4f8;
       border-radius: 14px;
       padding: 1rem;
       display: flex;
       flex-direction: column;
       gap: 6px;
-      border:  1px solid #e9e4f5;
+      border: 1px solid #dde3ec;
       overflow-y: auto;
       transition: all 0.25s ease;
       flex-shrink: 0;
@@ -237,7 +237,7 @@ interface Conversation { id: number; title: string; messages: Message[]; }
       box-shadow: 0 8px 30px rgba(108, 99, 255, 0.08);
       box-shadow: 0 8px 30px rgba(108, 99, 255, 0.08);
       flex: 1;
-      background: #fcfaff;
+      background: #e8edf3;
       border-radius: 14px;
       display: flex;
       flex-direction: column;
@@ -431,7 +431,7 @@ interface Conversation { id: number; title: string; messages: Message[]; }
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #fcfaff;
+      background: #e8edf3;
       border:  1.5px solid #d8d3f8;
       border-radius: 12px;
       padding: 6px 6px 6px 14px;

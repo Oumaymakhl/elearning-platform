@@ -68,7 +68,7 @@ import { FormsModule } from '@angular/forms';
         </div>
 
         <!-- ══ KPI CARDS ══ -->
-        <div class="kpi-grid" *ngIf="!isAdmin">
+        <div class="kpi-grid" *ngIf="!isAdmin && isStudent">
           <div class="kpi-card" [class.kpi-blue]="true">
             <div class="kpi-icon">📚</div>
             <div class="kpi-body">
@@ -143,7 +143,7 @@ import { FormsModule } from '@angular/forms';
           <div class="content-panel wide" *ngIf="recentCourses.length > 0 && !isAdmin">
             <div class="panel-header">
               <h2>📚 Mes cours</h2>
-              <a routerLink="/my-courses" class="see-all">Voir tout →</a>
+              <a routerLink="/courses" class="see-all">Voir tout →</a>
             </div>
             <div class="course-grid">
               <div class="course-card" *ngFor="let course of recentCourses" [routerLink]="['/courses', course.id]">

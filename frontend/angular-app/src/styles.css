@@ -1,0 +1,119 @@
+
+body.dark {
+  --bg: #1C2333;
+  --bg-card: #252D40;
+  --bg-hover: #2D3650;
+  --text: #E8EAF6;
+  --text-muted: #9BA3C7;
+  --border: rgba(255,255,255,.08);
+}
+
+body:not(.dark) {
+  --bg: #F7F6F3;
+  --bg-card: #FFFFFF;
+  --bg-hover: #F0F0F5;
+  --text: #1A1A2E;
+  --text-muted: #9B97A8;
+  --border: #ECEAE4;
+}
+
+/* ── DARK MODE GLOBAL ── */
+body.dark { background:#1C2333; color:#E8EAF6; }
+body.dark .main { background:#1C2333 !important; }
+body.dark .table-card,
+body.dark .stat-card,
+body.dark .form-card,
+body.dark .help-card,
+body.dark .steps-card,
+body.dark .chat-panel,
+body.dark .panel,
+body.dark .content-panel,
+body.dark .kpi-card,
+body.dark .course-card,
+body.dark .cert-card,
+body.dark .filters,
+body.dark .chat-topbar,
+body.dark .input-area,
+body.dark .chat-header { background:#252D40 !important; border-color:rgba(255,255,255,.08) !important; }
+body.dark .sidebar-conv { background:#252D40 !important; border-color:rgba(255,255,255,.08) !important; }
+body.dark table thead tr { background:#1C2333 !important; }
+body.dark td { border-color:rgba(255,255,255,.05) !important; color:#D0D3E8 !important; }
+body.dark tbody tr:hover td { background:rgba(255,255,255,.04) !important; }
+body.dark h1,body.dark h2,body.dark h3,body.dark .chat-name,body.dark .conv-name { color:#FFFFFF !important; }
+body.dark .subtitle,body.dark .stat-label,body.dark .email,body.dark .conv-last { color:#9BA3C7 !important; }
+body.dark input,body.dark textarea,body.dark select { background:#1C2333 !important; color:#E8EAF6 !important; border-color:rgba(255,255,255,.12) !important; }
+body.dark input::placeholder,body.dark textarea::placeholder { color:rgba(255,255,255,.3) !important; }
+body.dark .msg-bubble.assistant { background:#2D3650 !important; border-color:rgba(255,255,255,.08) !important; color:#E8EAF6 !important; }
+body.dark .day-sep span { background:#1C2333 !important; }
+body.dark .day-sep::before,body.dark .day-sep::after { background:rgba(255,255,255,.08) !important; }
+body.dark .msg-body { background:#2D3650 !important; color:#E8EAF6 !important; border-color:rgba(255,255,255,.08) !important; }
+body.dark .icon-btn { background:#2D3650 !important; border-color:rgba(255,255,255,.08) !important; color:#9BA3C7 !important; }
+body.dark .badge { background:rgba(255,255,255,.08) !important; color:#D0D3E8 !important; }
+body.dark .page-hero { background:linear-gradient(135deg,#2D3B8E,#1a237e) !important; }
+
+/* ── DARK MODE FORCE ── */
+body.dark * { transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
+body.dark app-root { background:#1C2333; }
+
+body.dark [class*="main"],
+body.dark [class*="page"],
+body.dark [class*="content"] {
+  background:#1C2333 !important;
+  color:#E8EAF6 !important;
+}
+
+body.dark [class*="card"],
+body.dark [class*="panel"],
+body.dark [class*="table"],
+body.dark [class*="modal"],
+body.dark [class*="form"],
+body.dark [class*="box"],
+body.dark [class*="wrap"],
+body.dark [class*="chat"],
+body.dark [class*="input-area"],
+body.dark [class*="topbar"] {
+  background:#252D40 !important;
+  border-color:rgba(255,255,255,.08) !important;
+  color:#E8EAF6 !important;
+}
+
+body.dark table { background:#252D40 !important; }
+body.dark thead tr { background:#1C2333 !important; }
+body.dark th { color:#9BA3C7 !important; }
+body.dark td { color:#D0D3E8 !important; border-color:rgba(255,255,255,.06) !important; }
+body.dark tbody tr:hover td { background:rgba(255,255,255,.04) !important; }
+
+body.dark h1,body.dark h2,body.dark h3,body.dark h4 { color:#FFFFFF !important; }
+body.dark p,body.dark span,body.dark label,body.dark div { color:#D0D3E8; }
+
+body.dark input,
+body.dark textarea,
+body.dark select {
+  background:#1C2333 !important;
+  color:#E8EAF6 !important;
+  border-color:rgba(255,255,255,.12) !important;
+}
+body.dark input::placeholder,
+body.dark textarea::placeholder { color:rgba(255,255,255,.3) !important; }
+
+body.dark .stat-card.blue,
+body.dark .stat-card.green,
+body.dark .stat-card.purple { background:#252D40 !important; }
+
+body.dark .kpi-card { background:#252D40 !important; color:#E8EAF6 !important; }
+body.dark .kpi-value { color:#FFFFFF !important; }
+body.dark .kpi-label { color:#9BA3C7 !important; }
+
+body.dark .msg-bubble.user { background:#6C63FF !important; color:#fff !important; }
+body.dark .msg-bubble.assistant,
+body.dark .msg-body { background:#2D3650 !important; color:#E8EAF6 !important; border-color:rgba(255,255,255,.08) !important; }
+
+body.dark .badge { background:rgba(255,255,255,.08) !important; color:#D0D3E8 !important; }
+body.dark .badge.active { background:rgba(34,197,94,.2) !important; color:#86efac !important; }
+
+body.dark .course-card { background:#252D40 !important; }
+body.dark .course-card .course-title { color:#FFFFFF !important; }
+
+body.dark .empty-state,
+body.dark .empty-chat { color:#9BA3C7 !important; }
+body.dark .empty-state h3 { color:#FFFFFF !important; }

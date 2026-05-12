@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ThemeService } from '../../services/theme.service';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { Subscription } from 'rxjs';
@@ -117,6 +118,7 @@ import { Subscription } from 'rxjs';
             <span class="user-role">{{ getRoleLabel() }}</span>
           </div>
         </div>
+        <button class="btn-theme" (click)="toggleTheme(); $event.stopPropagation()" [title]="isDark ? 'Mode clair' : 'Mode sombre'">{{ isDark ? "☀️" : "🌙" }}</button>
         <button class="btn-logout" (click)="logout()">⏻</button>
       </div>
     
@@ -153,6 +155,8 @@ import { Subscription } from 'rxjs';
     .user-details{display:flex;flex-direction:column;min-width:0}
     .user-name{font-size:.85rem;font-weight:700;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .user-role{font-size:.72rem;color:rgba(255,255,255,.5)}
+    .btn-theme{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:8px;padding:.5rem .6rem;cursor:pointer;font-size:1rem;transition:.2s;flex-shrink:0}
+    .btn-theme:hover{background:rgba(255,200,0,.2);border-color:rgba(255,200,0,.3);}
     .btn-logout{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);border-radius:8px;padding:.5rem .6rem;cursor:pointer;font-size:1rem;transition:.2s;flex-shrink:0}
     .btn-logout:hover{background:rgba(220,53,69,.3);color:white;border-color:rgba(220,53,69,.4)}
 
@@ -246,6 +250,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   constructor(
     private auth: AuthService,
+    private themeService: ThemeService,
     private router: Router,
     private notifService: NotificationService
   ) {
@@ -278,6 +283,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   onSearchInput() {}
 
   toggleNotif(): void { this.notifOpen = !this.notifOpen; }
+
+  get isDark(): boolean { return this.themeService.isDark(); }
+  toggleTheme() { this.themeService.toggle(); }
 
   markAsRead(n: Notification): void {
     if (!n.is_read) this.notifService.markAsRead(n.id);
