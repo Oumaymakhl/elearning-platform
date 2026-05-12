@@ -1,19 +1,19 @@
 <div class="layout">
   <app-sidebar></app-sidebar>
-
   <main class="main">
-    <!-- Header -->
-    <div class="page-header">
-      <div class="header-left">
+
+    <div class="page-hero">
+      <div class="hero-left">
         <h1>Explorez nos cours</h1>
-        <p>{{ filteredCourses.length }} cours disponibles</p>
+        <p>Développez vos compétences à votre rythme</p>
+        <a routerLink="/courses/create" class="btn-create" *ngIf="isTeacher || isAdmin">+ Créer un cours</a>
       </div>
-      <a routerLink="/courses/create" class="btn-create" *ngIf="isTeacher || isAdmin">
-        + Créer un cours
-      </a>
+      <div class="hero-badge">
+        <span class="badge-count">{{ filteredCourses.length }}</span>
+        <span>cours disponibles</span>
+      </div>
     </div>
 
-    <!-- Filtres -->
     <div class="filters">
       <div class="search-box">
         <span class="search-icon">🔍</span>
@@ -27,25 +27,18 @@
       </div>
     </div>
 
-    <!-- Grid -->
     <div class="courses-grid">
       <div class="course-card" *ngFor="let course of filteredCourses">
-
-        <!-- Cover : image si dispo, sinon couleur + icône -->
         <div class="card-cover"
              [style.background]="course.image_path ? 'none' : getCourseColor(course.id)"
              [style.padding]="course.image_path ? '0' : null">
-          <img *ngIf="course.image_path"
-               [src]="course.image_path"
-               alt="{{ course.title }}"
-               class="cover-img">
+          <img *ngIf="course.image_path" [src]="course.image_path" alt="{{ course.title }}" class="cover-img">
           <div class="cover-icon" *ngIf="!course.image_path">{{ getCourseIcon(course.title) }}</div>
           <span class="level-tag level-{{course.level}}">
             {{ course.level === 'debutant' ? '🟢 Débutant' : course.level === 'intermediaire' ? '🟡 Intermédiaire' : '🔴 Avancé' }}
           </span>
           <button class="btn-delete-card" *ngIf="isTeacher || isAdmin" (click)="deleteCourse(course.id, $event)">🗑️</button>
         </div>
-
         <div class="card-body">
           <div class="card-title-row">
             <h3>{{ course.title }}</h3>
@@ -55,7 +48,7 @@
               <span class="csi-count">({{ ratingsMap[course.id].count }})</span>
             </div>
           </div>
-          <p>{{ (course.description || '').slice(0, 80) }}{{ course.description?.length > 80 ? '...' : '' }}</p>
+          <p>{{ (course.description || '').slice(0, 90) }}{{ course.description?.length > 90 ? '…' : '' }}</p>
           <div class="card-footer">
             <span class="lang-tag">🌐 {{ course.language || 'FR' }}</span>
             <a [routerLink]="['/courses', course.id]" class="btn-view">Voir le cours →</a>
@@ -64,11 +57,11 @@
       </div>
     </div>
 
-    <!-- Empty -->
-    <div class="empty-state" *ngIf="filteredCourses.length === 0">
+    <div class="empty-state" *ngIf="filteredCourses.length === 0 && !loading">
       <div class="empty-icon">📭</div>
       <h3>Aucun cours trouvé</h3>
       <p>Essayez un autre mot-clé ou filtre</p>
     </div>
+
   </main>
 </div>
