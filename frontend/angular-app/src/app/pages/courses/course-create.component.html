@@ -1,68 +1,145 @@
 <div class="layout">
   <app-sidebar></app-sidebar>
   <main class="main">
-    <a routerLink="/courses" class="back">← Retour</a>
-    <h1>➕ Créer un nouveau cours</h1>
-    <div class="form-card">
-      <form [formGroup]="form" (ngSubmit)="submit()">
 
-        <!-- IMAGE UPLOAD -->
-        <div class="field">
-          <label>Image du cours</label>
-          <div class="upload-area" *ngIf="!imagePreview">
-            <label class="upload-label" for="imgInput">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              <span>Cliquez pour choisir une image</span>
-              <small>PNG, JPG — max 10MB</small>
-            </label>
-            <input id="imgInput" type="file" accept="image/*" (change)="onImageSelected($event)" hidden>
+    <a routerLink="/courses" class="back">← Retour</a>
+
+    <div class="page-header">
+      <h1>✨ Créer un nouveau cours</h1>
+      <p class="page-sub">Partagez vos connaissances avec vos étudiants</p>
+    </div>
+
+    <div class="page-grid">
+
+      <!-- FORMULAIRE -->
+      <div class="form-card">
+        <div class="card-top-bar"></div>
+        <form [formGroup]="form" (ngSubmit)="submit()">
+
+          <div class="form-section">
+            <div class="section-label">📸 Image du cours</div>
+            <div class="upload-area" *ngIf="!imagePreview">
+              <label class="upload-label" for="imgInput">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>Cliquez pour choisir une image</span>
+                <small>PNG, JPG — max 10MB</small>
+              </label>
+              <input id="imgInput" type="file" accept="image/*" (change)="onImageSelected($event)" hidden>
+            </div>
+            <div class="img-preview" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Preview">
+              <div class="img-overlay">
+                <span class="img-name">{{ imageName }}</span>
+                <button type="button" class="img-remove" (click)="removeImage()">✕ Supprimer</button>
+              </div>
+            </div>
           </div>
-          <div class="img-preview" *ngIf="imagePreview">
-            <img [src]="imagePreview" alt="Preview">
-            <div class="img-overlay">
-              <span class="img-name">{{ imageName }}</span>
-              <button type="button" class="img-remove" (click)="removeImage()">✕ Supprimer</button>
+
+          <div class="form-section">
+            <div class="section-label">📝 Informations générales</div>
+            <div class="field">
+              <label>Titre du cours *</label>
+              <input type="text" formControlName="title" placeholder="Ex: Introduction à Python">
+            </div>
+            <div class="field">
+              <label>Description *</label>
+              <textarea formControlName="description" rows="4" placeholder="Décrivez votre cours..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="section-label">⚙️ Paramètres</div>
+            <div class="field-row">
+              <div class="field">
+                <label>Niveau</label>
+                <select formControlName="level">
+                  <option value="debutant">🟢 Débutant</option>
+                  <option value="intermediaire">🟡 Intermédiaire</option>
+                  <option value="avance">🔴 Avancé</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Prix</label>
+                <div class="free-toggle">
+                  <label class="toggle-label">
+                    <input type="checkbox" formControlName="is_free">
+                    <span class="toggle-text">Cours gratuit</span>
+                  </label>
+                </div>
+                <input type="number" formControlName="price" placeholder="Ex: 29.99" min="0" step="0.01"
+                  *ngIf="!form.get('is_free')?.value" class="price-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="error" *ngIf="error">⚠️ {{ error }}</div>
+          <div class="success" *ngIf="success">✅ {{ success }}</div>
+
+          <button type="submit" class="submit-btn" [disabled]="loading || form.invalid">
+            <span *ngIf="!loading">🚀 Créer le cours</span>
+            <span *ngIf="loading">⏳ Création en cours...</span>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- PANNEAU D'AIDE -->
+      <div class="help-panel">
+        <div class="help-card">
+          <div class="help-icon">💡</div>
+          <h3>Conseils pour un bon cours</h3>
+          <ul class="help-list">
+            <li>
+              <span class="help-dot blue"></span>
+              <span>Choisissez un titre clair et accrocheur</span>
+            </li>
+            <li>
+              <span class="help-dot green"></span>
+              <span>Rédigez une description détaillée des objectifs</span>
+            </li>
+            <li>
+              <span class="help-dot purple"></span>
+              <span>Ajoutez une image attractive pour votre cours</span>
+            </li>
+            <li>
+              <span class="help-dot amber"></span>
+              <span>Choisissez le bon niveau pour votre audience</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="steps-card">
+          <h3>📋 Étapes suivantes</h3>
+          <div class="step">
+            <div class="step-num done">1</div>
+            <div class="step-body">
+              <div class="step-title">Créer le cours</div>
+              <div class="step-sub">Informations de base</div>
+            </div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">Ajouter des chapitres</div>
+              <div class="step-sub">Structurer le contenu</div>
+            </div>
+          </div>
+          <div class="step-line"></div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Publier le cours</div>
+              <div class="step-sub">Accessible aux étudiants</div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="field">
-          <label>Titre du cours *</label>
-          <input type="text" formControlName="title" placeholder="Ex: Introduction à Python">
-        </div>
-        <div class="field">
-          <label>Description *</label>
-          <textarea formControlName="description" rows="4" placeholder="Décrivez votre cours..."></textarea>
-        </div>
-        <div class="field">
-          <label>Niveau</label>
-          <select formControlName="level">
-            <option value="debutant">🟢 Débutant</option>
-            <option value="intermediaire">🟡 Intermédiaire</option>
-            <option value="avance">🔴 Avancé</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Prix</label>
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
-              <input type="checkbox" formControlName="is_free"> Cours gratuit
-            </label>
-          </div>
-          <input type="number" formControlName="price" placeholder="Ex: 29.99" min="0" step="0.01" *ngIf="!form.get('is_free')?.value">
-        </div>
-
-        <div class="error" *ngIf="error">{{ error }}</div>
-        <div class="success" *ngIf="success">{{ success }}</div>
-        <button type="submit" [disabled]="loading || form.invalid">
-          {{ loading ? 'Création...' : 'Créer le cours' }}
-        </button>
-      </form>
     </div>
   </main>
 </div>
