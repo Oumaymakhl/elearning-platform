@@ -168,6 +168,29 @@ import { AuthService } from '../../services/auth.service';
     .comment-stars { display: flex; align-items: center; gap: 2px; }
     .comment-date { font-size: .72rem; color: #8a9bbf; margin-left: .3rem; }
     .comment-text { font-size: .84rem; color: #4a5568; margin: 0; line-height: 1.55; }
+
+    /* ── DARK MODE ── */
+    :host-context(body.dark) .summary { background: linear-gradient(135deg, #1e2d42, #1a2540); border-color: #2d3f55; }
+    :host-context(body.dark) .big-score { color: #e2e8f0; }
+    :host-context(body.dark) .dist-bar-wrap { background: #1e3a5f; }
+    :host-context(body.dark) .dist-num { color: #64748b; }
+    :host-context(body.dark) .star { color: #2d3f55; }
+    :host-context(body.dark) .star.xs { color: #2d3f55; }
+    :host-context(body.dark) .star.sm { color: #2d3f55; }
+    :host-context(body.dark) .form-section { background: #1e293b; border-color: #2d3f55; }
+    :host-context(body.dark) .form-label { color: #94a3b8; }
+    :host-context(body.dark) textarea { background: #111827; border-color: #2d3f55; color: #e2e8f0; }
+    :host-context(body.dark) textarea:focus { border-color: #4361ee; background: #111827; }
+    :host-context(body.dark) .btn-del { background: transparent; border-color: #7f1d1d; color: #fca5a5; }
+    :host-context(body.dark) .btn-del:hover { background: #1a0a0a; }
+    :host-context(body.dark) .ok { background: #052e16; color: #86efac; border-color: #166534; }
+    :host-context(body.dark) .err { background: #1a0a0a; color: #fca5a5; border-color: #7f1d1d; }
+    :host-context(body.dark) .comments-header { color: #e2e8f0; border-bottom-color: #2d3f55; }
+    :host-context(body.dark) .comment-card { background: #1e293b; border-color: #2d3f55; }
+    :host-context(body.dark) .comment-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.3); }
+    :host-context(body.dark) .comment-author { color: #e2e8f0; }
+    :host-context(body.dark) .comment-date { color: #64748b; }
+    :host-context(body.dark) .comment-text { color: #94a3b8; }
   `]
 })
 export class StarRatingComponent implements OnInit, OnChanges {

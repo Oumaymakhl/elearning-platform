@@ -1,11 +1,13 @@
 import { ConfirmService } from '../../services/confirm.service';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-notification-bell',
+  encapsulation: ViewEncapsulation.None,
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [CommonModule],
   template: `
@@ -194,6 +196,42 @@ import { Subscription } from 'rxjs';
     .s-high   { background: #fff5f5; color: #c53030; }
 
     .overlay { position: fixed; inset: 0; z-index: 999; }
+
+    /* ── DARK MODE ── */
+    body.dark app-notification-bell .panel { background: #1e293b; border-color: #2d3f55; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+    body.dark app-notification-bell .ph { background: #1e293b; border-bottom-color: #2d3f55; }
+    body.dark app-notification-bell .ph-title { color: #e2e8f0; }
+    body.dark app-notification-bell .btn-sm { background: #1e2d42; border-color: #2d3f55; color: #94a3b8; }
+    body.dark app-notification-bell .btn-sm:hover { background: #263650; color: #e2e8f0; }
+    body.dark app-notification-bell .btn-sm.red:hover { background: #1a0a0a; color: #fca5a5; border-color: #7f1d1d; }
+    body.dark app-notification-bell .ftab { color: #64748b; background: transparent; }
+    body.dark app-notification-bell .ftab:hover { background: #1e2d42; }
+    body.dark app-notification-bell .ftab.on { background: #1e3a5f; color: #60a5fa; border-color: #1e3a8a; }
+    body.dark app-notification-bell .list { background: #1e293b; }
+    body.dark app-notification-bell .list::-webkit-scrollbar-thumb { background: #2d3f55; }
+    body.dark app-notification-bell .item { background: #1e293b; border-bottom-color: #1e2d42; }
+    body.dark app-notification-bell .item:hover { background: #1e2d42; }
+    body.dark app-notification-bell .item.unread { background: #1a2d4a; }
+    body.dark app-notification-bell .item.unread:hover { background: #1e3a5f; }
+    body.dark app-notification-bell .item-title { color: #e2e8f0; }
+    body.dark app-notification-bell .item-msg { color: #94a3b8; }
+    body.dark app-notification-bell .item-time { color: #4a5568; }
+    body.dark app-notification-bell .item-link { color: #60a5fa; }
+    body.dark app-notification-bell .ico-purple { background: #2d1f5e; }
+    body.dark app-notification-bell .ico-red    { background: #1a0a0a; }
+    body.dark app-notification-bell .ico-green  { background: #052e16; }
+    body.dark app-notification-bell .ico-amber  { background: #1c1200; }
+    body.dark app-notification-bell .ico-blue   { background: #0c1a3a; }
+    body.dark app-notification-bell .ico-gray   { background: #1e293b; }
+    body.dark app-notification-bell .prio-pill  { background: #1a0a0a; color: #fca5a5; }
+    body.dark app-notification-bell .qbtn { background: #1e2d42; border-color: #2d3f55; color: #94a3b8; }
+    body.dark app-notification-bell .qbtn:hover { background: #1e3a5f; color: #60a5fa; }
+    body.dark app-notification-bell .qbtn.del:hover { background: #1a0a0a; color: #fca5a5; }
+    body.dark app-notification-bell .panel-foot { background: #111827; border-top-color: #1e2d42; }
+    body.dark app-notification-bell .foot-txt { color: #64748b; }
+    body.dark app-notification-bell .s-unread { background: #1e3a5f; color: #60a5fa; }
+    body.dark app-notification-bell .s-high   { background: #1a0a0a; color: #fca5a5; }
+    body.dark app-notification-bell .empty { color: #64748b; }
   `]
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {

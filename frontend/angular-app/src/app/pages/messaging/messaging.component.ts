@@ -390,6 +390,41 @@ import { ConfirmService } from '../../services/confirm.service';
     .file-msg{display:flex;align-items:center;gap:.5rem;cursor:pointer}
     .file-msg-icon{font-size:1.3rem}
     .file-msg-name{font-weight:600;text-decoration:underline;word-break:break-all}
+
+    /* ── DARK MODE ── */
+    :host-context(body.dark) .main{background:#0f172a}
+    :host-context(body.dark) .chat-panel{background:#0f172a}
+    :host-context(body.dark) .chat-header{background:#1e293b;border-bottom-color:#1e2d42;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+    :host-context(body.dark) .chat-name{color:#e2e8f0}
+    :host-context(body.dark) .icon-btn{background:#1e2d42;border-color:#2d3f55;color:#94a3b8}
+    :host-context(body.dark) .icon-btn:hover{background:#263650;border-color:#4A90D9}
+    :host-context(body.dark) .messages-wrap{background:#0f172a}
+    :host-context(body.dark) .day-sep{color:#4a5568}
+    :host-context(body.dark) .day-sep::before,:host-context(body.dark) .day-sep::after{background:#1e2d42}
+    :host-context(body.dark) .day-sep span{background:#0f172a}
+    :host-context(body.dark) .msg-body{background:#1e293b;color:#e2e8f0;border-color:#2d3f55;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+    :host-context(body.dark) .typing-bubble{background:#1e293b;border-color:#2d3f55;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+    :host-context(body.dark) .chat-input{background:#1e293b;border-top-color:#1e2d42}
+    :host-context(body.dark) .chat-input textarea{background:#111827;border-color:#2d3f55;color:#e2e8f0}
+    :host-context(body.dark) .chat-input textarea:focus{border-color:#4A90D9;background:#111827}
+    :host-context(body.dark) .chat-input textarea::placeholder{color:#4a5568}
+    :host-context(body.dark) .attach-btn,:host-context(body.dark) .emoji-btn{background:#1e2d42;border-color:#2d3f55}
+    :host-context(body.dark) .attach-btn:hover,:host-context(body.dark) .emoji-btn:hover{background:#263650;border-color:#4A90D9}
+    :host-context(body.dark) .emoji-picker{background:#1e293b;border-color:#2d3f55;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+    :host-context(body.dark) .emoji-picker span:hover{background:#1e2d42}
+    :host-context(body.dark) .empty-chat h4{color:#e2e8f0}
+    :host-context(body.dark) .empty-conv-state{background:#0f172a;color:#64748b}
+    :host-context(body.dark) .empty-conv-state h3{color:#e2e8f0}
+    :host-context(body.dark) .info-panel{background:#1e293b;border-color:#2d3f55;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+    :host-context(body.dark) .info-name{color:#e2e8f0}
+    :host-context(body.dark) .info-role{color:#64748b}
+    :host-context(body.dark) .info-close{background:#111827;border-color:#2d3f55;color:#94a3b8}
+    :host-context(body.dark) .info-close:hover{background:#1e2d42;color:#e2e8f0}
+    :host-context(body.dark) .file-preview{background:#1e2d42;border-color:#2d3f55;color:#93c5fd}
+    :host-context(body.dark) .search-bar{background:#1e293b;border-bottom-color:#1e2d42}
+    :host-context(body.dark) .search-bar input{background:#111827;border-color:#2d3f55;color:#e2e8f0}
+    :host-context(body.dark) .search-bar input:focus{border-color:#4A90D9}
+    :host-context(body.dark) .search-count{color:#64748b}
   `]
 })
 export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {

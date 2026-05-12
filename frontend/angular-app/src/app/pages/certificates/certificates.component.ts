@@ -97,6 +97,21 @@ import { AuthService } from '../../services/auth.service';
     .cert-card-footer { padding:1rem 1.5rem; background:#f8faff; border-top:1px solid #f0f4ff; }
     .btn-view { display:block; text-align:center; background:linear-gradient(135deg,#1E3A5F,#4361ee); color:#fff; padding:.7rem; border-radius:10px; text-decoration:none; font-weight:700; font-size:.88rem; transition:.2s; }
     .btn-view:hover { opacity:.9; transform:translateY(-1px); }
+    /* ── DARK MODE ── */
+    :host-context(body.dark) .main { background: #0f172a; }
+    :host-context(body.dark) .page-title { color: #e2e8f0; }
+    :host-context(body.dark) .page-sub { color: #64748b; }
+    :host-context(body.dark) .empty { background: #1e293b; box-shadow: 0 4px 20px rgba(0,0,0,.3); color: #94a3b8; }
+    :host-context(body.dark) .empty h2 { color: #e2e8f0; }
+    :host-context(body.dark) .cert-card { background: #1e293b; border-color: #2d3f55; box-shadow: 0 4px 24px rgba(0,0,0,.3); }
+    :host-context(body.dark) .cert-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,.5); }
+    :host-context(body.dark) .cert-course-title { color: #e2e8f0; }
+    :host-context(body.dark) .cert-student { color: #94a3b8; }
+    :host-context(body.dark) .cert-info { border-top-color: #2d3f55; }
+    :host-context(body.dark) .cert-num { color: #4a5568; }
+    :host-context(body.dark) .cert-date { color: #94a3b8; }
+    :host-context(body.dark) .cert-card-footer { background: #111827; border-top-color: #2d3f55; }
+
   `]
 })
 export class CertificatesComponent implements OnInit {

@@ -186,6 +186,35 @@ import { ConfirmService } from '../../services/confirm.service';
     .btn-reply { margin-top:.5rem; background:#4361ee; color:white; border:none; border-radius:8px; padding:.5rem 1.2rem; font-size:.82rem; font-weight:600; cursor:pointer; }
     .btn-reply:disabled { opacity:.5; cursor:not-allowed; }
     .btn-reply:hover:not(:disabled) { background:#1E3A5F; }
+
+    /* ── DARK MODE ── */
+    :host-context(body.dark) .layout { background: #0f172a; }
+    :host-context(body.dark) .main { background: #0f172a; }
+    :host-context(body.dark) .page-header h1 { color: #e2e8f0; }
+    :host-context(body.dark) .subtitle { color: #64748b; }
+    :host-context(body.dark) .back-link { background: #1e2d42; border-color: #2d3f55; color: #818cf8; }
+    :host-context(body.dark) .back-link:hover { background: #263650; }
+    :host-context(body.dark) .new-post-card { background: #1e293b; border-color: #2d3f55; }
+    :host-context(body.dark) .form-card { background: #1e293b; border-color: #2d3f55; }
+    :host-context(body.dark) .input { background: #111827; border-color: #2d3f55; color: #e2e8f0; }
+    :host-context(body.dark) .input:focus { border-color: #4361ee; }
+    :host-context(body.dark) .textarea { background: #111827; border-color: #2d3f55; color: #e2e8f0; }
+    :host-context(body.dark) .textarea:focus { border-color: #4361ee; }
+    :host-context(body.dark) .post-card { background: #1e293b; border-color: #2d3f55; box-shadow: 0 2px 12px rgba(0,0,0,.3); }
+    :host-context(body.dark) .post-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+    :host-context(body.dark) .post-header { border-bottom-color: #2d3f55; }
+    :host-context(body.dark) .author { color: #e2e8f0; }
+    :host-context(body.dark) .date { color: #4a5568; }
+    :host-context(body.dark) .post-title { color: #e2e8f0; }
+    :host-context(body.dark) .post-body { color: #94a3b8; }
+    :host-context(body.dark) .edit-form { background: #111827; border-color: #2d3f55; }
+    :host-context(body.dark) .replies-header { color: #94a3b8; border-top-color: #2d3f55; }
+    :host-context(body.dark) .replies-header:hover { background: #1e2d42; }
+    :host-context(body.dark) .reply { background: #111827; border-color: #2d3f55; }
+    :host-context(body.dark) .reply-body { color: #94a3b8; }
+    :host-context(body.dark) .reply-header { border-bottom-color: #1e2d42; }
+    :host-context(body.dark) .reply-form { border-top-color: #2d3f55; }
+    :host-context(body.dark) .empty { color: #64748b; }
   `]
 })
 export class ForumComponent implements OnInit {
