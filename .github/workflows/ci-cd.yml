@@ -159,57 +159,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-  sonarqube:
-    name: SonarQube Analysis
-    needs: build-and-scan
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          coverage: none
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: SonarQube Scan — Backend
-        uses: SonarSource/sonarqube-scan-action@master
-        with:
-          projectBaseDir: backend
-          args: >
-            -Dsonar.organization=oumaymakhl
-            -Dsonar.projectKey=oumaymakhl_elearning-backend
-            -Dsonar.projectName="E-Learning Backend"
-            -Dsonar.sources=.
-            -Dsonar.exclusions=**/vendor/**,**/tests/**,**/node_modules/**,**/storage/**,**/bootstrap/cache/**
-            -Dsonar.php.file.suffixes=php
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true
-      - name: SonarQube Scan — Frontend
-        uses: SonarSource/sonarqube-scan-action@master
-        with:
-          projectBaseDir: frontend/angular-app
-          args: >
-            -Dsonar.organization=oumaymakhl
-            -Dsonar.projectKey=oumaymakhl_elearning-frontend
-            -Dsonar.projectName="E-Learning Frontend"
-            -Dsonar.sources=src
-            -Dsonar.exclusions=**/node_modules/**,**/*.spec.ts,**/dist/**
-            -Dsonar.typescript.tsconfigPath=tsconfig.json
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-        continue-on-error: true
-
   security-dashboard:
     name: Security Dashboard
-    needs: [build-and-scan, sonarqube]
+    needs: build-and-scan
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -267,15 +219,14 @@ jobs:
 
   ci-success:
     name: CI Gate
-    needs: [build-and-scan, sonarqube, security-dashboard]
+    needs: [build-and-scan, security-dashboard]
     runs-on: ubuntu-latest
     if: always()
     steps:
       - name: Result
         run: |
           echo "Build:     ${{ needs.build-and-scan.result }}"
-          echo "SonarQube: ${{ needs.sonarqube.result }}"
-          echo "Dashboard: ${{ needs.security-dashboard.result }}"
+                  echo "Dashboard: ${{ needs.security-dashboard.result }}"
           if [[ "${{ needs.build-and-scan.result }}" == "failure" ]]; then
             echo "❌ CI échoué"; exit 1
           fi
