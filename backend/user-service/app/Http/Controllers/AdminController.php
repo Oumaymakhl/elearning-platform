@@ -59,7 +59,7 @@ class AdminController extends Controller
         $user->delete();
         // Supprimer aussi dans auth_db directement
         try {
-            $pdo = new \PDO('mysql:host=mysql-auth;port=3306;dbname=auth_db', 'auth_user', 'auth_password');
+            $pdo = new \PDO(env('AUTH_DB_DSN', 'mysql:host=mysql-auth;port=3306;dbname=auth_db'), env('AUTH_DB_USER', 'auth_user'), env('AUTH_DB_PASSWORD', ''));
             $stmt = $pdo->prepare("DELETE FROM users WHERE email = ?");
             $stmt->execute([$email]);
         } catch (\Exception $e) {

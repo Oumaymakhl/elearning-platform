@@ -72,7 +72,7 @@ export class LessonContentComponent implements OnChanges {
   }
 
   safe(html: any): SafeHtml {
-    return this.sanitizer.bypassSecurityTrustHtml(html as string);
+    return this.sanitizer.sanitize(SecurityContext.HTML, html as string) ?? "";
   }
 
   private decodeEntities(encoded: string): string {
