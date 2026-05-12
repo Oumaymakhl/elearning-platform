@@ -633,7 +633,7 @@ export class QuizManageComponent implements OnInit {
   }
 
   stripHtml(html: string): string {
-    return html ? html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+    return html ? html.replace(/<[^>]{0,1000}>/g, " ").replace(/[ \t\r\n]+/g, " ").trim() : "";
   }
 
   /* ══════════════════════════════════════
