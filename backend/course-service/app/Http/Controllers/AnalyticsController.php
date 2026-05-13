@@ -12,6 +12,9 @@ class AnalyticsController extends Controller
     {
         $userId = $request->auth_user_id;
         $role   = $request->auth_user_role;
+        if (!in_array($role, ['teacher', 'admin'])) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         // Filtre par période
         $days      = (int) $request->query('days', 180);
