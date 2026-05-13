@@ -226,7 +226,7 @@ jobs:
       - name: Result
         run: |
           echo "Build:     ${{ needs.build-and-scan.result }}"
-                  echo "Dashboard: ${{ needs.security-dashboard.result }}"
+          echo "Dashboard: ${{ needs.security-dashboard.result }}"
           if [[ "${{ needs.build-and-scan.result }}" == "failure" ]]; then
             echo "❌ CI échoué"; exit 1
           fi
