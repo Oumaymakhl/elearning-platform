@@ -7,7 +7,7 @@ COPY . .
 RUN npm run build -- --configuration=production
  
 # ── Étape 2 : Serveur Nginx ──────────────────────────────────────
-FROM nginx:1.28-alpine
+FROM nginx:1.27-alpine
 RUN apk update && apk upgrade --no-cache libcrypto3 libssl3 libpng musl musl-utils zlib libuuid libxpm nghttp2-libs xz-libs && rm -rf /var/cache/apk/*
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/dist/learnspace/browser /usr/share/nginx/html
