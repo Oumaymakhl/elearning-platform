@@ -16,7 +16,7 @@
         <div class="avatar-section">
           <!-- Avatar affiché -->
           <div class="avatar-wrapper">
-            <img *ngIf="user.avatar_url && !avatarPreview"
+            <img *ngIf="(user.avatar_url || user.avatar) && !avatarPreview"
                  [src]="getAvatarUrl()"
                  class="avatar-img"
                  alt="Avatar">
@@ -24,7 +24,7 @@
                  [src]="avatarPreview"
                  class="avatar-img"
                  alt="Aperçu">
-            <div class="avatar-initials" *ngIf="!user.avatar_url && !avatarPreview">
+            <div class="avatar-initials" *ngIf="!user.avatar_url && !user.avatar && !avatarPreview">
               {{ getInitials() }}
             </div>
             <!-- Overlay bouton changer -->

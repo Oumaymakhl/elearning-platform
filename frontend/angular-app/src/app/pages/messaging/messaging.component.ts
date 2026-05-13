@@ -505,7 +505,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     const u = this.currentUser;
     if (!u) return '';
     return btoa(unescape(encodeURIComponent(JSON.stringify({
-      id: u.auth_id || u.id, name: u.name, role: u.role, avatar_url: u.avatar_url || null
+      id: u.auth_id || u.id, name: u.name, role: u.role, avatar_url: u.avatar_url || (u.avatar ? '/storage/' + u.avatar : null)
     }))));
   }
 

@@ -64,6 +64,18 @@ class UserController extends Controller
         if ($request->hasFile('avatar')) {
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->update(['avatar' => $path]);
+            // Mettre à jour les conversations dans messaging-service
+            try {
+                $avatarUrl = '/storage/' . $path;
+                \Http::timeout(3)->put('http://nginx-messaging/api/internal/update-avatar', [
+                    'user_id'    => $authId,
+                    'avatar_url' => $avatarUrl,
+                ]);
+                \Http::timeout(3)->put('http://nginx-forum/api/internal/update-avatar', [
+                    'user_id'    => $authId,
+                    'avatar_url' => $avatarUrl,
+                ]);
+            } catch (\Exception $e) {}
         }
         return response()->json($user);
     }

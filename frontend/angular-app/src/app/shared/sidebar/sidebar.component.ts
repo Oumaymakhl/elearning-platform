@@ -111,8 +111,8 @@ import { Subscription } from 'rxjs';
 
       <div class="sidebar-footer" [routerLink]="['/profile']" style="cursor:pointer" title="Mon profil">
         <div class="user-info">
-          <img *ngIf="user?.avatar_url" [src]="getAvatarUrl()" class="user-avatar user-avatar-img" alt="avatar">
-          <div class="user-avatar" *ngIf="!user?.avatar_url">{{ getInitials() }}</div>
+          <img *ngIf="user?.avatar_url || user?.avatar" [src]="getAvatarUrl()" class="user-avatar user-avatar-img" alt="avatar">
+          <div class="user-avatar" *ngIf="!user?.avatar_url && !user?.avatar">{{ getInitials() }}</div>
           <div class="user-details">
             <span class="user-name">{{ user?.name }}</span>
             <span class="user-role">{{ getRoleLabel() }}</span>
@@ -350,9 +350,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   get isStudent() { return this.auth.isStudent(); }
 
   getAvatarUrl(): string {
-    const url = this.user?.avatar_url || '';
-    if (url.startsWith('/storage')) return 'http://localhost:8080' + url;
-    if (url.startsWith('avatars/')) return 'http://localhost:8080/storage/' + url;
+    const url = this.user?.avatar_url || (this.user?.avatar ? '/storage/' + this.user.avatar : '');
+    if (url.startsWith('/storage')) return url;
+    if (url.startsWith('avatars/')) return '/storage/' + url;
     return url;
   }
   getInitials(): string {

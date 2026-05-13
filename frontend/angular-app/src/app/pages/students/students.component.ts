@@ -11,6 +11,7 @@ import { forkJoin } from 'rxjs';
 interface StudentRow {
   user_id: number;
   name: string;
+  avatar: string;
   email: string;
   enrollments: { course_id: number; course_title: string; progress: number; status: string; created_at: string; }[];
   selectedEnrollment: any | null;
@@ -95,7 +96,8 @@ interface StudentRow {
               <tr *ngFor="let s of filtered; let i = index">
                 <td class="num">{{ i + 1 }}</td>
                 <td class="student-name">
-                  <div class="avatar">{{ getInitials(s.name) }}</div>
+                  <img *ngIf="s.avatar" class="avatar-img" [src]="'/storage/' + s.avatar" alt="">
+                  <div *ngIf="!s.avatar" class="avatar">{{ getInitials(s.name) }}</div>
                   <span>{{ s.name || 'Étudiant #' + s.user_id }}</span>
                 </td>
                 <td class="email">{{ s.email || '—' }}</td>
@@ -182,6 +184,7 @@ interface StudentRow {
     tbody tr:hover td { background:#f8f9ff; }
     .num { color:#C0BBD0; font-size:.78rem; width:36px; }
     .student-name { display:flex; align-items:center; gap:.65rem; font-weight:600; color:#1A1A2E; }
+    .avatar-img { width:32px; height:32px; border-radius:10px; object-fit:cover; flex-shrink:0; }
     .avatar { width:32px; height:32px; border-radius:10px; background:#F0EDFF; color:#6C63FF; border:1px solid #D8D3F8; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:700; flex-shrink:0; }
     .email { color:#9B97A8; font-size:.82rem; }
     .courses-cell { min-width:190px; }
@@ -231,7 +234,7 @@ export class StudentsComponent implements OnInit {
               enrollments.forEach((e: any) => {
                 const uid = e.user_id;
                 if (!studentMap.has(uid)) {
-                  studentMap.set(uid, { user_id: uid, name: e.student?.name || '', email: e.student?.email || '', enrollments: [], selectedEnrollment: null });
+                  studentMap.set(uid, { user_id: uid, name: e.student?.name || '', avatar: e.student?.avatar || '', email: e.student?.email || '', enrollments: [], selectedEnrollment: null });
                 }
                 studentMap.get(uid)!.enrollments.push({ course_id: course.id, course_title: course.title, progress: parseFloat(e.progress) || 0, status: e.status, created_at: e.created_at });
               });

@@ -35,8 +35,8 @@ class EnrollmentController extends Controller
         // Enrichir avec les infos étudiants depuis user-service
         try {
             $userIds = $enrollments->pluck('user_id')->unique()->values()->toArray();
-            $usersRes = Http::timeout(3)->post('http://nginx-user/api/internal/users-by-ids', ['ids' => $userIds]);
-            $users = collect($usersRes->json() ?? [])->keyBy('id');
+            $usersRes = Http::timeout(3)->post('http://nginx-user/api/internal/students-by-ids', ['ids' => $userIds]);
+            $users = collect($usersRes->json() ?? [])->keyBy('auth_id');
             $enrollments = $enrollments->map(function($e) use ($users) {
                 $e->student = $users->get($e->user_id);
                 return $e;
