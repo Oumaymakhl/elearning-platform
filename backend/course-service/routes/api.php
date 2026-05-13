@@ -17,6 +17,9 @@ Route::post('/internal/enroll', function(\Illuminate\Http\Request $request) {
     return response()->json(['success' => true]);
 });
 
+// Route interne pour stats admin
+Route::get('/internal/enrollments-stats', [EnrollmentController::class, 'internalStats']);
+
 // Publiques
 Route::get('/courses',            [CourseController::class, 'index']);
 Route::get('/courses/{id}',       [CourseController::class, 'show']);

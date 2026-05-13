@@ -129,7 +129,7 @@ export class TeacherApprovalComponent implements OnInit {
   reason = '';
   loading = true;
 
-  private teachersUrl = '/api/teachers';
+  private teachersUrl = '/auth-api/teachers';
 
   constructor(private http: HttpClient) {}
 
@@ -149,7 +149,7 @@ export class TeacherApprovalComponent implements OnInit {
   }
 
   getCvUrl(id: number) {
-    return `http://localhost:8000/storage/${this.teachers.find(t => t.id === id)?.cv_path}`;
+    return `/storage/${this.teachers.find(t => t.id === id)?.cv_path}`;
   }
 
   selectReject(id: number) {

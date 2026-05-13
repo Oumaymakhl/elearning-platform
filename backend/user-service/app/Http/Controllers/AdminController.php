@@ -104,33 +104,13 @@ class AdminController extends Controller
 
         $courseStats = [];
         try {
-            $response = Http::timeout(5)->get("http://nginx-course/api/courses");
-            if ($response->ok()) {
-                $courses = $response->json();
-                $totalEnrolled = 0;
-                $totalProgress = 0;
-                $progressCount = 0;
-                foreach ($courses as $course) {
-                    $enroll = Http::timeout(5)
-                        ->withHeaders(["X-Auth-User-Id" => $request->auth_user_id, "X-Auth-User-Role" => "admin"])
-                        ->get("http://nginx-course/api/courses/{$course["id"]}/students");
-                    if ($enroll->ok()) {
-                        $students = $enroll->json();
-                        $totalEnrolled += count($students);
-                        foreach ($students as $s) {
-                            if (isset($s["progress"])) {
-                                $totalProgress += $s["progress"];
-                                $progressCount++;
-                            }
-                        }
-                    }
-                }
-                $courseStats = [
-                    "total_courses"     => count($courses),
-                    "total_enrollments" => $totalEnrolled,
-                    "average_progress"  => $progressCount > 0 ? round($totalProgress / $progressCount, 1) : 0,
-                ];
-            }
+            $coursesRes = Http::timeout(5)->get("http://nginx-course/api/courses");
+            $enrollRes  = Http::timeout(5)->get("http://nginx-course/api/internal/enrollments-stats");
+            $courseStats = [
+                "total_courses"     => $coursesRes->ok() ? count($coursesRes->json()) : 0,
+                "total_enrollments" => $enrollRes->ok() ? $enrollRes->json()["total_enrollments"] : 0,
+                "average_progress"  => $enrollRes->ok() ? $enrollRes->json()["average_progress"]  : 0,
+            ];
         } catch (\Exception $e) {
             $courseStats = ["error" => "Course service unavailable"];
         }

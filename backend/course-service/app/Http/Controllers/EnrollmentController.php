@@ -45,6 +45,15 @@ class EnrollmentController extends Controller
         return response()->json($enrollments);
     }
 
+    public function internalStats() {
+        $totalEnrollments = \App\Models\Enrollment::count();
+        $avgProgress = \App\Models\Enrollment::avg('progress') ?? 0;
+        return response()->json([
+            'total_enrollments' => $totalEnrollments,
+            'average_progress'  => round($avgProgress, 1),
+        ]);
+    }
+
     public static function enrollInternal($userId, $courseId) {
         Enrollment::firstOrCreate(['user_id' => $userId, 'course_id' => $courseId], ['progress' => 0, 'status' => 'active']);
     }
