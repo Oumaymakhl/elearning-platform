@@ -1,4 +1,5 @@
 import { ConfirmService } from '../../services/confirm.service';
+import { ViewEncapsulation } from '@angular/core';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
@@ -14,7 +15,8 @@ import { RichEditorComponent } from '../../shared/rich-editor/rich-editor.compon
   standalone: true,
   imports: [CommonModule, SidebarComponent, RouterLink, ReactiveFormsModule, FormsModule, RichEditorComponent],
   templateUrl: './chapter-manage.component.html',
-  styleUrls: ['./chapter-manage.component.scss']
+  styleUrls: ['./chapter-manage.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ChapterManageComponent implements OnInit {
   course: any;

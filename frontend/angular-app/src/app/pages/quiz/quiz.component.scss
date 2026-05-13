@@ -178,3 +178,56 @@
 .btn-prev:disabled { opacity: .4; cursor: not-allowed; }
 
 .loading { text-align: center; padding: 3rem; color: #8a9bbf; }
+
+/* DARK MODE */
+body.dark .layout { background: #1C2333 !important; }
+body.dark .main { background: #1C2333 !important; }
+body.dark .chapters-panel { background: #252D40 !important; border-right-color: rgba(255,255,255,.08) !important; }
+body.dark .panel-toggle { background: #1C2333 !important; }
+body.dark .panel-toggle-title { color: #E8EAF6 !important; }
+body.dark .chapter-title { color: #E8EAF6 !important; }
+body.dark .chapter-title:hover { background: #2D3650 !important; }
+body.dark .subchapters { background: #1e2638 !important; }
+body.dark .subchapter { color: #D0D3E8 !important; }
+body.dark .subchapter.active-sub { background: rgba(67,97,238,.2) !important; color: #818cf8 !important; }
+body.dark .intro-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .intro-card h1 { color: #FFFFFF !important; }
+body.dark .intro-card > p { color: #9BA3C7 !important; }
+body.dark .meta { background: rgba(67,97,238,.2) !important; color: #818cf8 !important; }
+body.dark .teacher-notice { background: rgba(254,249,195,.1) !important; color: #fde68a !important; }
+body.dark .past-attempts { background: #1C2333 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .attempt { background: #2D3650 !important; color: #D0D3E8 !important; }
+body.dark .intro-nav { border-top-color: rgba(255,255,255,.08) !important; }
+body.dark .nav-btn-prev { background: #2D3650 !important; color: #818cf8 !important; }
+body.dark .question-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .question-text { color: #E8EAF6 !important; }
+body.dark .progress-bar { background: #2D3650 !important; }
+body.dark .option { background: #1C2333 !important; border-color: rgba(255,255,255,.1) !important; color: #D0D3E8 !important; }
+body.dark .option.selected { background: rgba(67,97,238,.2) !important; color: #818cf8 !important; }
+body.dark .option.correct { background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
+body.dark .option.wrong { background: rgba(220,38,38,.15) !important; color: #f87171 !important; }
+body.dark .result-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .result-card h1 { color: #FFFFFF !important; }
+body.dark .score-circle.pass { background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
+body.dark .score-circle.fail { background: rgba(220,38,38,.15) !important; color: #f87171 !important; }
+body.dark .btn-retry, body.dark .btn-back { background: #2D3650 !important; color: #818cf8 !important; }
+
+body.dark .layout { background: #1C2333 !important; }
+body.dark .main { background: #1C2333 !important; }
+body.dark .intro-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .intro-card h1 { color: #FFFFFF !important; }
+body.dark .teacher-notice { background: rgba(254,249,195,.1) !important; color: #fde68a !important; }
+body.dark .meta { background: rgba(67,97,238,.2) !important; color: #818cf8 !important; }
+body.dark .attempt { background: #2D3650 !important; color: #D0D3E8 !important; }
+body.dark .question-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .question-text { color: #E8EAF6 !important; }
+body.dark .option { background: #1C2333 !important; color: #D0D3E8 !important; border-color: rgba(255,255,255,.1) !important; }
+body.dark .option.selected { background: rgba(67,97,238,.2) !important; color: #818cf8 !important; }
+body.dark .option.correct { background: rgba(22,163,74,.15) !important; color: #4ade80 !important; }
+body.dark .option.wrong { background: rgba(220,38,38,.15) !important; color: #f87171 !important; }
+body.dark .result-card { background: #252D40 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .result-card h1 { color: #FFFFFF !important; }
+body.dark .chapters-panel { background: #252D40 !important; }
+body.dark .chapter-title { color: #E8EAF6 !important; }
+body.dark .subchapters { background: #1e2638 !important; }
+body.dark .subchapter { color: #D0D3E8 !important; }

@@ -1,5 +1,5 @@
 import { ConfirmService } from '../../services/confirm.service';
-import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewEncapsulation, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../services/notification.service';
 import { Subscription } from 'rxjs';
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-notification-bell',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [CommonModule],
   template: `
     <div class="nw">
@@ -18,7 +19,7 @@ import { Subscription } from 'rxjs';
         <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
       </button>
 
-      <div class="panel" *ngIf="open">
+      <div class="panel" *ngIf="open" [class.dark-panel]="isDark">
         <div class="ph">
           <div class="ph-top">
             <span class="ph-title">🔔 Notifications</span>
@@ -103,14 +104,14 @@ import { Subscription } from 'rxjs';
 
     .panel {
       position: absolute; top: calc(100% + 8px); right: 0; z-index: 1000;
-      width: 370px; background: var(--panel-bg, #fff);
-      border: 1px solid #e2e8f0; border-radius: 16px;
+      width: 370px; background: white;
+      border: 1px solid var(--border, #e2e8f0); border-radius: 16px;
       box-shadow: 0 8px 32px rgba(0,0,0,.12); overflow: hidden;
     }
 
-    .ph { padding: 14px 16px 10px; border-bottom: 1px solid #edf2f7; }
+    .ph { padding: 14px 16px 10px; border-bottom: 1px solid var(--border, #edf2f7); background: var(--bg-card, #fff); }
     .ph-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .ph-title { font-size: 14px; font-weight: 700; color: #1a202c; }
+    .ph-title { font-size: 14px; font-weight: 700; color: var(--text, #1a202c); }
     .ph-actions { display: flex; gap: 6px; }
     .btn-sm {
       font-size: 11px; color: #718096; background: #f7fafc;
@@ -127,7 +128,7 @@ import { Subscription } from 'rxjs';
       color: #718096; background: transparent; font-weight: 500;
       transition: all .15s;
     }
-    .ftab:hover { background: #f7fafc; }
+    .ftab:hover { background: var(--bg-card, #f7fafc); }
     .ftab.on { background: #ebf4ff; color: #3b82f6; border-color: #93c5fd; font-weight: 700; }
 
     .list { max-height: 380px; overflow-y: auto; }
@@ -138,13 +139,13 @@ import { Subscription } from 'rxjs';
 
     .item {
       display: flex; align-items: flex-start; gap: 11px;
-      padding: 12px 16px; border-bottom: 1px solid #f7fafc;
+      padding: 12px 16px; border-bottom: 1px solid var(--border, #f7fafc);
       cursor: pointer; transition: background .12s; position: relative;
     }
     .item:last-child { border-bottom: none; }
-    .item:hover { background: #f7fafc; }
-    .item.unread { background: #f0f7ff; }
-    .item.unread:hover { background: #e8f0fe; }
+    .item:hover { background: var(--bg-hover, #f7fafc); }
+    .item.unread { background: var(--bg-hover, #f0f7ff); }
+    .item.unread:hover { background: var(--bg-hover, #e8f0fe); }
     .item.p-high { border-left: 3px solid #e53e3e; }
     .item.p-med  { border-left: 3px solid #4361ee; }
     .item.p-low  { border-left: 3px solid #e2e8f0; }
@@ -158,16 +159,16 @@ import { Subscription } from 'rxjs';
     .ico-green  { background: #f0fff4; }
     .ico-amber  { background: #fffbeb; }
     .ico-blue   { background: #ebf8ff; }
-    .ico-gray   { background: #f7fafc; }
+    .ico-gray   { background: var(--bg-card, #f7fafc); }
 
     .item-body { flex: 1; min-width: 0; }
     .item-top  { display: flex; align-items: center; gap: 5px; margin-bottom: 3px; }
-    .item-title { font-size: 12px; font-weight: 700; color: #1a202c; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-title { font-size: 12px; font-weight: 700; color: var(--text, #1a202c); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .dot { width: 7px; height: 7px; border-radius: 50%; background: #4361ee; flex-shrink: 0; }
     .dot-red { background: #e53e3e; }
     .prio-pill { font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 700; background: #fff5f5; color: #c53030; }
 
-    .item-msg { font-size: 11px; color: #718096; line-height: 1.5; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .item-msg { font-size: 11px; color: var(--text-muted, #718096); line-height: 1.5; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .item-foot { display: flex; justify-content: space-between; align-items: center; }
     .item-time { font-size: 10px; color: #a0aec0; font-weight: 500; }
     .item-link { font-size: 10px; color: #4361ee; font-weight: 700; text-decoration: none; }
@@ -184,8 +185,8 @@ import { Subscription } from 'rxjs';
     .qbtn.del:hover { background: #fff5f5; color: #e53e3e; border-color: #feb2b2; }
 
     .panel-foot {
-      padding: 10px 16px; border-top: 1px solid #edf2f7;
-      display: flex; justify-content: space-between; align-items: center; background: #f7fafc;
+      padding: 10px 16px; border-top: 1px solid var(--border, #edf2f7);
+      display: flex; justify-content: space-between; align-items: center; background: var(--bg-card, #f7fafc);
     }
     .foot-txt { font-size: 10px; color: #a0aec0; }
     .foot-stats { display: flex; gap: 6px; }
@@ -194,6 +195,22 @@ import { Subscription } from 'rxjs';
     .s-high   { background: #fff5f5; color: #c53030; }
 
     .overlay { position: fixed; inset: 0; z-index: 999; }
+    .dark-panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+    .dark-panel .ph { background: #1e293b !important; border-color: #2d3f55 !important; }
+    .dark-panel .ph-title { color: #e2e8f0 !important; }
+    .dark-panel .item { background: #1e293b !important; border-color: #1e2d42 !important; }
+    .dark-panel .item:hover { background: #1e2d42 !important; }
+    .dark-panel .item.unread { background: #1a2d4a !important; }
+    .dark-panel .item-title { color: #e2e8f0 !important; }
+    .dark-panel .item-msg { color: #94a3b8 !important; }
+    .dark-panel .item-time { color: #64748b !important; }
+    .dark-panel .item-link { color: #60a5fa !important; }
+    .dark-panel .panel-foot { background: #111827 !important; border-color: #1e2d42 !important; }
+    .dark-panel .foot-txt { color: #64748b !important; }
+    .dark-panel .btn-sm { background: #1e2d42 !important; color: #94a3b8 !important; }
+    .dark-panel .ftab { color: #64748b !important; }
+    .dark-panel .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; }
+    .dark-panel .list { background: #1e293b !important; }
 
     /* ── DARK MODE ── */
     body.dark app-notification-bell .panel { background: #1e293b !important; border-color: #2d3f55 !important; box-shadow: 0 8px 32px rgba(0,0,0,.5) !important; }
@@ -234,6 +251,7 @@ import { Subscription } from 'rxjs';
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
   open = false;
+  get isDark() { return document.body.classList.contains('dark'); }
   notifications: Notification[] = [];
   filtered: Notification[] = [];
   unreadCount = 0;

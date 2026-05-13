@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-analytics-dashboard',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, SidebarComponent, RouterLink, FormsModule],
   template: `
     <div class="layout">
@@ -216,6 +217,16 @@ import { AuthService } from '../../services/auth.service';
     .error-state{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:4rem;color:#64748b}
     .error-state span{font-size:2rem}
     .error-state button{padding:.5rem 1.25rem;background:#1E3A5F;color:white;border:none;border-radius:8px;cursor:pointer}
+    body.dark .main{background:#1C2333 !important}
+    body.dark .kpi-card{background:#252D40 !important;color:#E8EAF6 !important}
+    body.dark .kpi-card .kpi-value{color:#FFFFFF !important}
+    body.dark .kpi-card .kpi-label{color:#9BA3C7 !important}
+    body.dark .chart-card{background:#252D40 !important;color:#E8EAF6 !important}
+    body.dark .table-card{background:#252D40 !important;color:#E8EAF6 !important}
+    body.dark .data-table th{color:#9BA3C7 !important;border-color:rgba(255,255,255,.06) !important}
+    body.dark .data-table td{color:#D0D3E8 !important;border-color:rgba(255,255,255,.06) !important}
+    body.dark .data-table tr.clickable:hover{background:#2D3650 !important}
+
     .period-bar{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap}
     .period-label{color:#555;font-size:.9rem;font-weight:600;white-space:nowrap}
     .period-buttons{display:flex;gap:.5rem;flex-wrap:wrap}

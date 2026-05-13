@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-search',
   standalone: true,
+  encapsulation: ViewEncapsulation.None,
   imports: [CommonModule, FormsModule, SidebarComponent, RouterLink],
   template: `
     <div class="layout">
@@ -160,6 +161,20 @@ import { AuthService } from '../../services/auth.service';
     .badge.green { background:#dcfce7; color:#166534; }
 
     mark { background:#fef08a; border-radius:3px; padding:0 2px; }
+    body.dark .main { background:#1C2333 !important; }
+    body.dark .search-box { background:#252D40 !important; border-color:rgba(255,255,255,.12) !important; }
+    body.dark .search-box input { color:#E8EAF6 !important; }
+    body.dark .filters button { background:#2D3650 !important; color:#9BA3C7 !important; }
+    body.dark .filters button.active { background:#4361ee !important; color:#fff !important; }
+    body.dark .result-card { background:#252D40 !important; color:#E8EAF6 !important; border-color:rgba(255,255,255,.08) !important; }
+    body.dark .result-row { background:#252D40 !important; color:#E8EAF6 !important; }
+    body.dark .result-card:hover { border-color:#4361ee !important; }
+    body.dark .result-row:hover { background:#2D3650 !important; }
+    body.dark .badge { background:#2D3650 !important; color:#9BA3C7 !important; }
+    body.dark .result-title { color:#FFFFFF !important; }
+    body.dark .result-desc { color:#9BA3C7 !important; }
+    body.dark .result-meta { color:#9BA3C7 !important; }
+
   `]
 })
 export class SearchComponent implements OnInit {

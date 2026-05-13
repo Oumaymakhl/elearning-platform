@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,8 @@ import { CourseService } from '../../services/course.service';
   imports: [CommonModule, RouterLink, FormsModule, HttpClientModule],
   providers: [],
   templateUrl: './quiz.component.html',
-  styleUrls: ['./quiz.component.scss']
+  styleUrls: ['./quiz.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class QuizComponent implements OnInit {
   quiz: any;
