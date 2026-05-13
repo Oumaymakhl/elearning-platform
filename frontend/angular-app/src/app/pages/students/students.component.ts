@@ -220,13 +220,13 @@ export class StudentsComponent implements OnInit {
     const userId = user?.id;
     this.courseService.getMyTeachingCourses().subscribe({
       next: (courses) => {
-        
+        this.courses = courses;
         if (this.courses.length === 0) { this.loading = false; return; }
         const requests = this.courses.map((c: any) => this.courseService.getCourseStudents(c.id));
         forkJoin(requests).subscribe({
-          next: (results: any[][]) => {
+          next: (results: any) => {
             const studentMap = new Map<number, StudentRow>();
-            results.forEach((enrollments, i) => {
+            results.forEach((res: any, i: number) => { const enrollments = Array.isArray(res) ? res : (res?.data || []);
               const course = this.courses[i];
               enrollments.forEach((e: any) => {
                 const uid = e.user_id;
