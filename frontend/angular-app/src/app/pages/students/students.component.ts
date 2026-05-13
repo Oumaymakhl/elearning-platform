@@ -218,9 +218,9 @@ export class StudentsComponent implements OnInit {
   ngOnInit() {
     const user = this.auth.getCurrentUser();
     const userId = user?.id;
-    this.courseService.getCourses().subscribe({
+    this.courseService.getMyTeachingCourses().subscribe({
       next: (courses) => {
-        this.courses = courses.filter((c: any) => c.instructor_id === userId);
+        
         if (this.courses.length === 0) { this.loading = false; return; }
         const requests = this.courses.map((c: any) => this.courseService.getCourseStudents(c.id));
         forkJoin(requests).subscribe({
