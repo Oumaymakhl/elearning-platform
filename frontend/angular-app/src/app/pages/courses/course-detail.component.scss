@@ -886,62 +886,62 @@
 
 :host-context(body.dark) {
 
-  .layout { background: #0f172a; }
+  .layout { background: #0f172a !important; }
 
-  .back-link { background: #1e2d42; border-color: #2d3f55; color: #818cf8; }
-  .back-link:hover { background: #263650; }
+  .back-link { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #818cf8 !important; }
+  .back-link:hover { background: #263650 !important; }
 
-  .progress-section { background: #1e293b; border-color: #2d3f55; }
-  .progress-header { color: #e2e8f0; }
-  .progress-track  { background: #1e3a5f; }
-  .progress-sub    { color: #64748b; }
+  .progress-section { background: #1e293b !important; border-color: #2d3f55 !important; }
+  .progress-header { color: #e2e8f0 !important; }
+  .progress-track  { background: #1e3a5f !important; }
+  .progress-sub    { color: #64748b !important; }
 
-  .split-view { border-color: #1e2d42; }
+  .split-view { border-color: #1e2d42 !important; }
 
-  .chapters-panel { background: #1a2540; border-right-color: #1e2d42; }
-  .panel-toggle { background: linear-gradient(135deg, #1e2d42, #1a2540); border-bottom-color: #2d3f55; }
-  .panel-toggle:hover { background: linear-gradient(135deg, #263650, #1e2d42); }
-  .chapter { border-bottom-color: #1e2d42; }
-  .chapter-title { background: #1e293b; color: #e2e8f0; }
-  .chapter-title:hover { border-color: #3451d1; background: #1e3a5f; }
-  .chapter-title-left { color: #cbd5e1; }
-  .subchapter { color: #94a3b8; }
-  .subchapter:hover { background: linear-gradient(90deg, #1e2d42, #1e3a5f); color: #818cf8; }
-  .subchapter.active-sub { background: linear-gradient(90deg, #1e2d42, #1e3a5f); color: #818cf8; border-left-color: #4361ee; }
+  .chapters-panel { background: #1a2540 !important; border-right-color: #1e2d42 !important; }
+  .panel-toggle { background: linear-gradient(135deg, #1e2d42, #1a2540) !important; border-bottom-color: #2d3f55 !important; }
+  .panel-toggle:hover { background: linear-gradient(135deg, #263650, #1e2d42) !important; }
+  .chapter { border-bottom-color: #1e2d42 !important; }
+  .chapter-title { background: #1e293b !important; color: #e2e8f0 !important; }
+  .chapter-title:hover { border-color: #3451d1 !important; background: #1e3a5f !important; }
+  .chapter-title-left { color: #cbd5e1 !important; }
+  .subchapter { color: #94a3b8 !important; }
+  .subchapter:hover { background: linear-gradient(90deg, #1e2d42, #1e3a5f) !important; color: #818cf8 !important; }
+  .subchapter.active-sub { background: linear-gradient(90deg, #1e2d42, #1e3a5f) !important; color: #818cf8 !important; border-left-color: #4361ee !important; }
 
-  .lesson-panel   { background: #111827; }
-  .lesson-content { background: #1e293b; border-right-color: #1e2d42; }
-  .lesson-header  { border-bottom-color: #1e2d42; }
-  .lesson-header h3 { color: #e2e8f0; }
-  .lesson-placeholder h3 { color: #e2e8f0; }
-  .nav-btn { background: #1e2d42; color: #818cf8; border-color: #2d3f55; }
-  .nav-btn:hover:not(:disabled) { background: #4361ee; color: #fff; }
-  .nav-btn.primary { background: #4361ee; color: #fff; }
+  .lesson-panel   { background: #111827 !important; }
+  .lesson-content { background: #1e293b !important; border-right-color: #1e2d42 !important; }
+  .lesson-header  { border-bottom-color: #1e2d42 !important; }
+  .lesson-header h3 { color: #e2e8f0 !important; }
+  .lesson-placeholder h3 { color: #e2e8f0 !important; }
+  .nav-btn { background: #1e2d42 !important; color: #818cf8 !important; border-color: #2d3f55 !important; }
+  .nav-btn:hover:not(:disabled) { background: #4361ee !important; color: #fff !important; }
+  .nav-btn.primary { background: #4361ee !important; color: #fff !important; }
 
-  .rating-section { background: #1e293b; border-color: #2d3f55; }
-  .rating-title   { color: #e2e8f0; border-bottom-color: #2d3f55; }
+  .rating-section { background: #1e293b !important; border-color: #2d3f55 !important; }
+  .rating-title   { color: #e2e8f0 !important; border-bottom-color: #2d3f55 !important; }
 
-  .mini-chat { background: #1e293b; border-color: #2d3f55; }
-  .mc-messages { background: #111827; }
-  .mc-welcome { background: #1e293b; border-color: #2d3f55; color: #94a3b8; }
-  .mc-bubble  { background: #1e2d42; border-color: #2d3f55; color: #e2e8f0; }
-  .mc-input   { background: #1e293b; border-top-color: #2d3f55; }
-  .mc-input input { background: #111827; border-color: #2d3f55; color: #e2e8f0; }
-  .mc-input input:focus { border-color: #4361ee; }
+  .mini-chat { background: #1e293b !important; border-color: #2d3f55 !important; }
+  .mc-messages { background: #111827 !important; }
+  .mc-welcome { background: #1e293b !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+  .mc-bubble  { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #e2e8f0 !important; }
+  .mc-input   { background: #1e293b !important; border-top-color: #2d3f55 !important; }
+  .mc-input input { background: #111827 !important; border-color: #2d3f55 !important; color: #e2e8f0 !important; }
+  .mc-input input:focus { border-color: #4361ee !important; }
 
   .quiz-inline {
-    .quiz-intro-card { background: #1e293b; border-color: #2d3f55; }
+    .quiz-intro-card { background: #1e293b !important; border-color: #2d3f55 !important; }
     .question-card {
-      background: #1e293b; border-color: #2d3f55;
-      .question-text { color: #e2e8f0; }
+      background: #1e293b !important; border-color: #2d3f55 !important;
+      .question-text { color: #e2e8f0 !important; }
       .option {
-        background: #111827; border-color: #2d3f55; color: #cbd5e1;
-        &:hover    { border-color: #4361ee; background: #1e2d42; }
-        &.selected { border-color: #4361ee; background: #1e2d42; color: #818cf8; }
+        background: #111827 !important; border-color: #2d3f55 !important; color: #cbd5e1 !important;
+        &:hover    { border-color: #4361ee !important; background: #1e2d42 !important; }
+        &.selected { border-color: #4361ee !important; background: #1e2d42 !important; color: #818cf8 !important; }
       }
     }
-    .quiz-result-card h2 { color: #e2e8f0; }
+    .quiz-result-card h2 { color: #e2e8f0 !important; }
   }
 
-  .sub-chap-title { color: #e2e8f0; }
+  .sub-chap-title { color: #e2e8f0 !important; }
 }

@@ -255,3 +255,35 @@
   color: #2d3a52;
   line-height: 1.5;
 }
+
+/* ── DARK MODE ─────────────────────────────────────────────────── */
+:host-context(body.dark) .layout { background: #0f172a; }
+
+:host-context(body.dark) .profile-card {
+  background: #1e293b;
+  border-color: #2d3f55;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+:host-context(body.dark) .profile-card h2 { color: #e2e8f0; }
+
+:host-context(body.dark) .info-row { border-bottom-color: #2d3f55; }
+:host-context(body.dark) .info-label { color: #64748b; }
+:host-context(body.dark) .info-value { color: #cbd5e1; }
+
+:host-context(body.dark) .field label { color: #94a3b8; }
+:host-context(body.dark) .field input,
+:host-context(body.dark) .field textarea {
+  background: #0f172a;
+  border-color: #2d3f55;
+  color: #e2e8f0;
+}
+:host-context(body.dark) .field input:focus,
+:host-context(body.dark) .field textarea:focus { border-color: #4361ee; }
+:host-context(body.dark) .char-count { color: #4a5568; }
+
+:host-context(body.dark) .alert-success {
+  background: #052e16;
+  color: #4ade80;
+  border-color: #166534;
+}

@@ -117,3 +117,235 @@ body.dark .course-card .course-title { color:#FFFFFF !important; }
 body.dark .empty-state,
 body.dark .empty-chat { color:#9BA3C7 !important; }
 body.dark .empty-state h3 { color:#FFFFFF !important; }
+
+/* ── IMAGE UPLOAD zone (course-create) ── */
+body.dark .image-upload-area,
+body.dark .upload-zone,
+body.dark [class*="upload"] {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.15) !important;
+  color: #94a3b8 !important;
+}
+
+/* ── FORM CARDS (course-create, chapter-manage) ── */
+body.dark .form-card {
+  background: #1e293b !important;
+  border-color: rgba(255,255,255,.08) !important;
+  color: #e2e8f0 !important;
+}
+body.dark .form-card h2,
+body.dark .form-card h3 { color: #f1f5f9 !important; }
+body.dark .form-card label { color: #94a3b8 !important; }
+
+/* ── CHAPTER cards ── */
+body.dark .chapter-card  { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .chapter-header{ background: #152035 !important; color: #e2e8f0 !important; }
+body.dark .chapter-title { color: #f1f5f9 !important; }
+body.dark .sub-form      { background: #0f172a !important; }
+body.dark .subchapter    { background: #152035 !important; color: #cbd5e1 !important; }
+body.dark .empty         { background: #1e293b !important; color: #64748b !important; }
+body.dark .course-edit-form { background: #152035 !important; border-color: rgba(255,255,255,.08) !important; }
+
+/* ── ANALYTICS ── */
+body.dark .kpi-card,
+body.dark .chart-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .period-btn { background: #1e293b !important; border-color: rgba(255,255,255,.15) !important; color: #94a3b8 !important; }
+body.dark .period-btn.active { background: #2563eb !important; color: #fff !important; }
+
+/* ── COURSES LIST ── */
+body.dark .filters { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .filter-tabs button { background: #1e2d42 !important; border-color: rgba(255,255,255,.10) !important; color: #94a3b8 !important; }
+body.dark .filter-tabs button.active { background: linear-gradient(135deg,#1e3a5f,#2d6aad) !important; color: #fff !important; }
+body.dark .empty-state { background: #1e293b !important; border-color: rgba(255,255,255,.10) !important; }
+
+/* ── NOTIFICATION PANEL force ── */
+body.dark .nw .panel,
+body.dark app-notification-bell .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .nw .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+body.dark .nw .panel-foot { background: #111827 !important; }
+body.dark .nw .item { background: #1e293b !important; border-bottom-color: #1e2d42 !important; }
+body.dark .nw .item:hover { background: #1e2d42 !important; }
+body.dark .nw .item-title,
+body.dark .nw .ph-title { color: #e2e8f0 !important; }
+
+/* ── Quiz intro card (brain icon + fond blanc) ── */
+body.dark .quiz-intro-card {
+  background: #1e293b !important;
+  border-color: #2d3f55 !important;
+}
+body.dark .quiz-intro-card h2,
+body.dark .quiz-intro-card h3 { color: #e2e8f0 !important; }
+body.dark .quiz-intro-card .quiz-desc,
+body.dark .quiz-intro-card .quiz-meta { color: #94a3b8 !important; }
+
+/* ── Score requis badge ── */
+body.dark .score-required,
+body.dark [class*="score-req"] {
+  background: #1e2d42 !important;
+  border-color: #2d3f55 !important;
+  color: #818cf8 !important;
+}
+
+/* ── Banner "Mode aperçu" jaune ── */
+body.dark .preview-banner,
+body.dark [class*="preview"],
+body.dark [class*="apercu"] {
+  background: #2d2010 !important;
+  border-color: #78350f !important;
+  color: #fcd34d !important;
+}
+
+/* ── lesson-content + panel ── */
+body.dark .lesson-content { background: #1e293b !important; }
+body.dark .lesson-panel   { background: #111827 !important; }
+body.dark .chapters-panel { background: #1a2540 !important; }
+body.dark .chapter-title  { background: #1e293b !important; color: #cbd5e1 !important; }
+body.dark .panel-toggle   { background: linear-gradient(135deg,#1e2d42,#1a2540) !important; }
+body.dark .panel-toggle-title { color: #818cf8 !important; }
+
+/* ── Sections progress + rating ── */
+body.dark .progress-section,
+body.dark .rating-section {
+  background: #1e293b !important;
+  border-color: #2d3f55 !important;
+}
+body.dark .rating-title { color: #e2e8f0 !important; }
+body.dark .attempt-row  { background: #1e293b !important; border-color: #2d3f55 !important; }
+/* ══ DARK MODE FIX ══ */
+body.dark .quiz-intro-card { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .quiz-intro-card h2, body.dark .quiz-intro-card h3 { color: #e2e8f0 !important; }
+body.dark .quiz-intro-card .quiz-desc, body.dark .quiz-intro-card .quiz-meta { color: #94a3b8 !important; }
+body.dark .form-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; color: #e2e8f0 !important; }
+body.dark .form-card h2, body.dark .form-card h3 { color: #f1f5f9 !important; }
+body.dark .form-card label { color: #94a3b8 !important; }
+body.dark .chapter-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .chapter-header { background: #152035 !important; color: #e2e8f0 !important; }
+body.dark .sub-form { background: #0f172a !important; }
+body.dark .subchapter { background: #152035 !important; color: #cbd5e1 !important; }
+body.dark .empty { background: #1e293b !important; color: #64748b !important; }
+body.dark .course-edit-form { background: #152035 !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .kpi-card, body.dark .chart-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .period-btn { background: #1e293b !important; border-color: rgba(255,255,255,.15) !important; color: #94a3b8 !important; }
+body.dark .period-btn.active { background: #2563eb !important; color: #fff !important; }
+body.dark .filters { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .filter-tabs button { background: #1e2d42 !important; border-color: rgba(255,255,255,.10) !important; color: #94a3b8 !important; }
+body.dark .filter-tabs button.active { background: #1e3a5f !important; color: #fff !important; }
+body.dark .empty-state { background: #1e293b !important; border-color: rgba(255,255,255,.10) !important; }
+body.dark .lesson-content { background: #1e293b !important; }
+body.dark .lesson-panel { background: #111827 !important; }
+body.dark .chapters-panel { background: #1a2540 !important; }
+body.dark .panel-toggle { background: #1e2d42 !important; border-bottom-color: #2d3f55 !important; }
+body.dark .panel-toggle-title { color: #818cf8 !important; }
+body.dark .progress-section, body.dark .rating-section { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .nw .panel, body.dark app-notification-bell .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .nw .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+body.dark .nw .panel-foot { background: #111827 !important; }
+body.dark .nw .item { background: #1e293b !important; border-bottom-color: #1e2d42 !important; }
+body.dark .nw .item:hover { background: #1e2d42 !important; }
+body.dark .nw .item-title, body.dark .nw .ph-title { color: #e2e8f0 !important; }
+
+/* DARK MODE FORCE — quiz card + notification panel */
+body.dark .quiz-intro-card { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .quiz-intro-card h2 { color: #e2e8f0 !important; }
+body.dark .quiz-meta-row { color: #94a3b8 !important; }
+body.dark .quiz-meta-item .meta-label { color: #64748b !important; }
+body.dark .quiz-meta-item .meta-value { color: #e2e8f0 !important; }
+body.dark .attempt-row { background: #1e293b !important; border-color: #2d3f55 !important; color: #cbd5e1 !important; }
+body.dark .past-attempts h4 { color: #94a3b8 !important; }
+body.dark .lesson-content { background: #1e293b !important; border-right-color: #1e2d42 !important; }
+body.dark .lesson-panel { background: #111827 !important; }
+body.dark .lesson-header { border-bottom-color: #1e2d42 !important; }
+body.dark .lesson-header h3 { color: #e2e8f0 !important; }
+body.dark .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+body.dark .ph-title { color: #e2e8f0 !important; }
+body.dark .panel-foot { background: #111827 !important; border-top-color: #1e2d42 !important; }
+body.dark .list { background: #1e293b !important; }
+body.dark .item { background: #1e293b !important; border-bottom-color: #1e2d42 !important; }
+body.dark .item:hover { background: #1e2d42 !important; }
+body.dark .item-title { color: #e2e8f0 !important; }
+body.dark .item-msg { color: #94a3b8 !important; }
+body.dark .btn-sm { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+body.dark .ftab { color: #64748b !important; }
+body.dark .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; border-color: #1e3a8a !important; }
+body.dark .foot-txt { color: #64748b !important; }
+
+/* DARKMODE_SCRIPT_APPLIED */
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE GLOBAL — fix tous les fonds blancs persistants
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Quiz intro card ── */
+body.dark .quiz-intro-card { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .quiz-intro-card h2 { color: #e2e8f0 !important; }
+body.dark .quiz-intro-card .quiz-desc,
+body.dark .quiz-intro-card .quiz-meta { color: #94a3b8 !important; }
+body.dark .quiz-meta-row { color: #94a3b8 !important; }
+body.dark .quiz-meta-item .meta-label { color: #64748b !important; }
+body.dark .quiz-meta-item .meta-value { color: #e2e8f0 !important; }
+body.dark .quiz-progress-bar { background: #1e2d42 !important; }
+body.dark .question-card { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .question-card .question-text { color: #e2e8f0 !important; }
+body.dark .question-card .option { background: #111827 !important; border-color: #2d3f55 !important; color: #cbd5e1 !important; }
+body.dark .question-card .option:hover { border-color: #4361ee !important; background: #1e2d42 !important; }
+body.dark .question-card .option.selected { border-color: #4361ee !important; background: #1e2d42 !important; color: #818cf8 !important; }
+
+/* ── Tentatives ── */
+body.dark .attempt-row { background: #1e293b !important; border-color: #2d3f55 !important; color: #cbd5e1 !important; }
+body.dark .past-attempts h4 { color: #94a3b8 !important; }
+
+/* ── Lesson content ── */
+body.dark .lesson-content { background: #1e293b !important; border-right-color: #1e2d42 !important; }
+body.dark .lesson-panel { background: #111827 !important; }
+body.dark .lesson-header { border-bottom-color: #1e2d42 !important; }
+body.dark .lesson-header h3 { color: #e2e8f0 !important; }
+
+/* ── Chapters panel sidebar ── */
+body.dark .chapters-panel { background: #1a2540 !important; border-right-color: #1e2d42 !important; }
+body.dark .panel-toggle { background: #1e2d42 !important; border-bottom-color: #2d3f55 !important; }
+body.dark .panel-toggle-title { color: #818cf8 !important; }
+body.dark .chapter-title { background: #1e293b !important; color: #e2e8f0 !important; }
+body.dark .chapter-title-left { color: #cbd5e1 !important; }
+
+/* ── Analytics ── */
+body.dark .kpi-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .chart-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .chart-card h3, body.dark .chart-card h4 { color: #f1f5f9 !important; }
+body.dark .period-btn { background: #1e293b !important; border-color: rgba(255,255,255,.15) !important; color: #94a3b8 !important; }
+body.dark .period-btn.active { background: #2563eb !important; border-color: #2563eb !important; color: #fff !important; }
+
+/* ── Courses list ── */
+body.dark .filters { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .search-box input { background: #0f172a !important; border-color: rgba(255,255,255,.12) !important; color: #e2e8f0 !important; }
+body.dark .filter-tabs button { background: #1e2d42 !important; border-color: rgba(255,255,255,.10) !important; color: #94a3b8 !important; }
+body.dark .filter-tabs button.active { background: linear-gradient(135deg,#1e3a5f,#2d6aad) !important; color: #fff !important; border-color: transparent !important; }
+body.dark .course-card { background: #1e293b !important; border-color: rgba(255,255,255,.08) !important; }
+body.dark .card-body p { color: #94a3b8 !important; }
+body.dark .lang-tag { background: #0f172a !important; border-color: rgba(255,255,255,.08) !important; color: #64748b !important; }
+body.dark .empty-state { background: #1e293b !important; border-color: rgba(255,255,255,.10) !important; color: #64748b !important; }
+body.dark .empty-state h3 { color: #94a3b8 !important; }
+
+/* ── Progress + Rating ── */
+body.dark .progress-section { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .progress-header { color: #e2e8f0 !important; }
+body.dark .progress-track { background: #1e3a5f !important; }
+body.dark .rating-section { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark .rating-title { color: #e2e8f0 !important; border-bottom-color: #2d3f55 !important; }
+
+/* ── Notification panel (override global conflicts) ── */
+body.dark app-notification-bell .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+body.dark app-notification-bell .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+body.dark app-notification-bell .ph-title { color: #e2e8f0 !important; }
+body.dark app-notification-bell .list { background: #1e293b !important; }
+body.dark app-notification-bell .item { background: #1e293b !important; border-bottom-color: #1e2d42 !important; }
+body.dark app-notification-bell .item:hover { background: #1e2d42 !important; }
+body.dark app-notification-bell .item.unread { background: #1a2d4a !important; }
+body.dark app-notification-bell .item-title { color: #e2e8f0 !important; }
+body.dark app-notification-bell .item-msg { color: #94a3b8 !important; }
+body.dark app-notification-bell .item-time { color: #4a5568 !important; }
+body.dark app-notification-bell .btn-sm { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+body.dark app-notification-bell .ftab { color: #64748b !important; background: transparent !important; }
+body.dark app-notification-bell .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; border-color: #1e3a8a !important; }
+body.dark app-notification-bell .panel-foot { background: #111827 !important; border-top-color: #1e2d42 !important; }
+body.dark app-notification-bell .foot-txt { color: #64748b !important; }
+body.dark app-notification-bell .empty { color: #64748b !important; }

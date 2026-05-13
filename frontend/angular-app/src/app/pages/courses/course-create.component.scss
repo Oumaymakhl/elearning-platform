@@ -324,3 +324,16 @@ select {
   background: #e2e8f0;
   margin-left: 13px;
 }
+
+:host-context(body.dark) {
+  .main { background: #0f172a !important; }
+  .upload-area { background: #1e293b !important; border-color: rgba(255,255,255,.2) !important; }
+  .upload-label { color: #94a3b8 !important; }
+  .upload-label span { color: #cbd5e1 !important; }
+  .form-card { background: #1e293b !important; border-color: #2d3f55 !important; }
+  .section-label { color: #64748b !important; }
+  .help-card, .steps-card { background: #1e293b !important; border-color: #2d3f55 !important; color: #cbd5e1 !important; }
+  .step-num { background: #1e2d42 !important; color: #64748b !important; }
+  .step-num.done { background: #2563EB !important; color: #fff !important; }
+  .step-title { color: #cbd5e1 !important; }
+}
