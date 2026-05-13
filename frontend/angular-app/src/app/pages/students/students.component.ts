@@ -217,7 +217,7 @@ export class StudentsComponent implements OnInit {
 
   ngOnInit() {
     const user = this.auth.getCurrentUser();
-    const userId = user?.auth_id || user?.id;
+    const userId = user?.id;
     this.courseService.getCourses().subscribe({
       next: (courses) => {
         this.courses = courses.filter((c: any) => c.instructor_id === userId);

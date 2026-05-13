@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { teacherGuard } from './core/guards/teacher.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
@@ -17,14 +18,14 @@ export const routes: Routes = [
   { path: 'verify-email', loadComponent: () => import('./pages/auth/verify-email.component').then(m => m.VerifyEmailComponent) },
   { path: 'courses/:courseId/td/:subId', loadComponent: () => import('./pages/td/td-manage.component').then(m => m.TdManageComponent), canActivate: [authGuard] },
   { path: 'courses/:id/certificate', loadComponent: () => import('./pages/certificate/certificate.component').then(m => m.CertificateComponent), canActivate: [authGuard] },
-  { path: 'students', loadComponent: () => import('./pages/students/students.component').then(m => m.StudentsComponent), canActivate: [authGuard] },
-  { path: 'courses/:id/students', loadComponent: () => import('./pages/courses/course-students.component').then(m => m.CourseStudentsComponent), canActivate: [authGuard] },
+  { path: 'students', loadComponent: () => import('./pages/students/students.component').then(m => m.StudentsComponent), canActivate: [teacherGuard] },
+  { path: 'courses/:id/students', loadComponent: () => import('./pages/courses/course-students.component').then(m => m.CourseStudentsComponent), canActivate: [teacherGuard] },
   { path: 'quiz-manage/:courseId/:chapterId', loadComponent: () => import('./pages/quiz-manage/quiz-manage.component').then(m => m.QuizManageComponent), canActivate: [authGuard] },
   { path: 'quiz/:id', loadComponent: () => import('./pages/quiz/quiz.component').then(m => m.QuizComponent), canActivate: [authGuard] },
   { path: 'exercise/:id', loadComponent: () => import('./pages/exercise/exercise.component').then(m => m.ExerciseComponent), canActivate: [authGuard] },
   { path: 'teacher-approvals', loadComponent: () => import('./pages/admin/teacher-approval.component').then(m => m.TeacherApprovalComponent), canActivate: [authGuard] },
   { path: 'admin', loadComponent: () => import('./pages/admin/admin.component').then(m => m.AdminComponent), canActivate: [authGuard] },
-  { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent), canActivate: [authGuard] },
+  { path: 'analytics', loadComponent: () => import('./pages/analytics/analytics-dashboard.component').then(m => m.AnalyticsDashboardComponent), canActivate: [teacherGuard] },
   { path: 'chatbot', loadComponent: () => import('./pages/chatbot/chatbot.component').then(m => m.ChatbotComponent), canActivate: [authGuard] },
   { path: 'certificates', loadComponent: () => import('./pages/certificates/certificates.component').then(m => m.CertificatesComponent), canActivate: [authGuard] },
   { path: 'courses/:id/forum', loadComponent: () => import('./pages/forum/forum.component').then(m => m.ForumComponent), canActivate: [authGuard] },
