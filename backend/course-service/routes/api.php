@@ -46,6 +46,7 @@ Route::middleware('jwt')->group(function () {
     Route::put('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',          [SubChapterController::class, 'update']);
     Route::delete('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',       [SubChapterController::class, 'destroy']);
 
+    Route::get('/my-teaching-courses', [CourseController::class, 'myTeachingCourses']);
     Route::get('/my-courses',                        [EnrollmentController::class, 'myCourses']);
     Route::post('/courses/{courseId}/enroll',        [EnrollmentController::class, 'enroll']);
     Route::delete('/courses/{courseId}/enroll',      [EnrollmentController::class, 'unenroll']);

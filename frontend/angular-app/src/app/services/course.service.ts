@@ -10,6 +10,7 @@ export class CourseService {
   constructor(private http: HttpClient) {}
 
   getCourses(): Observable<any[]>        { return this.http.get<any[]>(`${this.api}`); }
+  getMyTeachingCourses(): Observable<any[]> { return this.http.get<any[]>(`${this.api}/my-teaching-courses`); }
   getCourse(id: number): Observable<any> { return this.http.get(`${this.api}/${id}`); }
   createCourse(data: any): Observable<any>             { return this.http.post(`${this.api}`, data); }
   updateCourse(id: number, data: any): Observable<any> { return this.http.put(`${this.api}/${id}`, data); }

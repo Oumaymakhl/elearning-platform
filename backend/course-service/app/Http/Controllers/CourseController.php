@@ -78,6 +78,13 @@ class CourseController extends Controller
         ]));
         return response()->json($course);
     }
+    public function myTeachingCourses(Request \$request) {
+        \$courses = Course::with('chapters.subChapters')
+            ->where('instructor_id', \$request->auth_user_id)
+            ->get();
+        return response()->json(\$courses);
+    }
+
     public function destroy(Request $request, $id) {
         $course = Course::findOrFail($id);
         if ((int)$course->instructor_id !== (int)$request->auth_user_id && $request->auth_user_role !== "admin") {
