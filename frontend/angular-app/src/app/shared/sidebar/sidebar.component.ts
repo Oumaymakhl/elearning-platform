@@ -167,7 +167,7 @@ import { Subscription } from 'rxjs';
     .notif-btn svg{width:18px;height:18px;display:block}
     .notif-badge{position:absolute;top:-6px;right:-6px;background:#e53e3e;color:#fff;font-size:.6rem;font-weight:700;min-width:16px;height:16px;border-radius:8px;padding:0 4px;display:flex;align-items:center;justify-content:center;border:2px solid #0f2544}
 
-    .notif-panel{position:fixed;top:20px;left:270px;z-index:1001;width:370px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.14);overflow:hidden;color:#1a202c}
+    .notif-panel{position:fixed;top:20px;left:270px;z-index:1001;width:370px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.14);overflow:hidden;color:#1a202c} body.dark .notif-panel{background:#1e293b !important;border-color:#2d3f55 !important;color:#e2e8f0 !important}
 
     .np-header{padding:13px 15px 9px;border-bottom:1px solid #edf2f7}
     .np-header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}
