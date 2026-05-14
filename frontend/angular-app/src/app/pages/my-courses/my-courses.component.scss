@@ -1,6 +1,6 @@
-.layout { display: flex; min-height: 100vh; background: #f0f4fa; }
-.main   { margin-left: 260px; flex: 1; padding: 2rem 2.5rem; min-height: 100vh; background: #f0f4fa; }
+@import '../../shared/styles/courses-shared';
 
+/* ── Hero my-courses ── */
 .page-header {
   background: linear-gradient(135deg, #1565c0 0%, #1E3A5F 45%, #0d2137 100%);
   border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem;
@@ -19,7 +19,6 @@
 }
 .header-left h1 { font-size: 1.9rem; font-weight: 900; color: #fff; margin: 0 0 .3rem; }
 .header-left p  { color: rgba(255,255,255,.65); font-size: .95rem; margin: 0; }
-
 .header-stats {
   background: rgba(255,255,255,.12); backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,.2); border-radius: 14px;
@@ -31,6 +30,7 @@
 .hstat-label { font-size: .72rem; opacity: .75; margin-top: .15rem; }
 .hstat-sep   { width: 1px; height: 36px; background: rgba(255,255,255,.25); }
 
+/* ── Filtres ── */
 .filters {
   display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.75rem;
   background: white; border-radius: 16px; padding: 1rem 1.25rem;
@@ -42,50 +42,23 @@
   cursor: pointer; transition: .2s;
 }
 .filter-btn:hover  { border-color: #4A90D9; color: #1E3A5F; background: #eef5fd; }
-.filter-btn.active { background: linear-gradient(135deg,#1E3A5F,#2d6aad); color: white; border-color: transparent; box-shadow: 0 3px 10px rgba(30,58,95,.25); }
+.filter-btn.active { background: linear-gradient(135deg,#1E3A5F,#2d6aad); color: white; border-color: transparent; }
 
+/* ── Loading ── */
 .loading-state { display: flex; align-items: center; gap: 1rem; padding: 4rem; color: #64748b; justify-content: center; }
 .spinner { width: 28px; height: 28px; border: 3px solid #e2e8f0; border-top-color: #4A90D9; border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.empty-state { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 5rem 2rem; text-align: center; background: white; border-radius: 18px; border: 1.5px dashed #dde3ef; }
-.empty-icon { font-size: 4rem; margin-bottom: .5rem; }
-.empty-state h2 { font-size: 1.3rem; color: #1E3A5F; margin: 0; }
-.empty-state p  { color: #718096; font-size: .92rem; margin: 0; }
-.btn-primary { padding: .7rem 1.5rem; background: linear-gradient(135deg,#1E3A5F,#3a7bd5); color: white; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: .9rem; transition: .2s; box-shadow: 0 3px 10px rgba(30,58,95,.22); }
-.btn-primary:hover { opacity: .9; transform: translateY(-2px); }
-.btn-secondary { padding: .6rem 1.5rem; background: #f1f5f9; color: #1E3A5F; border-radius: 10px; border: 1.5px solid #e2e8f0; font-weight: 700; font-size: .9rem; cursor: pointer; transition: .2s; }
-.btn-secondary:hover { background: #e2e8f0; }
-
-.courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
-
-.course-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 16px rgba(30,58,95,.07); border: 1.5px solid #eaf0f8; transition: transform .25s, box-shadow .25s, border-color .25s; display: flex; flex-direction: column; }
-.course-card:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(30,58,95,.14); border-color: #bee3f8; }
+/* ── Card specifics ── */
 .course-card.done { border-color: #10b981; }
 .course-card.done .card-cover { background: linear-gradient(135deg, #065f46, #10b981); }
-
-.card-cover { position: relative; height: 165px; overflow: hidden; cursor: pointer; background: linear-gradient(135deg, #1E3A5F, #4A90D9); display: flex; align-items: center; justify-content: center; }
-.card-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cover-emoji { font-size: 3.8rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,.18)); }
-.cover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.25); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
-.course-card:hover .cover-overlay { opacity: 1; }
-.cover-play { width: 48px; height: 48px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 12px rgba(0,0,0,.3); }
-.cover-badge { position: absolute; top: .75rem; right: .75rem; padding: .28rem .8rem; border-radius: 20px; font-size: .72rem; font-weight: 700; backdrop-filter: blur(8px); }
+.card-meta { display: flex; align-items: center; justify-content: space-between; }
+.enrolled-date { font-size: .72rem; color: #94a3b8; }
 .status-active    { background: rgba(219,234,254,.92); color: #1d4ed8; }
 .status-completed { background: rgba(220,252,231,.92); color: #166534; }
 .status-abandoned { background: rgba(254,226,226,.92); color: #991b1b; }
 
-.card-body { padding: 1.25rem 1.5rem 1.5rem; flex: 1; display: flex; flex-direction: column; gap: .5rem; }
-.card-meta { display: flex; align-items: center; justify-content: space-between; }
-.level-tag { padding: .22rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
-.level-tag.debutant      { background: rgba(198,246,213,.92); color: #1a6438; }
-.level-tag.intermediaire { background: rgba(254,243,200,.92); color: #7a4b00; }
-.level-tag.avance        { background: rgba(254,215,215,.92); color: #c23b3b; }
-.enrolled-date { font-size: .72rem; color: #94a3b8; }
-.card-body h3 { margin: 0; font-size: 1.05rem; font-weight: 800; color: #1E3A5F; cursor: pointer; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.card-body h3:hover { color: #4A90D9; }
-.card-body p { margin: 0; font-size: .86rem; color: #718096; line-height: 1.65; flex: 1; }
-
+/* ── Progress ── */
 .progress-section { display: flex; flex-direction: column; gap: .35rem; }
 .progress-labels  { display: flex; justify-content: space-between; font-size: .78rem; color: #64748b; font-weight: 500; }
 .pct      { font-weight: 800; color: #1E3A5F; }
@@ -97,16 +70,14 @@
 .fill-low  { background: linear-gradient(90deg, #d97706, #f59e0b); }
 .progress-hint { font-size: .72rem; color: #94a3b8; }
 
-.card-footer { display: flex; gap: .5rem; align-items: center; padding-top: .75rem; border-top: 1px solid #f0f4fa; margin-top: .25rem; }
-.btn-continue { flex: 1; padding: .55rem 0; background: linear-gradient(135deg,#1E3A5F,#3a7bd5); color: white; border-radius: 10px; text-decoration: none; font-size: .83rem; font-weight: 700; text-align: center; transition: .2s; box-shadow: 0 3px 10px rgba(30,58,95,.22); }
-.btn-continue:hover { opacity: .9; transform: translateX(2px); }
+/* ── Buttons ── */
+.btn-primary { padding: .7rem 1.5rem; background: linear-gradient(135deg,#1E3A5F,#3a7bd5); color: white; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: .9rem; }
+.btn-secondary { padding: .6rem 1.5rem; background: #f1f5f9; color: #1E3A5F; border-radius: 10px; border: 1.5px solid #e2e8f0; font-weight: 700; font-size: .9rem; cursor: pointer; }
+.btn-continue { flex: 1; padding: .55rem 0; background: linear-gradient(135deg,#1E3A5F,#3a7bd5); color: white; border-radius: 10px; text-decoration: none; font-size: .83rem; font-weight: 700; text-align: center; transition: .2s; }
 .btn-continue.btn-start  { background: linear-gradient(135deg,#4A90D9,#2563eb); }
 .btn-continue.btn-review { background: linear-gradient(135deg,#64748b,#475569); }
-.btn-cert { padding: .55rem .85rem; background: #fef3c7; color: #92400e; border-radius: 10px; text-decoration: none; font-size: .78rem; font-weight: 700; transition: background .2s; white-space: nowrap; border: 1px solid rgba(245,158,11,.28); }
+.btn-cert { padding: .55rem .85rem; background: #fef3c7; color: #92400e; border-radius: 10px; text-decoration: none; font-size: .78rem; font-weight: 700; white-space: nowrap; border: 1px solid rgba(245,158,11,.28); }
 .btn-cert:hover { background: #fde68a; }
 
-@media(max-width:900px) {
-  .main { margin-left: 0; padding: 1.5rem; }
-  .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .courses-grid { grid-template-columns: 1fr; }
-}
+.page-header { flex-wrap: wrap; }
+@media(max-width:900px) { .page-header { flex-direction: column; align-items: flex-start; gap: 1rem; } }
