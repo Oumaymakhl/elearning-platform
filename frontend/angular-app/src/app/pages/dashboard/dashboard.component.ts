@@ -153,7 +153,7 @@ import { FormsModule } from '@angular/forms';
                     <span>📘</span>
                   </div>
                   <div class="course-done-badge" *ngIf="course.progress === 100">✅</div>
-                  <div class="course-progress-overlay">
+                  <div class="course-progress-overlay" *ngIf="isStudent">
                     <div class="progress-bar">
                       <div class="progress-fill"
                         [style.width]="(course.progress || 0) + '%'"

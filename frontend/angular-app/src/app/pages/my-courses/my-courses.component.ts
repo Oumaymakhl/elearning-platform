@@ -61,4 +61,26 @@ export class MyCoursesComponent implements OnInit {
     const m: Record<string,string> = { debutant:'Débutant', intermediaire:'Intermédiaire', avance:'Avancé' };
     return m[level] ?? level;
   }
+
+  getCourseColor(id: number): string {
+    const colors = [
+      'linear-gradient(135deg,#1E3A5F,#4A90D9)',
+      'linear-gradient(135deg,#2d6a4f,#52b788)',
+      'linear-gradient(135deg,#6a0572,#ab47bc)',
+      'linear-gradient(135deg,#b5451b,#e57c23)',
+      'linear-gradient(135deg,#0f3460,#533483)',
+    ];
+    return colors[id % colors.length];
+  }
+  getCourseIcon(title: string): string {
+    const t = (title || '').toLowerCase();
+    if (t.includes('python')) return '🐍';
+    if (t.includes('java')) return '☕';
+    if (t.includes('web') || t.includes('html')) return '🌐';
+    if (t.includes('data') || t.includes('ml')) return '🤖';
+    if (t.includes('mobile') || t.includes('flutter')) return '📱';
+    if (t.includes('php')) return '🐘';
+    if (t.includes('algo')) return '🧮';
+    return '📘';
+  }
 }

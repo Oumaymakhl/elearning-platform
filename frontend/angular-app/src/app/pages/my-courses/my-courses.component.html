@@ -63,9 +63,11 @@
            [class.not-started]="e.percentage === 0">
  
         <!-- Cover -->
-        <div class="card-cover" [routerLink]="['/courses', e.course_id]">
+        <div class="card-cover" [routerLink]="['/courses', e.course_id]"
+             [style.background]="e.course?.image_path ? 'none' : getCourseColor(e.course_id)"
+             [style.padding]="e.course?.image_path ? '0' : null">
           <img *ngIf="e.course?.image_path" [src]="e.course.image_path" [alt]="e.course?.title">
-          <span *ngIf="!e.course?.image_path" class="cover-emoji">📘</span>
+          <span *ngIf="!e.course?.image_path" class="cover-emoji">{{ getCourseIcon(e.course?.title) }}</span>
           <div class="cover-overlay">
             <span class="cover-play">{{ e.percentage === 100 ? '✅' : '▶' }}</span>
           </div>
