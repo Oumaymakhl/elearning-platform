@@ -280,7 +280,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.notifService.stopPolling(); this.subs.unsubscribe(); this.observer?.disconnect(); }
 
-  togglePanel(): void { this.open = !this.open; }
+  togglePanel(): void { this.open = !this.open; this.isDark = document.body.classList.contains('dark'); }
 
   setFilter(f: string): void { this.activeFilter = f; this.applyFilter(); }
 
