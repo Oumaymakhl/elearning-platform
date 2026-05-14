@@ -24,8 +24,8 @@ import { Subscription } from 'rxjs';
             <span class="notif-badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
           </button>
 
-          <div class="notif-panel" *ngIf="notifOpen">
-            <div class="np-header">
+          <div class="notif-panel" *ngIf="notifOpen" [style.background]="isDark ? '#1e293b' : '#fff'" [style.border-color]="isDark ? '#2d3f55' : '#e2e8f0'" [style.color]="isDark ? '#e2e8f0' : '#1a202c'">
+            <div class="np-header" [style.background]="isDark ? '#1e293b' : '#fff'" [style.border-bottom-color]="isDark ? '#2d3f55' : '#edf2f7'">
               <div class="np-header-top">
                 <span class="np-title">🔔 Notifications</span>
                 <div class="np-actions">
@@ -40,7 +40,7 @@ import { Subscription } from 'rxjs';
               </div>
             </div>
 
-            <div class="np-list">
+            <div class="np-list" [style.background]="isDark ? '#1e293b' : '#fff'">
               <div class="np-empty" *ngIf="filtered.length === 0">
                 <div style="font-size:24px">🔕</div>
                 <div>Aucune notification</div>
@@ -72,7 +72,7 @@ import { Subscription } from 'rxjs';
               </div>
             </div>
 
-            <div class="np-footer">
+            <div class="np-footer" [style.background]="isDark ? '#111827' : '#f7fafc'" [style.border-top-color]="isDark ? '#2d3f55' : '#edf2f7'">
               <span class="np-foot-txt">{{ notifications.length }} notification(s)</span>
               <div class="np-stats">
                 <span class="np-stat s-unread" *ngIf="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
