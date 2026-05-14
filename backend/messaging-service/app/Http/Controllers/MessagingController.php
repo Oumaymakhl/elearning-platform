@@ -241,4 +241,16 @@ class MessagingController extends Controller
 
         return response()->json(['url' => $url, 'name' => $request->file('file')->getClientOriginalName()]);
     }
+
+    // PUT /api/internal/update-avatar (appelé par user-service)
+    public function updateAvatar(Request $request)
+    {
+        $userId    = $request->input("user_id");
+        $avatarUrl = $request->input("avatar_url");
+        if (!$userId || !$avatarUrl) return response()->json(["message" => "Missing params"], 422);
+        DB::table("conversations")->where("user1_id", $userId)->update(["user1_avatar" => $avatarUrl, "updated_at" => now()]);
+        DB::table("conversations")->where("user2_id", $userId)->update(["user2_avatar" => $avatarUrl, "updated_at" => now()]);
+        DB::table("messages")->where("sender_id", $userId)->update(["sender_avatar" => $avatarUrl, "updated_at" => now()]);
+        return response()->json(["message" => "Avatar updated"]);
+    }
 }

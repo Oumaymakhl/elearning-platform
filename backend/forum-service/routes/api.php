@@ -11,3 +11,6 @@ Route::middleware(['jwt', 'enrolled'])->group(function () {
     Route::delete('/forum/posts/{postId}',           [ForumController::class, 'deletePost']);
     Route::delete('/forum/replies/{replyId}',        [ForumController::class, 'deleteReply']);
 });
+
+// Route interne - mise à jour avatar depuis user-service
+Route::put('/internal/update-avatar', [ForumController::class, 'updateAvatar']);

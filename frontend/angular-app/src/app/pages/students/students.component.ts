@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -6,7 +6,7 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { Router } from '@angular/router';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 
 interface StudentRow {
   user_id: number;
@@ -208,17 +208,20 @@ interface StudentRow {
     .empty p { margin:0; font-size:.85rem; }
   `]
 })
-export class StudentsComponent implements OnInit {
+export class StudentsComponent implements OnInit, OnDestroy {
   courses: any[] = [];
   allStudentRows: StudentRow[] = [];
   filtered: StudentRow[] = [];
   search = '';
   selectedCourse = '';
   loading = true;
+  currentUser: any;
+  private userSub = new Subscription();
 
   constructor(private courseService: CourseService, private auth: AuthService, private router: Router) {}
 
   ngOnInit() {
+    this.userSub = this.auth.currentUser$.subscribe(u => { if (u) this.currentUser = u; });
     const user = this.auth.getCurrentUser();
     const userId = user?.id;
     this.courseService.getMyTeachingCourses().subscribe({
@@ -249,6 +252,8 @@ export class StudentsComponent implements OnInit {
       error: () => { this.loading = false; }
     });
   }
+
+  ngOnDestroy() { this.userSub.unsubscribe(); }
 
   onSelectChange(student: StudentRow, event: Event) {
     const courseId = +(event.target as HTMLSelectElement).value;

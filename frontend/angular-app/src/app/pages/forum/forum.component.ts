@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 import { ConfirmService } from '../../services/confirm.service';
 
 @Component({
@@ -217,7 +218,7 @@ import { ConfirmService } from '../../services/confirm.service';
     :host-context(body.dark) .empty { color: #64748b; }
   `]
 })
-export class ForumComponent implements OnInit {
+export class ForumComponent implements OnInit, OnDestroy {
   courseId!: number;
   posts: any[] = [];
   loading = true;
@@ -229,6 +230,7 @@ export class ForumComponent implements OnInit {
   editingPostId: number | null = null;
   editTitle = '';
   editBody = '';
+  private userSub = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -239,8 +241,21 @@ export class ForumComponent implements OnInit {
 
   ngOnInit() {
     this.courseId = +this.route.snapshot.paramMap.get('id')!;
-    this.currentUser = this.auth.getCurrentUser();
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      if (!u) return;
+      this.currentUser = u;
+    });
     this.loadPosts();
+  }
+
+  ngOnDestroy() { this.userSub.unsubscribe(); }
+
+  syncAvatarInPosts(u: any) {
+    const myId = u.auth_id || u.id;
+    this.posts.forEach(post => {
+      if (post.user_id == myId) post.user_avatar = u.avatar_url || null;
+      (post.replies || []).forEach((r: any) => { if (r.user_id == myId) r.user_avatar = u.avatar_url || null; });
+    });
   }
 
   loadPosts() {
@@ -248,6 +263,7 @@ export class ForumComponent implements OnInit {
     this.http.get<any[]>(`/api/forum/courses/${this.courseId}/posts`).subscribe({
       next: (posts) => {
         this.posts = posts.map(p => ({ ...p, showReplies: false, replyText: '' }));
+        this.syncAvatarInPosts(this.currentUser);
         this.loading = false;
       },
       error: () => { this.loading = false; }

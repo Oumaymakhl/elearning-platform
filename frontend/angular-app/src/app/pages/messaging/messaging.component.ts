@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ConfirmService } from '../../services/confirm.service';
 
@@ -463,6 +464,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   emojis = ['😊','😂','❤️','👍','🙏','😍','🎉','🔥','😢','😎','🤔','👏','✅','💡','📚','🚀'];
 
   private pollInterval: any = null;
+  private userSub = new Subscription();
   private convPollInterval: any = null;
   private shouldScroll = false;
 
@@ -481,8 +483,8 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit() {
-    this.currentUser = this.auth.getCurrentUser();
-    this.currentUser.myId = this.currentUser?.auth_id || this.currentUser?.id;
+    this.userSub = this.auth.currentUser$.subscribe(u => { if (u) { this.currentUser = u; this.currentUser.myId = u.auth_id || u.id; } });
+
     this.loadConversations();
     this.convPollInterval = setInterval(() => this.loadConversations(), 15000);
     this.route.queryParams.subscribe(params => {
@@ -498,7 +500,15 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnDestroy() {
     if (this.pollInterval) clearInterval(this.pollInterval);
+    this.userSub.unsubscribe();
     if (this.convPollInterval) clearInterval(this.convPollInterval);
+  }
+
+  syncAvatarInMessages(u: any) {
+    const myId = u.auth_id || u.id;
+    const newAvatar = u.avatar_url || (u.avatar ? '/storage/' + u.avatar : null);
+    this.messages.forEach((msg: any) => { if (msg.sender_id === myId) msg.sender_avatar = newAvatar; });
+    this.conversations.forEach((conv: any) => { if (conv.my_avatar !== undefined) conv.my_avatar = newAvatar; });
   }
 
   getUserHeader(): string {

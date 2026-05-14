@@ -92,11 +92,8 @@ export class ProfileComponent implements OnInit {
         this.uploadingAvatar = false;
         this.success = true;
         setTimeout(() => (this.success = false), 3000);
-        // Mettre à jour la sidebar immédiatement
-        const stored = this.auth.getCurrentUser();
-        const updated = { ...stored, avatar_url: avatarUrl };
-        localStorage.setItem('user', JSON.stringify(updated));
-        (this.auth as any)['currentUserSubject'].next(updated);
+        // Mettre à jour tous les composants abonnés (forum, messages, étudiants…)
+        this.auth.updateCurrentUser({ avatar_url: avatarUrl });
       },
       error: (e) => {
         this.avatarError = e.error?.message || 'Erreur upload';

@@ -70,6 +70,13 @@ export class AuthService {
   isAdmin(): boolean { return this.getCurrentUser()?.role === 'admin'; }
   isTeacher(): boolean { return this.getCurrentUser()?.role === 'teacher'; }
   isStudent(): boolean { return this.getCurrentUser()?.role === 'student'; }
+  updateCurrentUser(patch: Partial<any>): void {
+    const current = this.currentUserSubject.value;
+    if (!current) return;
+    const updated = { ...current, ...patch };
+    localStorage.setItem('user', JSON.stringify(updated));
+    this.currentUserSubject.next(updated);
+  }
   registerWithFormData(formData: FormData): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, formData);
   }

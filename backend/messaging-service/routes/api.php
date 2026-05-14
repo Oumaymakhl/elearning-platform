@@ -3,6 +3,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MessagingController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
+Route::put('/internal/update-avatar', [MessagingController::class, 'updateAvatar']);
 Route::get('/messaging/conversations',                      [MessagingController::class, 'conversations']);
 Route::post('/messaging/conversations',                     [MessagingController::class, 'startConversation']);
 Route::get('/messaging/conversations/{id}/messages',        [MessagingController::class, 'messages']);
