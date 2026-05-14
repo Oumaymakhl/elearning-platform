@@ -45,7 +45,8 @@ import { FormsModule } from '@angular/forms';
               <tr *ngFor="let s of filtered; let i = index">
                 <td class="num">{{ i + 1 }}</td>
                 <td class="student-name">
-                  <div class="avatar">{{ getInitials(s.student?.name) }}</div>
+                  <img *ngIf="s.student?.avatar" class="avatar-img" [src]="'storage/' + s.student.avatar" alt="">
+                  <div *ngIf="!s.student?.avatar" class="avatar">{{ getInitials(s.student?.name) }}</div>
                   {{ s.student?.name || 'Étudiant #' + s.user_id }}
                 </td>
                 <td class="email">{{ s.student?.email || '—' }}</td>
@@ -90,7 +91,8 @@ import { FormsModule } from '@angular/forms';
     tr:hover td { background:#f8faff; }
     .num { color:#94a3b8; font-size:.8rem; width:40px; }
     .student-name { display:flex; align-items:center; gap:.75rem; font-weight:600; color:#1a2340; }
-    .avatar { width:34px; height:34px; border-radius:50%; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
+    .avatar-img { width:34px; height:34px; border-radius:10px; object-fit:cover; flex-shrink:0; }
+    .avatar { width:34px; height:34px; border-radius:10px; background:#1E3A5F; color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700; flex-shrink:0; }
     .email { color:#64748b; }
     .progress-cell { display:flex; align-items:center; gap:.6rem; }
     .progress-bar { flex:1; height:6px; background:#e2e8f0; border-radius:3px; max-width:100px; }
