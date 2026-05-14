@@ -109,4 +109,4 @@ Le pipeline GitHub Actions s'exécute à chaque push sur `main` ou `develop` :
 
 ## 👩‍💻 Auteur
 
-Développé par **Oumaymakhl**
+Développé par **Oumayma Kahouli**
