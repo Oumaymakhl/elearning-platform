@@ -47,6 +47,7 @@ import { Subscription } from 'rxjs';
               </div>
               <div class="np-item"
                 *ngFor="let n of filtered"
+                [style.background]="isDark ? (n.is_read ? '#1e293b' : '#1a2d4a') : (n.is_read ? '#fff' : '#f0f7ff')"
                 [class.unread]="!n.is_read"
                 [class.p-high]="n.priority==='high'"
                 [class.p-med]="n.priority==='medium'"
@@ -55,13 +56,13 @@ import { Subscription } from 'rxjs';
                 <div class="np-ico" [ngClass]="iconBg(n)">{{ n.icon }}</div>
                 <div class="np-body">
                   <div class="np-item-top">
-                    <span class="np-item-title">{{ n.title }}</span>
+                    <span class="np-item-title" [style.color]="isDark ? '#e2e8f0' : '#1a202c'">{{ n.title }}</span>
                     <span class="np-prio" *ngIf="n.priority==='high'">urgent</span>
                     <span class="np-dot" [class.np-dot-red]="n.priority==='high'" *ngIf="!n.is_read"></span>
                   </div>
-                  <div class="np-msg">{{ n.message }}</div>
+                  <div class="np-msg" [style.color]="isDark ? '#94a3b8' : '#718096'">{{ n.message }}</div>
                   <div class="np-foot">
-                    <span class="np-time">{{ n.time_ago }}</span>
+                    <span class="np-time" [style.color]="isDark ? '#4a5568' : '#a0aec0'">{{ n.time_ago }}</span>
                     <a class="np-link" *ngIf="n.action_url" [href]="n.action_url" (click)="$event.stopPropagation()">Voir →</a>
                   </div>
                 </div>
