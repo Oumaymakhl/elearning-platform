@@ -510,6 +510,15 @@ import { FormsModule } from '@angular/forms';
     .forum-title { font-size: .85rem; font-weight: 600; color: #1a2340; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .forum-meta { font-size: .72rem; color: #94a3b8; margin-top: .15rem; }
 
+
+    /* ══ DARK MODE ══ */
+    :host-context(body.dark) .cert-item { background: #1e2d42 !important; border-color: #2d3f55 !important; }
+    :host-context(body.dark) .cert-title { color: #e2e8f0 !important; }
+    :host-context(body.dark) .cert-date { color: #64748b !important; }
+    :host-context(body.dark) .cert-link { color: #60a5fa !important; }
+    :host-context(body.dark) .forum-item { background: #1e2d42 !important; border-color: #2d3f55 !important; }
+    :host-context(body.dark) .forum-title { color: #e2e8f0 !important; }
+    :host-context(body.dark) .forum-meta { color: #64748b !important; }
     /* ══ EMPTY STATES ══ */
     .empty-state { text-align: center; padding: 2rem 1rem; }
     .empty-icon { font-size: 2.5rem; margin-bottom: .75rem; }
