@@ -5,23 +5,21 @@ Plateforme d'apprentissage en ligne basée sur une architecture **microservices*
 ---
 
 ## 🏗️ Architecture
-Internet
-│
-▼
-Nginx (reverse proxy)
-│
-├── /api/auth/*        → auth-service        :8000
-├── /api/users/*       → user-service         :8001
-├── /api/courses/*     → course-service       :8002
-├── /api/content/*     → content-service      :8003
-├── /api/quiz/*        → quiz-service         :8004
-├── /api/forum/*       → forum-service        :8005
-├── /api/messaging/*   → messaging-service    :8006
-├── /api/notifications/→ notification-service :8007
-├── /api/chatbot/*     → chatbot-service      :8008
-├── /api/executor/*    → executor-service     :8009
-├── /api/payment/*     → payment-service      :8010
-└── /*                 → frontend (Angular)   :4200
+
+| Route | Service | Port |
+|---|---|---|
+| `/api/auth/*` | auth-service | 8000 |
+| `/api/users/*` | user-service | 8001 |
+| `/api/courses/*` | course-service | 8002 |
+| `/api/content/*` | content-service | 8003 |
+| `/api/quiz/*` | quiz-service | 8004 |
+| `/api/forum/*` | forum-service | 8005 |
+| `/api/messaging/*` | messaging-service | 8006 |
+| `/api/notifications/*` | notification-service | 8007 |
+| `/api/chatbot/*` | chatbot-service | 8008 |
+| `/api/executor/*` | executor-service | 8009 |
+| `/api/payment/*` | payment-service | 8010 |
+| `/*` | frontend Angular | 4200 |
 ---
 
 ## 🧩 Microservices
