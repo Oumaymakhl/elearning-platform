@@ -251,7 +251,8 @@ import { Subscription } from 'rxjs';
 })
 export class NotificationBellComponent implements OnInit, OnDestroy {
   open = false;
-  get isDark() { return document.body.classList.contains('dark'); }
+  isDark = document.body.classList.contains('dark');
+  private observer!: MutationObserver;
   notifications: Notification[] = [];
   filtered: Notification[] = [];
   unreadCount = 0;
@@ -262,6 +263,11 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   constructor(private notifService: NotificationService, private confirmSvc: ConfirmService) {}
 
   ngOnInit(): void {
+    this.isDark = document.body.classList.contains('dark');
+    this.observer = new MutationObserver(() => {
+      this.isDark = document.body.classList.contains('dark');
+    });
+    this.observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     this.notifService.startPolling();
     this.notifService.requestBrowserPermission();
     this.subs.add(this.notifService.notifications$.subscribe(n => {
@@ -272,7 +278,7 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
     this.subs.add(this.notifService.unreadCount$.subscribe(c => this.unreadCount = c));
   }
 
-  ngOnDestroy(): void { this.notifService.stopPolling(); this.subs.unsubscribe(); }
+  ngOnDestroy(): void { this.notifService.stopPolling(); this.subs.unsubscribe(); this.observer?.disconnect(); }
 
   togglePanel(): void { this.open = !this.open; }
 
