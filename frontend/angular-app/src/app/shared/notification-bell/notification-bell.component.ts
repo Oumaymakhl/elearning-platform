@@ -19,8 +19,8 @@ import { Subscription } from 'rxjs';
         <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
       </button>
 
-      <div class="panel" *ngIf="open" [class.dark-panel]="isDark">
-        <div class="ph">
+      <div class="panel" *ngIf="open" [class.dark-panel]="isDark" [style.background]="isDark ? '#1e293b' : '#fff'" [style.border-color]="isDark ? '#2d3f55' : '#e2e8f0'" [style.color]="isDark ? '#e2e8f0' : '#1a202c'">
+        <div class="ph" [style.background]="isDark ? '#1e293b' : '#fff'" [style.border-bottom-color]="isDark ? '#2d3f55' : '#edf2f7'">
           <div class="ph-top">
             <span class="ph-title">🔔 Notifications</span>
             <div class="ph-actions">
@@ -35,7 +35,7 @@ import { Subscription } from 'rxjs';
           </div>
         </div>
 
-        <div class="list">
+        <div class="list" [style.background]="isDark ? '#1e293b' : '#fff'">
           <div class="empty" *ngIf="filtered.length === 0">
             <div style="font-size:28px">🔕</div>
             <div>Aucune notification</div>
@@ -71,7 +71,7 @@ import { Subscription } from 'rxjs';
           </div>
         </div>
 
-        <div class="panel-foot">
+        <div class="panel-foot" [style.background]="isDark ? '#111827' : '#f7fafc'" [style.border-top-color]="isDark ? '#2d3f55' : '#edf2f7'">
           <span class="foot-txt">{{ notifications.length }} notification(s)</span>
           <div class="foot-stats">
             <span class="stat-pill s-unread" *ngIf="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
