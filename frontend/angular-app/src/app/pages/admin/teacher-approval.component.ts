@@ -119,6 +119,17 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
     .alert { padding:.8rem 1rem; border-radius:8px; margin-bottom:1rem; font-size:.9rem; }
     .success { background:#e8f5e9; color:#2e7d32; border:1px solid #a5d6a7; }
     .error { background:#ffebee; color:#c62828; border:1px solid #ef9a9a; }
+    :host-context(body.dark) .main-content { background: #0f172a; }
+    :host-context(body.dark) .page-header h2 { color: #e2e8f0; }
+    :host-context(body.dark) .empty { background: #1e293b; color: #94a3b8; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    :host-context(body.dark) .teacher-card { background: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+    :host-context(body.dark) .details h3 { color: #e2e8f0; }
+    :host-context(body.dark) .details p { color: #94a3b8; }
+    :host-context(body.dark) .date { color: #64748b !important; }
+    :host-context(body.dark) textarea { background: #0f172a; border-color: #2d3f55; color: #e2e8f0; }
+    :host-context(body.dark) .btn-cancel { background: #2d3f55; color: #94a3b8; }
+    :host-context(body.dark) .success { background: #052e16; color: #4ade80; border-color: #166534; }
+    :host-context(body.dark) .error { background: #1a0a0a; color: #fca5a5; border-color: #7f1d1d; }
   `]
 })
 export class TeacherApprovalComponent implements OnInit {
