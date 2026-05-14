@@ -264,8 +264,60 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.isDark = document.body.classList.contains('dark');
+    const styleId = 'notif-dark-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        body.dark .nw .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+        body.dark .nw .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .ph-title { color: #e2e8f0 !important; }
+        body.dark .nw .list { background: #1e293b !important; }
+        body.dark .nw .item { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .item:hover { background: #1e2d42 !important; }
+        body.dark .nw .item.unread { background: #1a2d4a !important; }
+        body.dark .nw .item-title { color: #e2e8f0 !important; }
+        body.dark .nw .item-msg { color: #94a3b8 !important; }
+        body.dark .nw .item-time { color: #4a5568 !important; }
+        body.dark .nw .item-link { color: #60a5fa !important; }
+        body.dark .nw .btn-sm { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+        body.dark .nw .ftab { color: #64748b !important; }
+        body.dark .nw .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; }
+        body.dark .nw .panel-foot { background: #111827 !important; border-top-color: #2d3f55 !important; }
+        body.dark .nw .foot-txt { color: #64748b !important; }
+        body.dark .nw .empty { color: #64748b !important; }
+        body.dark .nw .qbtn { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+      `;
+      document.head.appendChild(style);
+    }
     this.observer = new MutationObserver(() => {
       this.isDark = document.body.classList.contains('dark');
+    const styleId = 'notif-dark-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        body.dark .nw .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+        body.dark .nw .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .ph-title { color: #e2e8f0 !important; }
+        body.dark .nw .list { background: #1e293b !important; }
+        body.dark .nw .item { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .item:hover { background: #1e2d42 !important; }
+        body.dark .nw .item.unread { background: #1a2d4a !important; }
+        body.dark .nw .item-title { color: #e2e8f0 !important; }
+        body.dark .nw .item-msg { color: #94a3b8 !important; }
+        body.dark .nw .item-time { color: #4a5568 !important; }
+        body.dark .nw .item-link { color: #60a5fa !important; }
+        body.dark .nw .btn-sm { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+        body.dark .nw .ftab { color: #64748b !important; }
+        body.dark .nw .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; }
+        body.dark .nw .panel-foot { background: #111827 !important; border-top-color: #2d3f55 !important; }
+        body.dark .nw .foot-txt { color: #64748b !important; }
+        body.dark .nw .empty { color: #64748b !important; }
+        body.dark .nw .qbtn { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+      `;
+      document.head.appendChild(style);
+    }
     });
     this.observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
     this.notifService.startPolling();
@@ -280,7 +332,33 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void { this.notifService.stopPolling(); this.subs.unsubscribe(); this.observer?.disconnect(); }
 
-  togglePanel(): void { this.open = !this.open; this.isDark = document.body.classList.contains('dark'); }
+  togglePanel(): void { this.open = !this.open; this.isDark = document.body.classList.contains('dark');
+    const styleId = 'notif-dark-style';
+    if (!document.getElementById(styleId)) {
+      const style = document.createElement('style');
+      style.id = styleId;
+      style.textContent = `
+        body.dark .nw .panel { background: #1e293b !important; border-color: #2d3f55 !important; }
+        body.dark .nw .ph { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .ph-title { color: #e2e8f0 !important; }
+        body.dark .nw .list { background: #1e293b !important; }
+        body.dark .nw .item { background: #1e293b !important; border-bottom-color: #2d3f55 !important; }
+        body.dark .nw .item:hover { background: #1e2d42 !important; }
+        body.dark .nw .item.unread { background: #1a2d4a !important; }
+        body.dark .nw .item-title { color: #e2e8f0 !important; }
+        body.dark .nw .item-msg { color: #94a3b8 !important; }
+        body.dark .nw .item-time { color: #4a5568 !important; }
+        body.dark .nw .item-link { color: #60a5fa !important; }
+        body.dark .nw .btn-sm { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+        body.dark .nw .ftab { color: #64748b !important; }
+        body.dark .nw .ftab.on { background: #1e3a5f !important; color: #60a5fa !important; }
+        body.dark .nw .panel-foot { background: #111827 !important; border-top-color: #2d3f55 !important; }
+        body.dark .nw .foot-txt { color: #64748b !important; }
+        body.dark .nw .empty { color: #64748b !important; }
+        body.dark .nw .qbtn { background: #1e2d42 !important; border-color: #2d3f55 !important; color: #94a3b8 !important; }
+      `;
+      document.head.appendChild(style);
+    } }
 
   setFilter(f: string): void { this.activeFilter = f; this.applyFilter(); }
 
