@@ -53,7 +53,7 @@ import { Subscription } from 'rxjs';
                 [class.p-med]="n.priority==='medium'"
                 [class.p-low]="n.priority==='low'"
                 (click)="markAsRead(n)">
-                <div class="np-ico" [ngClass]="iconBg(n)">{{ n.icon }}</div>
+                <div class="np-ico" [ngClass]="iconBg(n)" [style.background]="isDark ? '#2d3f55' : null">{{ n.icon }}</div>
                 <div class="np-body">
                   <div class="np-item-top">
                     <span class="np-item-title" [style.color]="isDark ? '#e2e8f0' : '#1a202c'">{{ n.title }}</span>
