@@ -1,5 +1,5 @@
-.layout { display:flex; min-height:100vh; background:#f4f6fb; }
-.main { margin-left:260px; flex:1; padding:2rem; max-width:800px; }
+@import '../../shared/styles/courses-shared';
+
 .loading { text-align:center; padding:3rem; color:#8a9bbf; }
  
 .alert-success {
@@ -257,9 +257,7 @@
 }
 
 /* ── DARK MODE ─────────────────────────────────────────────────── */
-:host-context(body.dark) .layout { background: #0f172a; }
-
-:host-context(body.dark) .profile-card {
+:host-context(body.dark) :host-context(body.dark) .profile-card {
   background: #1e293b;
   border-color: #2d3f55;
   box-shadow: 0 2px 8px rgba(0,0,0,.3);
