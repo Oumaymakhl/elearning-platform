@@ -10,16 +10,15 @@ class EnsureEnrolled
         $userId   = $request->auth_user_id;
         $userRole = $request->auth_user_role ?? '';
         $courseId = $request->route('courseId') ?? $request->route('id');
-
-        if (!$userId || !$courseId) {
+        if (!$userId) {
             return response()->json(['error' => 'Non autorisé'], 403);
         }
-
-        // Teachers et admins ont toujours accès
+        if (!$courseId) {
+            return $next($request);
+        }
         if (in_array($userRole, ['teacher', 'admin'])) {
             return $next($request);
         }
-
         try {
             $response = Http::timeout(3)
                 ->withHeaders(['Authorization' => $request->header('Authorization')])
@@ -38,7 +37,6 @@ class EnsureEnrolled
                 ->exists();
             if ($enrolled) return $next($request);
         }
-
         return response()->json(['error' => 'Vous devez être inscrit à ce cours'], 403);
     }
 }

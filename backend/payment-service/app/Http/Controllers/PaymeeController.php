@@ -41,8 +41,8 @@ class PaymeeController extends Controller
                 "quantity" => 1,
             ]],
             "mode"        => "payment",
-            "success_url" => "http://localhost:4200/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
-            "cancel_url"  => "http://localhost:8010/api/payments/cancel",
+            "success_url" => "http://52.2.181.255/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
+            "cancel_url"  => "http://52.2.181.255/api/payments/cancel",
             "metadata"    => ["payment_id" => $payment->id],
         ]);
 

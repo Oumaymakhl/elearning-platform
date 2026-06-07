@@ -1,15 +1,16 @@
 FROM php:8.3-fpm-alpine
-
 RUN apk update && apk upgrade --no-cache curl libcurl && rm -rf /var/cache/apk/*
- 
 RUN apk add --no-cache --timeout 120 \
     git curl libpng-dev oniguruma-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
- 
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY composer.json composer.lock ./
 RUN composer install --no-interaction --optimize-autoloader --no-scripts --ignore-platform-reqs
+# Fix symfony/http-foundation incompatible avec PHP 8.3
+RUN curl -s https://raw.githubusercontent.com/symfony/http-foundation/v7.4.12/Request.php \
+    -o /var/www/html/vendor/symfony/http-foundation/Request.php \
+    && composer dump-autoload --optimize --no-scripts
 COPY . .
 COPY .env.example .env
 RUN chown -R www-data:www-data storage bootstrap/cache \
