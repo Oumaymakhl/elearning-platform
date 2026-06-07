@@ -8,7 +8,12 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1"
+        "laravel/tinker": "^2.10.1",
+        "league/commonmark": "^2.8.2",
+        "symfony/http-kernel": "^7.4.12",
+        "symfony/mailer": "^7.4.12",
+        "symfony/mime": "^7.4.12",
+        "symfony/routing": "^7.4.12"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
