@@ -25,7 +25,7 @@ export class AuthService {
         const full = {
           ...current,
           ...profile,
-          avatar_url: profile.avatar_url || (profile.avatar ? '/storage/' + profile.avatar : current?.avatar_url) || null
+          avatar_url: profile.avatar_url || (profile.avatar && profile.avatar !== false && profile.avatar !== '0' ? '/storage/' + profile.avatar : current?.avatar_url) || null
         };
         localStorage.setItem('user', JSON.stringify(full));
         this.currentUserSubject.next(full);
@@ -45,7 +45,7 @@ export class AuthService {
               const full = {
                 ...res.user,
                 ...profile,
-                avatar_url: profile.avatar_url || (profile.avatar ? '/storage/' + profile.avatar : null)
+                avatar_url: profile.avatar_url || (profile.avatar && profile.avatar !== false && profile.avatar !== '0' ? '/storage/' + profile.avatar : null)
               };
               localStorage.setItem('user', JSON.stringify(full));
               this.currentUserSubject.next(full);
