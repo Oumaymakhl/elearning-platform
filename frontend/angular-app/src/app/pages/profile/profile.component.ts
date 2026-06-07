@@ -136,7 +136,7 @@ export class ProfileComponent implements OnInit {
   getAvatarUrl(): string {
     const url = this.user?.avatar_url || (this.user?.avatar ? '/storage/' + this.user.avatar : '');
     if (!url) return '';
-    return url.replace('http://nginx-user', 'http://localhost:8080').replace('http://127.0.0.1', 'http://localhost:8080').replace('http://localhost:8001', 'http://localhost:8080');
+    return url.replace('http://nginx-user', 'http://52.2.181.255:8080').replace('http://127.0.0.1', 'http://52.2.181.255:8080').replace('http://localhost:8001', 'http://52.2.181.255:8080');
   }
   getInitials(): string {
     return (this.user?.name || 'U')
