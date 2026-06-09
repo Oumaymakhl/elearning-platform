@@ -78,11 +78,11 @@ class CourseController extends Controller
         ]));
         return response()->json($course);
     }
-    public function myTeachingCourses(Request \$request) {
-        \$courses = Course::with('chapters.subChapters')
-            ->where('instructor_id', \$request->auth_user_id)
+    public function myTeachingCourses(Request $request) {
+        $courses = Course::with('chapters.subChapters')
+            ->where('instructor_id', $request->auth_user_id)
             ->get();
-        return response()->json(\$courses);
+        return response()->json($courses);
     }
 
     public function destroy(Request $request, $id) {
