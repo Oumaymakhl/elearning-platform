@@ -12,12 +12,12 @@ Plateforme d'apprentissage en ligne basée sur une architecture **microservices*
 | `/api/users/*` | user-service | 8001 |
 | `/api/courses/*` | course-service | 8002 |
 | `/api/content/*` | content-service | 8003 |
-| `/api/quiz/*` | quiz-service | 8004 |
-| `/api/forum/*` | forum-service | 8005 |
-| `/api/messaging/*` | messaging-service | 8006 |
-| `/api/notifications/*` | notification-service | 8007 |
-| `/api/chatbot/*` | chatbot-service | 8008 |
-| `/api/executor/*` | executor-service | 8009 |
+| `/api/quiz/*` | quiz-service | 8005 |
+| `/api/forum/*` | forum-service | 8008 |
+| `/api/messaging/*` | messaging-service | 8009 |
+| `/api/notifications/*` | notification-service | 8006 |
+| `/api/chatbot/*` | chatbot-service | 8007 |
+| `/api/executor/*` | executor-service | 8004 |
 | `/api/payment/*` | payment-service | 8010 |
 | `/*` | frontend Angular | 4200 |
 ---
