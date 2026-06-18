@@ -59,25 +59,31 @@ class UserController extends Controller
 
     public function uploadAvatar(Request $request)
     {
+        $request->validate([
+            'avatar' => ['required', 'file', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        ]);
+
         $authId = (int) $request->auth_user_id;
         $user   = User::where('auth_id', $authId)->firstOrFail();
-        if ($request->hasFile('avatar')) {
-            $path = $request->file('avatar')->store('avatars', 'public');
-            $user->update(['avatar' => $path]);
-            // Mettre à jour les conversations dans messaging-service
-            try {
-                $avatarUrl = '/storage/' . $path;
-                \Http::timeout(3)->put('http://nginx-messaging/api/internal/update-avatar', [
-                    'user_id'    => $authId,
-                    'avatar_url' => $avatarUrl,
-                ]);
-                \Http::timeout(3)->put('http://nginx-forum/api/internal/update-avatar', [
-                    'user_id'    => $authId,
-                    'avatar_url' => $avatarUrl,
-                ]);
-            } catch (\Exception $e) {}
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+        $user->forceFill(['avatar' => $path])->saveOrFail();
+
+        // Mettre à jour les conversations dans messaging-service
+        try {
+            $avatarUrl = '/storage/' . $path;
+            \Http::timeout(3)->put('http://nginx-messaging/api/internal/update-avatar', [
+                'user_id'    => $authId,
+                'avatar_url' => $avatarUrl,
+            ]);
+            \Http::timeout(3)->put('http://nginx-forum/api/internal/update-avatar', [
+                'user_id'    => $authId,
+                'avatar_url' => $avatarUrl,
+            ]);
+        } catch (\Exception $e) {
         }
-        return response()->json($user);
+
+        return response()->json($user->fresh());
     }
 
     public function sync(Request $request)

@@ -81,19 +81,19 @@ export class ProfileComponent implements OnInit {
     this.avatarError = '';
 
     const formData = new FormData();
-    formData.append('avatar', this.avatarFile);
+    formData.append('avatar', this.avatarFile, this.avatarFile.name);
 
     this.http.post<any>(`${this.USER_API}/me/avatar`, formData, { headers: this.headersNoContent() }).subscribe({
       next: (res) => {
         const avatarUrl = res.avatar ? '/storage/' + res.avatar : null;
-        this.user = { ...this.user, avatar_url: avatarUrl };
+        this.user = { ...this.user, avatar: res.avatar, avatar_url: avatarUrl };
         this.avatarPreview = null;
         this.avatarFile = null;
         this.uploadingAvatar = false;
         this.success = true;
         setTimeout(() => (this.success = false), 3000);
         // Mettre à jour tous les composants abonnés (forum, messages, étudiants…)
-        this.auth.updateCurrentUser({ avatar_url: avatarUrl });
+        this.auth.updateCurrentUser({ avatar: res.avatar, avatar_url: avatarUrl });
       },
       error: (e) => {
         this.avatarError = e.error?.message || 'Erreur upload';
