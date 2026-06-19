@@ -1,8 +1,5 @@
 
 services:
-networks:
-  elearning-network:
-    driver: bridge
   # MySQL Database
   mysql-auth:
     image: mysql:8.0
@@ -28,6 +25,8 @@ networks:
       context: ../../backend/auth-service
       dockerfile: Dockerfile
     container_name: auth-service
+    environment:
+      FRONTEND_URL: http://52.2.181.255:3000
     networks:
       - elearning-network
     depends_on:
@@ -205,6 +204,8 @@ networks:
       context: ../../backend/content-service
       dockerfile: Dockerfile
     container_name: content-service
+    volumes:
+      - content_storage:/var/www/html/storage/app/public
     networks:
       - elearning-network
     depends_on:
@@ -633,6 +634,8 @@ networks:
       context: ../../backend/payment-service
       dockerfile: Dockerfile
     container_name: payment-service
+    environment:
+      FRONTEND_URL: http://52.2.181.255:3000
     networks:
       - elearning-network
     depends_on:
@@ -707,6 +710,7 @@ volumes:
   mysql-payment-data:
   auth_storage:
   user_storage:
+  content_storage:
 
 networks:
   elearning-network:

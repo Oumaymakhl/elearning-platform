@@ -6,6 +6,13 @@ RUN apk add --no-cache --timeout 120 \
     git curl libpng-dev oniguruma-dev libxml2-dev zip unzip \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
 
+RUN { \
+    echo 'upload_max_filesize=100M'; \
+    echo 'post_max_size=100M'; \
+    echo 'max_execution_time=300'; \
+    echo 'memory_limit=256M'; \
+    } > /usr/local/etc/php/conf.d/uploads.ini
+
 COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 COPY composer.json composer.lock ./

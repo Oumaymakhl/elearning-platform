@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\Payment;
 use Stripe\Stripe;
 use Stripe\Checkout\Session;
+use Illuminate\Support\Facades\Http;
 
 class PaymeeController extends Controller
 {
@@ -41,9 +42,9 @@ class PaymeeController extends Controller
                 "quantity" => 1,
             ]],
             "mode"        => "payment",
-            "success_url" => "http://52.2.181.255/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
-            "cancel_url"  => "http://52.2.181.255/api/payments/cancel",
-            "metadata"    => ["payment_id" => $payment->id],
+            "success_url" => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . "/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
+            "cancel_url"  => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . "/courses/" . $request->course_id,
+            "metadata"    => ["payment_id" => (string) $payment->id],
         ]);
 
         $payment->update(["paymee_token" => $session->id]);
@@ -62,18 +63,28 @@ class PaymeeController extends Controller
 
     public function success(Request $request)
     {
-        $payment = Payment::where("paymee_token", $request->session_id)->first();
-        if ($payment) {
-            $payment->update(["status" => "paid"]);
-            // Inscrire l'étudiant au cours
-            try {
-                \Illuminate\Support\Facades\Http::post(
-                    "http://nginx-course/api/internal/enroll",
-                    ["user_id" => $payment->user_id, "course_id" => $payment->course_id]
-                );
-            } catch (\Exception $e) {}
+        $request->validate(['session_id' => 'required|string']);
+        $payment = Payment::where("paymee_token", $request->session_id)->firstOrFail();
+        $session = Session::retrieve($request->session_id);
+        if ($session->payment_status !== 'paid' || (int) ($session->metadata->payment_id ?? 0) !== (int) $payment->id) {
+            return response()->json(['success' => false, 'message' => 'Paiement non confirmé'], 402);
         }
-        return response()->json(["success" => true, "message" => "Paiement réussi"]);
+
+        $enrollment = Http::timeout(10)->post('http://nginx-course/api/internal/enroll', [
+            'user_id' => $payment->user_id,
+            'course_id' => $payment->course_id,
+        ]);
+        if (!$enrollment->successful()) {
+            return response()->json(['success' => false, 'message' => 'Paiement confirmé, inscription en attente'], 502);
+        }
+
+        $payment->update(['status' => 'paid', 'transaction_id' => $session->payment_intent]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Paiement réussi. Vous êtes inscrit au cours.',
+            'course_id' => $payment->course_id,
+            'enrolled' => true,
+        ]);
     }
 
     public function cancel(Request $request)
@@ -85,5 +96,11 @@ class PaymeeController extends Controller
     {
         $payments = Payment::where("user_id", $request->user_id)->get();
         return response()->json(["success" => true, "data" => $payments]);
+    }
+
+    public function destroyForCourse($courseId)
+    {
+        $deleted = Payment::where('course_id', $courseId)->delete();
+        return response()->json(['deleted' => $deleted]);
     }
 }

@@ -18,6 +18,13 @@ class ProgressController extends Controller
         ]);
         $userId = $request->auth_user_id;
 
+        $belongsToCourse = SubChapter::whereKey($data['sub_chapter_id'])
+            ->whereHas('chapter', fn ($query) => $query->where('course_id', $courseId))
+            ->exists();
+        if (!$belongsToCourse) {
+            return response()->json(['message' => 'Sub-chapter does not belong to this course'], 422);
+        }
+
         $enrollment = Enrollment::where('user_id', $userId)
             ->where('course_id', $courseId)
             ->firstOrFail();
@@ -31,11 +38,15 @@ class ProgressController extends Controller
         ]);
 
         $totalSubs   = SubChapter::whereHas('chapter', fn($q) => $q->where('course_id', $courseId))->count();
-        $visitedCount = DB::table('visited_sub_chapters')
+        $visitedCount = DB::table('visited_sub_chapters as visited')
+            ->join('sub_chapters as sub', 'sub.id', '=', 'visited.sub_chapter_id')
+            ->join('chapters as chapter', 'chapter.id', '=', 'sub.chapter_id')
             ->where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->count();
-        $progress    = $totalSubs > 0 ? round(($visitedCount / $totalSubs) * 100, 2) : 0;
+            ->where('visited.course_id', $courseId)
+            ->where('chapter.course_id', $courseId)
+            ->distinct('visited.sub_chapter_id')
+            ->count('visited.sub_chapter_id');
+        $progress = $totalSubs > 0 ? min(100, round(($visitedCount / $totalSubs) * 100, 2)) : 0;
 
         $enrollment->update([
             'current_sub_chapter_id' => $data['sub_chapter_id'],
@@ -98,6 +109,7 @@ class ProgressController extends Controller
         $enrollment = Enrollment::where('user_id', $request->auth_user_id)
             ->where('course_id', $courseId)
             ->firstOrFail();
+        $enrollment->progress = min(100, (float) $enrollment->progress);
         return response()->json($enrollment);
     }
 

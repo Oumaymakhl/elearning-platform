@@ -9,6 +9,7 @@ Route::get('/verify-email', [AuthController::class, 'verifyEmail']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/verify-reset-token', [AuthController::class, 'verifyResetToken']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/internal/admins', [AuthController::class, 'internalAdmins']);
 
 Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

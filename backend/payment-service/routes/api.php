@@ -5,8 +5,6 @@ use App\Http\Controllers\PaymeeController;
 Route::prefix('payments')->group(function () {
     Route::post('/initiate', [PaymeeController::class, 'initiate']);
     Route::get('/success',   [PaymeeController::class, 'success']);
-    Route::get('/',          function() {
-        $payments = \App\Models\Payment::all();
-        return response()->json(['success' => true, 'data' => $payments]);
-    });
+    Route::get('/',          [PaymeeController::class, 'index']);
 });
+Route::delete('/internal/courses/{courseId}', [PaymeeController::class, 'destroyForCourse']);

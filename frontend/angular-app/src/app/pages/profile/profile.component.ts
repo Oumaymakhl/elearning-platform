@@ -85,7 +85,7 @@ export class ProfileComponent implements OnInit {
 
     this.http.post<any>(`${this.USER_API}/me/avatar`, formData, { headers: this.headersNoContent() }).subscribe({
       next: (res) => {
-        const avatarUrl = res.avatar ? '/storage/' + res.avatar : null;
+        const avatarUrl = res.avatar_url || (res.avatar ? '/storage/' + res.avatar : null);
         this.user = { ...this.user, avatar: res.avatar, avatar_url: avatarUrl };
         this.avatarPreview = null;
         this.avatarFile = null;
@@ -135,8 +135,7 @@ export class ProfileComponent implements OnInit {
 
   getAvatarUrl(): string {
     const url = this.user?.avatar_url || (this.user?.avatar ? '/storage/' + this.user.avatar : '');
-    if (!url) return '';
-    return url.replace('http://nginx-user', 'http://52.2.181.255:8080').replace('http://127.0.0.1', 'http://52.2.181.255:8080').replace('http://localhost:8001', 'http://52.2.181.255:8080');
+    return url || '';
   }
   getInitials(): string {
     return (this.user?.name || 'U')

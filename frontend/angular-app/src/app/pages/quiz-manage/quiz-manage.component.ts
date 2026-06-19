@@ -495,7 +495,7 @@ export class QuizManageComponent implements OnInit {
       return;
     }
     this.saving = true;
-    this.http.post<any>(`${this.QUIZ_API}/quizzes`, { ...this.quizForm, chapter_id: this.chapterId }, { headers: this.headers() }).subscribe({
+    this.http.post<any>(`${this.QUIZ_API}/quizzes`, { ...this.quizForm, chapter_id: this.chapterId, course_id: this.courseId }, { headers: this.headers() }).subscribe({
       next: (quiz) => {
         quiz.questions = []; this.quizzes.push(quiz);
         this.quizForm = { title: '', description: '', passing_score: 70, time_limit: null };
@@ -701,7 +701,7 @@ export class QuizManageComponent implements OnInit {
     this.http.post<any>(`${this.QUIZ_API}/quizzes`, {
       title: this.aiResult.quiz_title,
       description: `Généré par IA — Difficulté : ${this.aiConfig.difficulty}`,
-      chapter_id: this.chapterId, passing_score: this.aiConfig.passing_score || 70,
+      chapter_id: this.chapterId, course_id: this.courseId, passing_score: this.aiConfig.passing_score || 70,
     }, { headers: this.headers() }).subscribe({
       next: (quiz) => {
         this.importQuestionsSequentially(quiz.id, this.aiResult.questions, 0, () => {

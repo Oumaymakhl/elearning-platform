@@ -45,16 +45,16 @@ import { FormsModule } from '@angular/forms';
               <tr *ngFor="let s of filtered; let i = index">
                 <td class="num">{{ i + 1 }}</td>
                 <td class="student-name">
-                  <img *ngIf="s.student?.avatar" class="avatar-img" [src]="'storage/' + s.student.avatar" alt="">
+                  <img *ngIf="s.student?.avatar" class="avatar-img" [src]="'/storage/' + s.student.avatar" alt="">
                   <div *ngIf="!s.student?.avatar" class="avatar">{{ getInitials(s.student?.name) }}</div>
                   {{ s.student?.name || 'Étudiant #' + s.user_id }}
                 </td>
                 <td class="email">{{ s.student?.email || '—' }}</td>
                 <td class="progress-cell">
                   <div class="progress-bar">
-                    <div class="progress-fill" [style.width]="(s.progress || 0) + '%'"></div>
+                    <div class="progress-fill" [style.width]="cappedProgress(s.progress) + '%'"></div>
                   </div>
-                  <span class="progress-pct">{{ s.progress || 0 }}%</span>
+                  <span class="progress-pct">{{ cappedProgress(s.progress) }}%</span>
                 </td>
                 <td>
                   <span class="badge" [class.active]="s.status === 'active'" [class.inactive]="s.status !== 'active'">
@@ -137,5 +137,9 @@ export class CourseStudentsComponent implements OnInit {
   getInitials(name: string): string {
     if (!name) return '?';
     return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+  }
+
+  cappedProgress(progress: number | string | null): number {
+    return Math.min(100, Math.max(0, Number(progress) || 0));
   }
 }

@@ -22,7 +22,7 @@ Route::get('/internal/enrollments-stats', [EnrollmentController::class, 'interna
 
 // Publiques
 Route::get('/courses',            [CourseController::class, 'index']);
-Route::get('/courses/{id}',       [CourseController::class, 'show']);
+Route::get('/courses/{id}',       [CourseController::class, 'show'])->whereNumber('id');
 Route::get('/courses/{courseId}/ratings', [RatingController::class, 'stats']);
 Route::get('/exercises',          [ExerciseController::class, 'index']);
 Route::get('/exercises/{id}',     [ExerciseController::class, 'show']);
@@ -49,7 +49,7 @@ Route::middleware('jwt')->group(function () {
     Route::put('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',          [SubChapterController::class, 'update']);
     Route::delete('/courses/{courseId}/chapters/{chapterId}/subchapters/{id}',       [SubChapterController::class, 'destroy']);
 
-    Route::get('/my-teaching-courses', [CourseController::class, 'myTeachingCourses']);
+    Route::get('/courses/my-teaching-courses', [CourseController::class, 'myTeachingCourses']);
     Route::get('/my-courses',                        [EnrollmentController::class, 'myCourses']);
     Route::post('/courses/{courseId}/enroll',        [EnrollmentController::class, 'enroll']);
     Route::delete('/courses/{courseId}/enroll',      [EnrollmentController::class, 'unenroll']);
@@ -80,10 +80,14 @@ Route::middleware('jwt')->group(function () {
 
     Route::get('/courses/{courseId}/visited-subs', function($courseId) {
         $userId = request()->auth_user_id;
-        $ids = \DB::table('visited_sub_chapters')
-            ->where('user_id', $userId)
-            ->where('course_id', $courseId)
-            ->pluck('sub_chapter_id');
+        $ids = \DB::table('visited_sub_chapters as visited')
+            ->join('sub_chapters as sub', 'sub.id', '=', 'visited.sub_chapter_id')
+            ->join('chapters as chapter', 'chapter.id', '=', 'sub.chapter_id')
+            ->where('visited.user_id', $userId)
+            ->where('visited.course_id', $courseId)
+            ->where('chapter.course_id', $courseId)
+            ->distinct()
+            ->pluck('visited.sub_chapter_id');
         return response()->json($ids);
     });
 

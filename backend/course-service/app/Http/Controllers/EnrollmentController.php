@@ -31,7 +31,10 @@ class EnrollmentController extends Controller
         if ((int)$course->instructor_id !== (int)$request->auth_user_id && $request->auth_user_role !== 'admin') {
             return response()->json(['message' => 'Forbidden'], 403);
         }
-        $enrollments = Enrollment::where('course_id', $courseId)->get();
+        $enrollments = Enrollment::where('course_id', $courseId)
+            ->orderByDesc('created_at')
+            ->get()
+            ->each(fn ($enrollment) => $enrollment->progress = min(100, (float) $enrollment->progress));
         // Enrichir avec les infos étudiants depuis user-service
         try {
             $userIds = $enrollments->pluck('user_id')->unique()->values()->toArray();

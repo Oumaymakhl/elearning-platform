@@ -1,11 +1,12 @@
 import {
-  Component, forwardRef, AfterViewInit, OnDestroy,
+  Component, forwardRef, AfterViewInit, OnDestroy, Input,
   ViewChild, ElementRef, ChangeDetectionStrategy,
   ChangeDetectorRef, NgZone
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 declare const Prism: any;
 
@@ -115,6 +116,21 @@ declare const Prism: any;
               <label>Ou uploader</label>
               <input type="file" accept="image/*" (change)="onImageFile($event)" style="font-size:.82rem"/>
             </div>
+            <div class="re-cp-row">
+              <label>Taille</label>
+              <select [(ngModel)]="imageSize">
+                <option value="responsive">Responsive (100%)</option>
+                <option value="small">Petite (25%)</option>
+                <option value="medium">Moyenne (50%)</option>
+                <option value="large">Grande (75%)</option>
+                <option value="custom">Dimensions personnalisées</option>
+              </select>
+            </div>
+            <div class="re-size-row" *ngIf="imageSize === 'custom'">
+              <input type="number" min="1" [(ngModel)]="imageWidth" placeholder="Largeur (px)">
+              <input type="number" min="1" [(ngModel)]="imageHeight" placeholder="Hauteur (px)">
+            </div>
+            <div class="re-uploading" *ngIf="uploadingMedia">Upload en cours...</div>
             <div class="re-cp-actions">
               <button type="button" class="re-cp-insert" (click)="insertImage()">Inserer</button>
               <button type="button" class="re-cp-cancel" (click)="showImagePanel=false">Annuler</button>
@@ -132,6 +148,11 @@ declare const Prism: any;
               <label>URL YouTube ou lien direct</label>
               <input type="text" [(ngModel)]="videoUrl" placeholder="https://youtube.com/watch?v=..." style="width:100%;padding:.4rem .65rem;border:1px solid #d1d9e6;border-radius:7px;font-size:.82rem;box-sizing:border-box"/>
             </div>
+            <div class="re-cp-row">
+              <label>Ou uploader une vidéo (MP4, WebM, MOV — 100 Mo max)</label>
+              <input type="file" accept="video/mp4,video/webm,video/quicktime" (change)="onVideoFile($event)" style="font-size:.82rem"/>
+            </div>
+            <div class="re-uploading" *ngIf="uploadingMedia">Upload en cours...</div>
             <div class="re-cp-actions">
               <button type="button" class="re-cp-insert" (click)="insertVideo()">Inserer</button>
               <button type="button" class="re-cp-cancel" (click)="showVideoPanel=false">Annuler</button>
@@ -171,6 +192,8 @@ declare const Prism: any;
     .re-cp-row{margin-bottom:10px}
     .re-cp-row label{display:block;font-size:.75rem;font-weight:600;color:#475569;margin-bottom:4px}
     .re-cp-row select{width:100%;padding:.4rem .65rem;border:1px solid #d1d9e6;border-radius:7px;font-size:.82rem;background:#f8fafc;outline:none}
+    .re-size-row{display:flex;gap:8px;margin-bottom:10px}.re-size-row input{width:50%;padding:.4rem .65rem;border:1px solid #d1d9e6;border-radius:7px;font-size:.82rem}
+    .re-uploading{font-size:.75rem;color:#4361ee;margin-bottom:8px}
     .re-cp-row textarea{width:100%;padding:.5rem .7rem;border:1px solid #d1d9e6;border-radius:7px;font-family:'Courier New',monospace;font-size:.78rem;resize:vertical;min-height:110px;outline:none;background:#1a2332;color:#e2e8f0;line-height:1.6;box-sizing:border-box}
     .re-cp-actions{display:flex;gap:8px;margin-top:4px}
     .re-cp-insert{flex:1;padding:.45rem 1rem;background:#4361ee;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600}
@@ -198,10 +221,12 @@ declare const Prism: any;
     .re-editor ::ng-deep .re-img{max-width:100%;border-radius:8px;margin:.5rem 0;display:block}
     .re-editor ::ng-deep .re-video-wrap{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:8px;margin:.5rem 0}
     .re-editor ::ng-deep .re-video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%}
+    .re-editor ::ng-deep .re-video-wrap video{position:absolute;top:0;left:0;width:100%;height:100%;background:#000}
     .re-status{display:flex;justify-content:flex-end;gap:12px;padding:5px 12px;background:#f6f8fc;border-top:1px solid #e2e8f0;border-radius:0 0 10px 10px;font-size:.7rem;color:#94a3b8}
   `]
 })
 export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
+  @Input() courseId: number | null = null;
   @ViewChild('editorEl') editorEl!: ElementRef<HTMLDivElement>;
   placeholder = "Ecrivez votre contenu ici. Utilisez la barre d outils pour formater le texte ou inserer un bloc de code...";
   isFocused = false;
@@ -210,8 +235,12 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   codeBlockContent = '';
   showImagePanel = false;
   imageUrl = '';
+  imageSize: 'responsive' | 'small' | 'medium' | 'large' | 'custom' = 'responsive';
+  imageWidth: number | null = null;
+  imageHeight: number | null = null;
   showVideoPanel = false;
   videoUrl = '';
+  uploadingMedia = false;
   wordCount = 0;
   codeBlockCount = 0;
   private _value = '';
@@ -224,7 +253,7 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
       this.cdr.markForCheck();
     }
   };
-  constructor(private cdr: ChangeDetectorRef, private zone: NgZone) {}
+  constructor(private cdr: ChangeDetectorRef, private zone: NgZone, private http: HttpClient) {}
   ngAfterViewInit(): void {
     document.addEventListener('click', this.clickOutside);
     if (this._value) this.editorEl.nativeElement.innerHTML = this._value;
@@ -368,12 +397,25 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   onImageFile(e: Event): void {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      this.imageUrl = ev.target?.result as string;
-      this.cdr.markForCheck();
-    };
-    reader.readAsDataURL(file);
+    this.uploadMedia(file, url => this.imageUrl = url);
+  }
+
+  onVideoFile(e: Event): void {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    this.uploadMedia(file, url => this.videoUrl = url);
+  }
+
+  private uploadMedia(file: File, done: (url: string) => void): void {
+    if (!this.courseId) { alert('Enregistrez le cours avant d’ajouter un média.'); return; }
+    const data = new FormData();
+    data.append('course_id', String(this.courseId));
+    data.append('file', file, file.name);
+    this.uploadingMedia = true;
+    this.http.post<any>('/api/contents/media', data).subscribe({
+      next: response => { this.uploadingMedia = false; done(response.url); this.cdr.markForCheck(); },
+      error: error => { this.uploadingMedia = false; alert(error.error?.message || 'Échec de l’upload du média.'); this.cdr.markForCheck(); }
+    });
   }
 
   insertImage(): void {
@@ -382,6 +424,11 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
     img.src = this.imageUrl;
     img.className = 're-img';
     img.alt = 'image';
+    const widths = { responsive: '100%', small: '25%', medium: '50%', large: '75%' } as const;
+    img.style.width = this.imageSize === 'custom' ? `${Math.max(1, this.imageWidth || 1)}px` : widths[this.imageSize];
+    img.style.maxWidth = '100%';
+    img.style.height = this.imageSize === 'custom' && this.imageHeight ? `${Math.max(1, this.imageHeight)}px` : 'auto';
+    img.style.objectFit = 'contain';
     const p = document.createElement('p');
     p.innerHTML = '<br>';
     this.editorEl.nativeElement.appendChild(img);
@@ -397,7 +444,10 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
     let embedUrl = this.videoUrl;
     const ytMatch = this.videoUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
     if (ytMatch) embedUrl = 'https://www.youtube.com/embed/' + ytMatch[1];
-    const html = '<div class="re-video-wrap" contenteditable="false"><iframe src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe></div><p><br></p>';
+    const media = ytMatch
+      ? '<iframe src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe>'
+      : '<video controls preload="metadata" src="' + embedUrl + '"></video>';
+    const html = '<div class="re-video-wrap" contenteditable="false">' + media + '</div><p><br></p>';
     this.editorEl.nativeElement.focus();
     if (this.savedRange) {
       const sel = window.getSelection();

@@ -3,6 +3,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContentController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
+Route::get('/contents/media/{filename}', [ContentController::class, 'media'])->where('filename', '[A-Za-z0-9._-]+');
+Route::delete('/internal/courses/{courseId}', [ContentController::class, 'destroyForCourse']);
 
 // Réservé aux inscrits
 Route::middleware(['jwt', 'enrolled'])->group(function () {
@@ -12,6 +14,7 @@ Route::middleware(['jwt', 'enrolled'])->group(function () {
 
 // Protégées JWT — formateur/admin
 Route::middleware('jwt')->group(function () {
+    Route::post('/contents/media', [ContentController::class, 'uploadMedia']);
     Route::post('/contents',         [ContentController::class, 'store']);
     Route::put('/contents/{id}',     [ContentController::class, 'update']);
     Route::delete('/contents/{id}',  [ContentController::class, 'destroy']);

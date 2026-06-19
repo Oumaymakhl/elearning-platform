@@ -3,6 +3,9 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 class CourseController extends Controller
 {
     public function index() {
@@ -80,8 +83,15 @@ class CourseController extends Controller
     }
     public function myTeachingCourses(Request $request) {
         $courses = Course::with('chapters.subChapters')
+            ->withCount(['enrollments', 'chapters'])
+            ->withCount(['enrollments as completed_students_count' => fn ($query) => $query->where('progress', '>=', 100)])
+            ->withAvg('enrollments', 'progress')
             ->where('instructor_id', $request->auth_user_id)
-            ->get();
+            ->get()
+            ->each(function (Course $course) {
+                $course->setAttribute('students_count', $course->enrollments_count);
+                $course->setAttribute('average_progress', min(100, round((float) ($course->enrollments_avg_progress ?? 0), 2)));
+            });
         return response()->json($courses);
     }
 
@@ -90,7 +100,53 @@ class CourseController extends Controller
         if ((int)$course->instructor_id !== (int)$request->auth_user_id && $request->auth_user_role !== "admin") {
             return response()->json(["message" => "Forbidden"], 403);
         }
-        $course->delete();
+        $chapterIds = $course->chapters()->pluck('id')->all();
+        $quizIds = DB::table('sub_chapters')
+            ->whereIn('chapter_id', $chapterIds)
+            ->whereNotNull('quiz_id')
+            ->pluck('quiz_id')->unique()->values()->all();
+
+        try {
+            $cleanupRequests = [
+                Http::timeout(10)->delete('http://nginx-quiz/api/internal/courses/' . $course->id, [
+                    'quiz_ids' => $quizIds,
+                    'chapter_ids' => $chapterIds,
+                ]),
+                Http::timeout(10)->delete('http://nginx-content/api/internal/courses/' . $course->id),
+                Http::timeout(10)->delete('http://nginx-payment/api/internal/courses/' . $course->id),
+            ];
+        } catch (\Throwable $e) {
+            \Log::error('Course cleanup failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Related services could not complete course cleanup. Please retry.'], 503);
+        }
+
+        if (collect($cleanupRequests)->contains(fn ($response) => !$response->successful())) {
+            return response()->json(['message' => 'Related services could not complete course cleanup. Please retry.'], 503);
+        }
+
+        DB::transaction(function () use ($course) {
+            if (Schema::hasTable('submissions') && Schema::hasColumn('submissions', 'file_path')) {
+                $submissionFiles = DB::table('submissions as submission')
+                    ->join('exercise_questions as question', 'question.id', '=', 'submission.question_id')
+                    ->join('exercises as exercise', 'exercise.id', '=', 'question.exercise_id')
+                    ->join('sub_chapters as sub', 'sub.id', '=', 'exercise.sub_chapter_id')
+                    ->join('chapters as chapter', 'chapter.id', '=', 'sub.chapter_id')
+                    ->where('chapter.course_id', $course->id)
+                    ->whereNotNull('submission.file_path')
+                    ->pluck('submission.file_path');
+                foreach ($submissionFiles as $file) Storage::disk('public')->delete($file);
+            }
+            $enrollmentIds = DB::table('enrollments')->where('course_id', $course->id)->pluck('id');
+            if (Schema::hasTable('progress') && $enrollmentIds->isNotEmpty()) {
+                DB::table('progress')->whereIn('enrollment_id', $enrollmentIds)->delete();
+            }
+            foreach (['visited_sub_chapters', 'certificates', 'ratings', 'enrollments'] as $table) {
+                if (Schema::hasTable($table)) DB::table($table)->where('course_id', $course->id)->delete();
+            }
+            if (Schema::hasTable('lessons')) DB::table('lessons')->where('course_id', $course->id)->delete();
+            if ($course->image_path) Storage::disk('public')->delete($course->image_path);
+            $course->delete();
+        });
         return response()->json(["message" => "Course deleted"]);
     }
 }

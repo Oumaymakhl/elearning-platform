@@ -88,7 +88,7 @@
       <div class="question-card" *ngFor="let q of questions; let i = index">
         <div class="question-num">Question {{ i + 1 }}</div>
         <div class="question-text">{{ q.text }}</div>
-        <img *ngIf="q.image_path" [src]="'http://localhost:8005/storage/' + q.image_path" class="question-img">
+        <img *ngIf="q.image_path" [src]="'/api/quiz-storage/' + q.image_path" class="question-img">
         <div class="options">
           <div class="option" *ngFor="let opt of q.options"
             [class]="answers[q.id] === opt.id ? 'selected' : ''"

@@ -82,8 +82,10 @@ export class CourseDetailComponent implements OnInit {
               if (_ch) _ch.expanded = true;
               if (_sub.quiz_id) {
                 this.router.navigate(["/quiz", _sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: _sub.id, sub_index: _idx } });
-              } else if (_sub.is_lab && _sub.exercise_id) {
+              } else if (_sub.is_lab && _sub.exercise_id && !this.isTeacher) {
                 this.router.navigate(["/exercise", _sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: _idx } });
+              } else if (_sub.is_lab && this.isTeacher) {
+                this.router.navigate(['/courses', this.course.id, 'manage']);
               } else {
                 this.activeSubChapter = _sub;
               }
@@ -119,8 +121,10 @@ export class CourseDetailComponent implements OnInit {
                       setTimeout(() => {
                         if (sub.quiz_id) {
                           this.router.navigate(['/quiz', sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: sub.id, sub_index: idx } });
-                        } else if (sub.is_lab && sub.exercise_id) {
+                        } else if (sub.is_lab && sub.exercise_id && !this.isTeacher) {
                           this.router.navigate(['/exercise', sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: idx } });
+                        } else if (sub.is_lab && this.isTeacher) {
+                          this.router.navigate(['/courses', this.course.id, 'manage']);
                         } else {
                           this.activeSubChapter = sub;
                         }
@@ -251,7 +255,7 @@ export class CourseDetailComponent implements OnInit {
     if (!subWithQuiz) return true;
     const score = this.quizScores[subWithQuiz.quiz_id];
     if (score === undefined) return false;
-    return score >= (subWithQuiz.passing_score || 70);
+    return score >= 70;
   }
 
   isUnlocked(sub: any, index: number, allSubs: any[]): boolean {
@@ -299,6 +303,10 @@ export class CourseDetailComponent implements OnInit {
   }
 
   openSubChapterDirect(sub: any) {
+    if (this.isTeacher && sub.is_lab) {
+      this.router.navigate(['/courses', this.course.id, 'manage']);
+      return;
+    }
     // Si c'est un quiz, rediriger vers la page quiz
     if (sub.quiz_id) {
       const allSubs = this.getAllSubs();
@@ -330,6 +338,10 @@ export class CourseDetailComponent implements OnInit {
   }
 
   openSubChapter(sub: any, index: number, allSubs: any[]) {
+    if (this.isTeacher && sub.is_lab) {
+      alert('Les TD sont accessibles aux enseignants depuis la page de gestion du cours.');
+      return;
+    }
     if (!this.isUnlocked(sub, index, allSubs)) {
       alert('Vous devez obtenir au moins ' + (allSubs[index-1].passing_score || 70) + '% au quiz précédent pour débloquer ce chapitre.');
       return;
@@ -455,8 +467,8 @@ export class CourseDetailComponent implements OnInit {
 
   get displayPercentage(): number {
     const total = this.chapters.reduce((acc: number, ch: any) => acc + (ch.sub_chapters?.length || 0), 0);
-    if (total === 0) return this.progress?.percentage || 0;
-    return Math.round(this.visitedSubs.size / total * 100);
+    if (total === 0) return Math.min(100, this.progress?.percentage || 0);
+    return Math.min(100, Math.round(this.visitedSubs.size / total * 100));
   }
 
   initVisitedSubs() {
@@ -546,7 +558,7 @@ export class CourseDetailComponent implements OnInit {
         this.activeQuizResult.score = result.percentage ?? Math.round((result.score / result.max_score) * 100);
         this.activeQuizStep = 'result';
         this.activeQuizSubmitting = false;
-        if (result.passed) {
+        if (this.activeQuizResult.score >= 70) {
           this.quizScores = { ...this.quizScores, [this.activeQuiz._quiz_id]: this.activeQuizResult.score };
           if (!this.visitedSubs.has(this.activeQuiz.id)) this.visitedSubs.add(this.activeQuiz.id);
           const total = this.chapters.reduce((acc: number, ch: any) => acc + (ch.sub_chapters?.length || 0), 0);

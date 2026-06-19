@@ -15,7 +15,7 @@ class AuthController extends Controller
     {
         $this->middleware('auth:api', ['except' => [
             'login', 'register', 'verifyEmail',
-            'forgotPassword', 'resetPassword', 'verifyResetToken'
+            'forgotPassword', 'resetPassword', 'verifyResetToken', 'internalAdmins'
         ]]);
     }
 
@@ -53,7 +53,7 @@ class AuthController extends Controller
             'email_verified_at'  => null,
         ]);
 
-        $verificationUrl = 'http://localhost:4200/verify-email?token=' . $verificationToken;
+        $verificationUrl = rtrim(config('app.frontend_url'), '/') . '/verify-email?token=' . $verificationToken;
         Mail::to($user->email)->send(new \App\Mail\VerificationEmail($verificationUrl, $user->name));
 
         $message = $isTeacher
@@ -261,7 +261,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'cv_url' => 'http://localhost:8000/storage/' . $teacher->cv_path
+            'cv_url' => rtrim(config('app.frontend_url'), '/') . '/storage/' . $teacher->cv_path
         ]);
     }
 
@@ -335,7 +335,7 @@ class AuthController extends Controller
             ['email' => $request->email],
             ['token' => bcrypt($token), 'created_at' => now()]
         );
-        $resetUrl = env('FRONTEND_URL', 'http://localhost:4200') . '/reset-password?token=' . $token . '&email=' . urlencode($request->email);
+        $resetUrl = rtrim(config('app.frontend_url'), '/') . '/reset-password?token=' . $token . '&email=' . urlencode($request->email);
         Mail::send('emails.reset-password', ['url' => $resetUrl, 'user' => $user], function ($m) use ($user) {
             $m->to($user->email)->subject('Réinitialisation de votre mot de passe');
         });
@@ -382,5 +382,12 @@ class AuthController extends Controller
         $user->save();
         $user->delete();
         return response()->json(['message' => 'User deleted']);
+    }
+
+    public function internalAdmins()
+    {
+        return response()->json(
+            User::where('role', 'admin')->get(['id', 'name', 'email', 'role'])
+        );
     }
 }

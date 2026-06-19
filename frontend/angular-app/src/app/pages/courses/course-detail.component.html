@@ -190,7 +190,7 @@
               <div class="question-card" *ngFor="let q of activeQuizQuestions; let i = index">
                 <div class="question-num">Question {{ i + 1 }}</div>
                 <div class="question-text">{{ q.text }}</div>
-                <img *ngIf="q.image_path" [src]="'http://localhost:8005/storage/' + q.image_path" class="question-img" alt="">
+                <img *ngIf="q.image_path" [src]="'/api/quiz-storage/' + q.image_path" class="question-img" alt="">
                 <div class="options">
                   <div class="option"
                     *ngFor="let opt of q.options"
@@ -302,7 +302,7 @@
           <span>🤖 Assistant — {{ activeSubChapter ? activeSubChapter.title : course.title }}</span>
           <div style="display:flex;gap:.4rem">
             <button (click)="exportChatPDF()" title="Exporter PDF" *ngIf="chatMessages.length > 0">📄</button>
-            <button (click)="showChat = false">✕</button>
+            <button class="mc-close" (click)="showChat = false" aria-label="Fermer l'assistant" title="Fermer">✕</button>
           </div>
         </div>
         <div class="mc-messages" #mcMessages>
@@ -328,7 +328,7 @@
 
 
 <!-- Bouton FAB flottant pour ouvrir le chat -->
-<button class="chat-fab" *ngIf="enrolled" (click)="showChat = !showChat" title="Assistant IA">
-  {{ showChat ? '✕' : '🤖' }}
+<button class="chat-fab" *ngIf="enrolled && !showChat" (click)="showChat = true" title="Assistant IA">
+  🤖
 </button>
 </div>

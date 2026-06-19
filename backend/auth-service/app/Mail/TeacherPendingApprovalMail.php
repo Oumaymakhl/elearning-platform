@@ -13,15 +13,16 @@ class TeacherPendingApprovalMail extends Mailable
 
     public function build()
     {
+        $frontendUrl = rtrim(config('app.frontend_url'), '/');
         $cvUrl = $this->teacher->cv_path
-            ? 'http://localhost:8000/storage/' . $this->teacher->cv_path
+            ? $frontendUrl . '/storage/' . $this->teacher->cv_path
             : null;
 
         $cvSection = $cvUrl
             ? "<p><a href='{$cvUrl}' style='color:#1E3A5F;'>📄 Consulter le CV de {$this->teacher->name}</a></p>"
             : "<p>Aucun CV soumis.</p>";
 
-        $adminUrl = 'http://localhost:4200/teacher-approvals';
+        $adminUrl = $frontendUrl . '/teacher-approvals';
 
         return $this->subject('Nouvel enseignant en attente d\'approbation')
             ->html("

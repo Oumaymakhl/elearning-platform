@@ -448,7 +448,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   sending = false;
   showEmoji = false;
   showInfo = false;
-  showAdminList = false;
+  showAdminList = true;
   admins: any[] = [];
   filteredAdmins: any[] = [];
   adminSearch = '';
@@ -486,6 +486,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.userSub = this.auth.currentUser$.subscribe(u => { if (u) { this.currentUser = u; this.currentUser.myId = u.auth_id || u.id; } });
 
     this.loadConversations();
+    this.loadAdmins();
     this.convPollInterval = setInterval(() => this.loadConversations(), 15000);
     this.route.queryParams.subscribe(params => {
       if (params['with'] && params['name']) {
@@ -651,18 +652,22 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   toggleAdminList() {
     this.showAdminList = !this.showAdminList;
     this.showNewConv = false;
-    if (this.showAdminList && this.admins.length === 0) {
-      this.loadingAdmins = true;
-      this.http.get<any[]>('/api/internal/admins').subscribe({
-        next: (users) => {
-          this.loadingAdmins = false;
-          this.admins = users.map((u: any) => ({ id: u.id, name: u.name, avatar_url: u.avatar_url || null }));
-          console.log('admins:', this.admins);
-          this.filteredAdmins = [...this.admins];
-        },
-        error: () => { this.loadingAdmins = false; }
-      });
-    }
+    if (this.showAdminList && this.admins.length === 0) this.loadAdmins();
+  }
+
+  private loadAdmins() {
+    this.loadingAdmins = true;
+    this.http.get<any[]>('/api/internal/admins').subscribe({
+      next: (users) => {
+        const myId = this.currentUser?.auth_id || this.currentUser?.id;
+        this.loadingAdmins = false;
+        this.admins = users
+          .filter((u: any) => Number(u.id) !== Number(myId))
+          .map((u: any) => ({ id: u.id, name: u.name, avatar_url: u.avatar_url || null }));
+        this.filteredAdmins = [...this.admins];
+      },
+      error: () => { this.loadingAdmins = false; }
+    });
   }
 
   filterAdmins() {

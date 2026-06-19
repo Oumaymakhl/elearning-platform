@@ -158,7 +158,7 @@ export class QuizComponent implements OnInit {
         this.result.score = result.percentage ?? Math.round((result.score / result.max_score) * 100);
         this.step = 'result';
         this.submitting = false;
-        if (result.passed && this.courseId) {
+        if (this.result.score >= 70 && this.courseId) {
           const token2 = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
           const headers2 = new HttpHeaders({ Authorization: `Bearer ${token2}` });
           this.http.get<any[]>(`/api/courses/${this.courseId}/chapters`, { headers: headers2 }).subscribe({

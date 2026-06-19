@@ -8,6 +8,7 @@ use App\Http\Controllers\QuizResultsController;
 
 Route::get('/ping', fn() => response()->json(['status' => 'ok']));
 Route::get('/quiz-stats', [QuizResultsController::class, 'globalStats']);
+Route::delete('/internal/courses/{courseId}', [QuizController::class, 'destroyForCourse']);
 
 // Publiques
 Route::get('/quizzes', [QuizController::class, 'index']);

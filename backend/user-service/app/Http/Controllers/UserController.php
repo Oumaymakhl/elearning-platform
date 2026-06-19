@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -66,24 +67,31 @@ class UserController extends Controller
         $authId = (int) $request->auth_user_id;
         $user   = User::where('auth_id', $authId)->firstOrFail();
 
+        $oldPath = $user->avatar;
         $path = $request->file('avatar')->store('avatars', 'public');
         $user->forceFill(['avatar' => $path])->saveOrFail();
+
+        if ($oldPath && $oldPath !== $path) {
+            Storage::disk('public')->delete($oldPath);
+        }
 
         // Mettre à jour les conversations dans messaging-service
         try {
             $avatarUrl = '/storage/' . $path;
-            \Http::timeout(3)->put('http://nginx-messaging/api/internal/update-avatar', [
+            Http::timeout(3)->put('http://nginx-messaging/api/internal/update-avatar', [
                 'user_id'    => $authId,
                 'avatar_url' => $avatarUrl,
             ]);
-            \Http::timeout(3)->put('http://nginx-forum/api/internal/update-avatar', [
+            Http::timeout(3)->put('http://nginx-forum/api/internal/update-avatar', [
                 'user_id'    => $authId,
                 'avatar_url' => $avatarUrl,
             ]);
         } catch (\Exception $e) {
         }
 
-        return response()->json($user->fresh());
+        $fresh = $user->fresh();
+        $fresh->setAttribute('avatar_url', '/storage/' . $path);
+        return response()->json($fresh);
     }
 
     public function sync(Request $request)
@@ -125,8 +133,34 @@ class UserController extends Controller
 
     public function allAdmins()
     {
-        $admins = \App\Models\User::where('role', 'admin')->get(['auth_id as id', 'name', 'email', 'role']);
-        return response()->json($admins);
+        $profiles = User::where('role', 'admin')->get()->keyBy('auth_id');
+
+        try {
+            $response = Http::timeout(3)->get('http://nginx-auth/api/internal/admins');
+            if ($response->successful()) {
+                return response()->json(collect($response->json())->map(function ($admin) use ($profiles) {
+                    $profile = $profiles->get($admin['id']);
+                    $avatar = $profile?->avatar;
+                    return [
+                        'id' => (int) $admin['id'],
+                        'name' => $admin['name'],
+                        'email' => $admin['email'],
+                        'role' => 'admin',
+                        'avatar_url' => $avatar ? '/storage/' . $avatar : null,
+                    ];
+                })->values());
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('Unable to load admins from auth service: ' . $e->getMessage());
+        }
+
+        return response()->json($profiles->values()->map(fn ($admin) => [
+            'id' => (int) $admin->auth_id,
+            'name' => $admin->name,
+            'email' => $admin->email,
+            'role' => 'admin',
+            'avatar_url' => $admin->avatar ? '/storage/' . $admin->avatar : null,
+        ]));
     }
 
 }

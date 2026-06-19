@@ -19,8 +19,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
           </div>
         </div>
 
-        <h1 class="title">Paiement réussi !</h1>
-        <p class="subtitle">Félicitations ! Votre accès au cours a été activé.</p>
+        <h1 class="title">{{ confirming ? 'Confirmation du paiement...' : confirmationError ? 'Confirmation incomplète' : 'Paiement réussi !' }}</h1>
+        <p class="subtitle">{{ confirmationError || (confirming ? 'Activation de votre inscription au cours.' : 'Félicitations ! Votre accès au cours a été activé.') }}</p>
 
         <div class="info-box">
           <div class="info-row">
@@ -34,7 +34,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
         </div>
 
         <div class="actions">
-          <button *ngIf="courseId" class="btn-primary" (click)="goToCourse()">
+          <button *ngIf="courseId && !confirming && !confirmationError" class="btn-primary" (click)="goToCourse()">
             🚀 Accéder au cours
           </button>
           <a routerLink="/courses" class="btn-secondary">
@@ -117,6 +117,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export class PaymentSuccessComponent implements OnInit {
   visible = false;
   courseId: number | null = null;
+  confirming = true;
+  confirmationError = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -140,10 +142,17 @@ export class PaymentSuccessComponent implements OnInit {
       const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
       this.http.get(`/api/payments/success?session_id=${sessionId}`, { headers }).subscribe({
         next: (res: any) => {
-          console.log('Paiement confirmé:', res);
+          this.courseId = Number(res.course_id || this.courseId) || null;
+          this.confirming = false;
         },
-        error: (e) => console.error('Erreur confirmation:', e)
+        error: (e) => {
+          this.confirming = false;
+          this.confirmationError = e.error?.message || 'Impossible de confirmer l’inscription. Veuillez réessayer.';
+        }
       });
+    } else {
+      this.confirming = false;
+      this.confirmationError = 'Session de paiement manquante.';
     }
   }
 

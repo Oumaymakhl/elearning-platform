@@ -150,6 +150,7 @@ class AttemptController extends Controller
             'correct'       => $correct,
             'total_q'       => $total,
             'attempt_no'    => $attemptNumber,
+            'next_chapter_unlocked' => $percentage >= 70,
             'answers'       => $attempt->answers,
         ]);
     }

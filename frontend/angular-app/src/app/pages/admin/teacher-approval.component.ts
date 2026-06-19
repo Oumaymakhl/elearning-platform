@@ -140,7 +140,7 @@ export class TeacherApprovalComponent implements OnInit {
   reason = '';
   loading = true;
 
-  private teachersUrl = '/auth-api/teachers';
+  private teachersUrl = '/api/teachers';
 
   constructor(private http: HttpClient) {}
 

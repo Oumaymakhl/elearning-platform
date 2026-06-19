@@ -83,7 +83,7 @@
               </div>
               <div class="field">
                 <label>Contenu</label>
-                <app-rich-editor formControlName="content"></app-rich-editor>
+                <app-rich-editor formControlName="content" [courseId]="course.id"></app-rich-editor>
               </div>
               <div class="field-check">
                 <input type="checkbox" formControlName="is_lab" id="lab-{{chapter.id}}">
@@ -112,7 +112,7 @@
             </div>
             <div *ngIf="editingSub?.id === sub.id" class="edit-sub-form">
               <input [(ngModel)]="editingSub.title" placeholder="Titre" class="edit-input"/>
-              <app-rich-editor [(ngModel)]="editingSub.content"></app-rich-editor>
+              <app-rich-editor [(ngModel)]="editingSub.content" [courseId]="course.id"></app-rich-editor>
               <div class="edit-actions">
                 <button class="btn-save" (click)="saveEditSub(chapter.id)">💾 Sauvegarder</button>
                 <button class="btn-cancel" (click)="editingSub = null">Annuler</button>

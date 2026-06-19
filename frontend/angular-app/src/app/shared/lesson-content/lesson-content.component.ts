@@ -39,6 +39,7 @@ interface Block { type: 'html' | 'code'; content: string; lang?: string; }
     .lc-prose ::ng-deep img { max-width:100%; border-radius:8px; margin:.5rem 0; display:block; }
     .lc-prose ::ng-deep .re-video-wrap { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; margin:.5rem 0; }
     .lc-prose ::ng-deep .re-video-wrap iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:none; }
+    .lc-prose ::ng-deep .re-video-wrap video { position:absolute; top:0; left:0; width:100%; height:100%; background:#000; }
     .lc-prose ::ng-deep .re-img { max-width:100%; border-radius:8px; margin:.5rem 0; display:block; }
     .lc-empty { color:#8a9bbf; font-style:italic; font-size:.83rem; }
   `]
