@@ -23,12 +23,10 @@ class QuizController extends Controller
         ]);
         $data['created_by'] = (int) $request->auth_user_id;
         try {
-            $quiz = DB::transaction(function () use ($data) {
-                if (!empty($data['chapter_id']) && Quiz::where('chapter_id', $data['chapter_id'])->lockForUpdate()->exists()) {
-                    abort(422, 'Ce chapitre a déjà un quiz. Supprimez-le avant d\'en créer un nouveau.');
-                }
-                return Quiz::create($data);
-            });
+            if (!empty($data['chapter_id']) && Quiz::where('chapter_id', $data['chapter_id'])->exists()) {
+                return response()->json(['message' => 'Ce chapitre a déjà un quiz. Supprimez-le avant d\'en créer un nouveau.'], 422);
+            }
+            $quiz = DB::transaction(fn () => Quiz::create($data));
         } catch (\Illuminate\Database\QueryException $e) {
             if (($e->errorInfo[1] ?? null) === 1062) {
                 return response()->json(['message' => 'Ce chapitre a déjà un quiz. Supprimez-le avant d\'en créer un nouveau.'], 422);
