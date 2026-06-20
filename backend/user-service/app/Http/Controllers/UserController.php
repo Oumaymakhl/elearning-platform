@@ -91,7 +91,12 @@ class UserController extends Controller
         $user = $this->profileFromRequest($request);
 
         $oldPath = $user->avatar;
+        Storage::disk('public')->makeDirectory('avatars');
         $path = $request->file('avatar')->store('avatars', 'public');
+        if (!$path) {
+            return response()->json(['message' => 'Avatar could not be saved. Please try again.'], 500);
+        }
+
         $user->forceFill(['avatar' => $path])->saveOrFail();
 
         if ($oldPath && $oldPath !== $path) {

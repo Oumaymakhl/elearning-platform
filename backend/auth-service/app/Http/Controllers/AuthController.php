@@ -125,6 +125,10 @@ class AuthController extends Controller
     public function verifyEmail(Request $request)
     {
         $token = $request->query('token') ?? $request->input('token');
+        if (!is_string($token) || trim($token) === '') {
+            return response()->json(['message' => 'Invalid or expired token'], 400);
+        }
+
         $user  = User::where('verification_token', $token)->first();
 
         if (!$user) {
