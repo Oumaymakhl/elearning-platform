@@ -1,7 +1,4 @@
-import {
-  Component, Input, OnChanges, SimpleChanges,
-  ChangeDetectionStrategy, SecurityContext
-} from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CodeBlockComponent } from '../code-block/code-block.component';
@@ -73,7 +70,7 @@ export class LessonContentComponent implements OnChanges {
   }
 
   safe(html: any): SafeHtml {
-    return this.sanitizer.sanitize(SecurityContext.HTML, html as string) ?? "";
+    return this.sanitizer.bypassSecurityTrustHtml(html as string);
   }
 
   private decodeEntities(encoded: string): string {

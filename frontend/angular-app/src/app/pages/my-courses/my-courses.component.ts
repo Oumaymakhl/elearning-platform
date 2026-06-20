@@ -23,7 +23,7 @@ export class MyCoursesComponent implements OnInit {
       next: (data) => {
         this.enrollments = data.map((e: any) => ({
           ...e,
-          percentage: Math.round(parseFloat(e.progress || 0))
+          percentage: this.capProgress(e.progress)
         }));
         this.loading = false;
       },
@@ -48,6 +48,10 @@ export class MyCoursesComponent implements OnInit {
   }
  
   setFilter(f: string) { this.filter = f; }
+
+  capProgress(progress: number | string | null): number {
+    return Math.min(100, Math.max(0, Math.round(Number(progress) || 0)));
+  }
  
   getStatusLabel(status: string): string {
     const l: Record<string,string> = { active:'En cours', completed:'Terminé', abandoned:'Abandonné' };

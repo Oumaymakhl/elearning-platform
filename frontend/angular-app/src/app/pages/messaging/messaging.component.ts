@@ -47,7 +47,8 @@ import { ConfirmService } from '../../services/confirm.service';
                     <div class="conv-last">🛡️ Admin</div>
                   </div>
                 </div>
-                <div class="conv-empty" *ngIf="filteredAdmins.length === 0 && !loadingAdmins"><p>Aucun admin trouvé</p></div>
+                <div class="conv-empty" *ngIf="adminLoadError && !loadingAdmins"><p>{{ adminLoadError }}</p></div>
+                <div class="conv-empty" *ngIf="filteredAdmins.length === 0 && !loadingAdmins && !adminLoadError"><p>Aucun admin trouvé</p></div>
                 <div class="conv-empty" *ngIf="loadingAdmins"><div class="spinner-sm"></div></div>
               </div>
             </div>
@@ -77,7 +78,11 @@ import { ConfirmService } from '../../services/confirm.service';
             </div>
 
             <div class="conv-list">
-              <div class="conv-empty" *ngIf="conversations.length === 0 && !loadingConvs">
+              <div class="conv-empty" *ngIf="conversationLoadError && !loadingConvs">
+                <div>⚠️</div>
+                <p>{{ conversationLoadError }}</p>
+              </div>
+              <div class="conv-empty" *ngIf="conversations.length === 0 && !loadingConvs && !conversationLoadError">
                 <div>💬</div>
                 <p>Aucune conversation</p>
                 <button class="empty-cta-sm" *ngIf="currentUser?.role !== 'teacher'" (click)="toggleNewConv()">Démarrer une discussion</button>
@@ -453,6 +458,8 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   filteredAdmins: any[] = [];
   adminSearch = '';
   loadingAdmins = false;
+  adminLoadError = '';
+  conversationLoadError = '';
   pendingFile: any = null;
   showSearch = false;
   searchQuery = '';
@@ -553,6 +560,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   loadConversations() {
     this.loadingConvs = this.conversations.length === 0;
+    this.conversationLoadError = '';
     this.http.get<any[]>('/api/messaging/conversations', {
       headers: { 'X-User-Data': this.getUserHeader() }
     }).subscribe({
@@ -560,6 +568,10 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.loadingConvs = false;
         this.conversations = convs;
         this.totalUnread = convs.reduce((acc, c) => acc + (c.unread || 0), 0);
+      },
+      error: (error) => {
+        this.loadingConvs = false;
+        this.conversationLoadError = error.error?.message || 'Unable to load conversations.';
       }
     });
   }
@@ -580,6 +592,10 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.totalUnread = this.conversations.reduce((acc, c) => acc + (c.unread || 0), 0);
         const maxId = msgs.length > 0 ? Math.max(...msgs.map((m: any) => m.id)) : 0;
         this.startPolling(conv.id, maxId);
+      },
+      error: () => {
+        this.loadingMessages = false;
+        this.messages = [];
       }
     });
   }
@@ -642,6 +658,9 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
         conv.other_avatar = otherAvatar; conv.last_message = ''; conv.unread = 0;
         this.conversations.unshift(conv);
         this.openConv(conv);
+      },
+      error: (error) => {
+        alert(error.error?.message || 'Unable to start conversation.');
       }
     });
   }
@@ -657,16 +676,24 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   private loadAdmins() {
     this.loadingAdmins = true;
+    this.adminLoadError = '';
     this.http.get<any[]>('/api/internal/admins').subscribe({
       next: (users) => {
         const myId = this.currentUser?.auth_id || this.currentUser?.id;
         this.loadingAdmins = false;
         this.admins = users
-          .filter((u: any) => Number(u.id) !== Number(myId))
-          .map((u: any) => ({ id: u.id, name: u.name, avatar_url: u.avatar_url || null }));
+          .map((u: any) => ({
+            id: Number(u.auth_id || u.id),
+            name: u.name,
+            avatar_url: u.avatar_url || (u.avatar ? `/storage/${u.avatar}` : null)
+          }))
+          .filter((u: any) => Number(u.id) !== Number(myId));
         this.filteredAdmins = [...this.admins];
       },
-      error: () => { this.loadingAdmins = false; }
+      error: (error) => {
+        this.loadingAdmins = false;
+        this.adminLoadError = error.error?.message || 'Unable to load admins.';
+      }
     });
   }
 

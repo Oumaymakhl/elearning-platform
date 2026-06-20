@@ -3,11 +3,35 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
+    private function profileFromRequest(Request $request): User
+    {
+        $authId = (int) $request->auth_user_id;
+        $email = $request->auth_user_email ?: ('user' . $authId . '@local.invalid');
+        $user = User::where('auth_id', $authId)->first() ?: User::where('email', $email)->first();
+
+        $data = [
+            'auth_id' => $authId,
+            'name' => $request->auth_user_name ?: ('User #' . $authId),
+            'email' => $email,
+            'role' => $request->auth_user_role ?: 'student',
+            'is_active' => true,
+        ];
+
+        if ($user) {
+            $user->forceFill($data)->save();
+            return $user;
+        }
+
+        return User::create($data + ['password' => Hash::make(Str::random(32))]);
+    }
+
     public function index(Request $request)
     {
         if ($request->auth_user_role !== 'admin') {
@@ -44,17 +68,16 @@ class UserController extends Controller
 
     public function me(Request $request)
     {
-        $authId = (int) $request->auth_user_id;
-        $user   = User::where('auth_id', $authId)->first();
-        if (!$user) return response()->json(['message' => 'Not found'], 404);
+        $user = $this->profileFromRequest($request);
+        $user->setAttribute('avatar_url', $user->avatar ? '/storage/' . $user->avatar : null);
         return response()->json($user);
     }
 
     public function updateMe(Request $request)
     {
-        $authId = (int) $request->auth_user_id;
-        $user   = User::where('auth_id', $authId)->firstOrFail();
+        $user = $this->profileFromRequest($request);
         $user->update($request->only(['name', 'bio', 'phone', 'address']));
+        $user->setAttribute('avatar_url', $user->avatar ? '/storage/' . $user->avatar : null);
         return response()->json($user);
     }
 
@@ -65,7 +88,7 @@ class UserController extends Controller
         ]);
 
         $authId = (int) $request->auth_user_id;
-        $user   = User::where('auth_id', $authId)->firstOrFail();
+        $user = $this->profileFromRequest($request);
 
         $oldPath = $user->avatar;
         $path = $request->file('avatar')->store('avatars', 'public');
@@ -102,7 +125,12 @@ class UserController extends Controller
             'email'   => 'required|email',
             'role'    => 'required|string',
         ]);
-        $user = User::updateOrCreate(['auth_id' => $data['auth_id']], $data);
+        $user = User::where('auth_id', $data['auth_id'])->first() ?: User::where('email', $data['email'])->first();
+        if ($user) {
+            $user->forceFill($data)->save();
+        } else {
+            $user = User::create($data + ['password' => Hash::make(Str::random(32))]);
+        }
         return response()->json($user);
     }
 
@@ -143,6 +171,7 @@ class UserController extends Controller
                     $avatar = $profile?->avatar;
                     return [
                         'id' => (int) $admin['id'],
+                        'auth_id' => (int) $admin['id'],
                         'name' => $admin['name'],
                         'email' => $admin['email'],
                         'role' => 'admin',
@@ -156,11 +185,30 @@ class UserController extends Controller
 
         return response()->json($profiles->values()->map(fn ($admin) => [
             'id' => (int) $admin->auth_id,
+            'auth_id' => (int) $admin->auth_id,
             'name' => $admin->name,
             'email' => $admin->email,
             'role' => 'admin',
             'avatar_url' => $admin->avatar ? '/storage/' . $admin->avatar : null,
         ]));
+    }
+
+    public function avatarsByIds(Request $request)
+    {
+        $ids = collect(explode(',', (string) $request->query('ids', '')))
+            ->map(fn ($id) => (int) trim($id))
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) return response()->json([]);
+
+        $avatars = User::whereIn('auth_id', $ids)
+            ->whereNotNull('avatar')
+            ->get(['auth_id', 'avatar'])
+            ->mapWithKeys(fn ($user) => [(int) $user->auth_id => '/storage/' . $user->avatar]);
+
+        return response()->json($avatars);
     }
 
 }

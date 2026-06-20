@@ -4,12 +4,33 @@ namespace App\Http\Controllers;
 use App\Models\Enrollment;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class EnrollmentController extends Controller
 {
     public function myCourses(Request $request) {
         $enrollments = Enrollment::with('course')->where('user_id', $request->auth_user_id)->get();
+        foreach ($enrollments as $enrollment) {
+            $totalSubs = DB::table('sub_chapters as sub')
+                ->join('chapters as chapter', 'chapter.id', '=', 'sub.chapter_id')
+                ->where('chapter.course_id', $enrollment->course_id)
+                ->count();
+            $visitedCount = DB::table('visited_sub_chapters as visited')
+                ->join('sub_chapters as sub', 'sub.id', '=', 'visited.sub_chapter_id')
+                ->join('chapters as chapter', 'chapter.id', '=', 'sub.chapter_id')
+                ->where('visited.user_id', $request->auth_user_id)
+                ->where('visited.course_id', $enrollment->course_id)
+                ->where('chapter.course_id', $enrollment->course_id)
+                ->distinct('visited.sub_chapter_id')
+                ->count('visited.sub_chapter_id');
+            $computed = $totalSubs > 0 ? min(100, round(($visitedCount / $totalSubs) * 100, 2)) : min(100, (float) $enrollment->progress);
+            if ((float) $enrollment->progress !== (float) $computed) {
+                $enrollment->forceFill(['progress' => $computed])->save();
+            } else {
+                $enrollment->progress = $computed;
+            }
+        }
         return response()->json($enrollments);
     }
 

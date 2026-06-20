@@ -45,8 +45,8 @@ class StripeController extends Controller
                 'quantity' => 1,
             ]],
             'mode'        => 'payment',
-            'success_url' => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . '/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=' . $courseId,
-            'cancel_url'  => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . '/courses/' . $courseId . '?payment_cancelled=1',
+            'success_url' => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:8080'), '/') . '/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=' . $courseId,
+            'cancel_url'  => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:8080'), '/') . '/courses/' . $courseId . '?payment_cancelled=1',
             'metadata'    => ['payment_id' => $payment->id, 'user_id' => $userId, 'course_id' => $courseId],
         ]);
 

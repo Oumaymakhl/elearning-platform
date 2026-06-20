@@ -106,22 +106,26 @@ class CourseController extends Controller
             ->whereNotNull('quiz_id')
             ->pluck('quiz_id')->unique()->values()->all();
 
-        try {
-            $cleanupRequests = [
-                Http::timeout(10)->delete('http://nginx-quiz/api/internal/courses/' . $course->id, [
-                    'quiz_ids' => $quizIds,
-                    'chapter_ids' => $chapterIds,
-                ]),
-                Http::timeout(10)->delete('http://nginx-content/api/internal/courses/' . $course->id),
-                Http::timeout(10)->delete('http://nginx-payment/api/internal/courses/' . $course->id),
-            ];
-        } catch (\Throwable $e) {
-            \Log::error('Course cleanup failed: ' . $e->getMessage());
-            return response()->json(['message' => 'Related services could not complete course cleanup. Please retry.'], 503);
+        $cleanupFailures = [];
+        foreach ([
+            'quiz' => fn () => Http::timeout(10)->delete('http://nginx-quiz/api/internal/courses/' . $course->id, [
+                'quiz_ids' => $quizIds,
+                'chapter_ids' => $chapterIds,
+            ]),
+            'content' => fn () => Http::timeout(10)->delete('http://nginx-content/api/internal/courses/' . $course->id),
+            'payment' => fn () => Http::timeout(10)->delete('http://nginx-payment/api/internal/courses/' . $course->id),
+        ] as $service => $requestCleanup) {
+            try {
+                $response = $requestCleanup();
+                if (!$response->successful() && $response->status() !== 404) {
+                    $cleanupFailures[] = $service . ':' . $response->status();
+                }
+            } catch (\Throwable $e) {
+                $cleanupFailures[] = $service . ':' . $e->getMessage();
+            }
         }
-
-        if (collect($cleanupRequests)->contains(fn ($response) => !$response->successful())) {
-            return response()->json(['message' => 'Related services could not complete course cleanup. Please retry.'], 503);
+        if ($cleanupFailures) {
+            \Log::warning('Course related cleanup had non-blocking failures for course ' . $course->id . ': ' . implode(', ', $cleanupFailures));
         }
 
         DB::transaction(function () use ($course) {

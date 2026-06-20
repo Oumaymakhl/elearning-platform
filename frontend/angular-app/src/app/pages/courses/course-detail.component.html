@@ -104,14 +104,14 @@
                 <div class="chapter-title-left">
                   <span>📖</span>
                   <span>{{ chapter.title }}</span>
-                  <span class="chapter-count">({{ (chapter.sub_chapters || []).length }} leçons)</span>
+                  <span class="chapter-count">({{ visibleSubChapters(chapter).length }} leçons)</span>
                 </div>
                 <span class="lock-chapter" *ngIf="isStudent && enrolled && !isChapterUnlocked(i)">🔒</span>
                 <span class="chapter-arrow" *ngIf="!isStudent || !enrolled || isChapterUnlocked(i)">{{ chapter.expanded ? '▲' : '▼' }}</span>
               </div>
               <div class="subchapters" *ngIf="chapter.expanded && (enrolled || isTeacher || isAdmin)">
                 <div class="subchapter"
-                  *ngFor="let sub of chapter.sub_chapters || []; let i = index"
+                  *ngFor="let sub of visibleSubChapters(chapter); let i = index"
                   [class.clickable]="isUnlocked(sub, i, chapter.sub_chapters || [])"
                   [class.locked]="isStudent && enrolled && !isUnlocked(sub, i, chapter.sub_chapters || [])"
                   [class.active-sub]="activeSubChapter?.id === sub.id || (activeQuiz && activeQuiz.id === sub.id)"

@@ -42,8 +42,8 @@ class PaymeeController extends Controller
                 "quantity" => 1,
             ]],
             "mode"        => "payment",
-            "success_url" => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . "/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
-            "cancel_url"  => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:3000'), '/') . "/courses/" . $request->course_id,
+            "success_url" => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:8080'), '/') . "/payment/success?session_id={CHECKOUT_SESSION_ID}&course_id=" . $request->course_id,
+            "cancel_url"  => rtrim(env('FRONTEND_URL', 'http://52.2.181.255:8080'), '/') . "/courses/" . $request->course_id,
             "metadata"    => ["payment_id" => (string) $payment->id],
         ]);
 

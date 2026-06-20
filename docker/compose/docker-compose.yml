@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth-service
     environment:
-      FRONTEND_URL: http://52.2.181.255:3000
+      FRONTEND_URL: http://52.2.181.255:8080
     networks:
       - elearning-network
     depends_on:
@@ -459,8 +459,12 @@ services:
       - nginx-course
       - nginx-content
       - nginx-executor
+      - nginx-quiz
+      - nginx-notification
       - nginx-messaging
-      - nginx-forum   
+      - nginx-forum
+      - nginx-payment
+      - nginx-chatbot
     restart: unless-stopped
   mailpit:
     image: axllent/mailpit:latest
@@ -635,7 +639,7 @@ services:
       dockerfile: Dockerfile
     container_name: payment-service
     environment:
-      FRONTEND_URL: http://52.2.181.255:3000
+      FRONTEND_URL: http://52.2.181.255:8080
     networks:
       - elearning-network
     depends_on:

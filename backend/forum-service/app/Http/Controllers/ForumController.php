@@ -17,7 +17,7 @@ class ForumController extends Controller
     private function notify(int $userId, string $type, array $data, string $actionUrl = '')
     {
         try {
-            Http::timeout(3)->post('http://localhost:8006/api/internal/send', [
+            Http::timeout(3)->post('http://nginx-notification/api/internal/send', [
                 'user_id'    => $userId,
                 'type'       => $type,
                 'data'       => $data,
@@ -31,7 +31,7 @@ class ForumController extends Controller
     {
         if (empty($userIds)) return [];
         try {
-            $res = Http::timeout(3)->get('http://localhost:8001/api/internal/users/avatars', [
+            $res = Http::timeout(3)->get('http://nginx-user/api/internal/users/avatars', [
                 'ids' => implode(',', array_unique($userIds))
             ]);
             if ($res->ok()) return $res->json() ?? [];

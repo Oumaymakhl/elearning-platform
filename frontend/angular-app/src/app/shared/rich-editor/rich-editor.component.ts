@@ -408,11 +408,14 @@ export class RichEditorComponent implements AfterViewInit, OnDestroy, ControlVal
 
   private uploadMedia(file: File, done: (url: string) => void): void {
     if (!this.courseId) { alert('Enregistrez le cours avant d’ajouter un média.'); return; }
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
     const data = new FormData();
     data.append('course_id', String(this.courseId));
     data.append('file', file, file.name);
     this.uploadingMedia = true;
-    this.http.post<any>('/api/contents/media', data).subscribe({
+    this.http.post<any>('/api/contents/media', data, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {}
+    }).subscribe({
       next: response => { this.uploadingMedia = false; done(response.url); this.cdr.markForCheck(); },
       error: error => { this.uploadingMedia = false; alert(error.error?.message || 'Échec de l’upload du média.'); this.cdr.markForCheck(); }
     });

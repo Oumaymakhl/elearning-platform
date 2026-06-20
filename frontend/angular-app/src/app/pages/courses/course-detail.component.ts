@@ -173,7 +173,7 @@ export class CourseDetailComponent implements OnInit {
 
   loadCompletedLabs() {
     const token = typeof localStorage !== "undefined" ? localStorage.getItem("token") : "";
-    const headers = new HttpHeaders({ Authorization: `Bearer \${token}` });
+    const headers = new HttpHeaders({ Authorization: `Bearer ${token}` });
     for (const chapter of this.chapters) {
       for (const sub of chapter.sub_chapters || []) {
         if (sub.is_lab && sub.exercise_id) {
@@ -274,6 +274,14 @@ export class CourseDetailComponent implements OnInit {
       for (const sub of ch.sub_chapters || []) {
         subs.push({ ...sub, _chapterIndex: this.chapters.indexOf(ch) });
       }
+    }
+    return subs;
+  }
+
+  visibleSubChapters(chapter: any): any[] {
+    const subs = chapter?.sub_chapters || [];
+    if (this.isTeacher && !this.isAdmin) {
+      return subs.filter((sub: any) => !sub.is_lab);
     }
     return subs;
   }

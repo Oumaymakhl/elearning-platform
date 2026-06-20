@@ -569,9 +569,9 @@ export class DashboardComponent implements OnInit {
         next: (enrollments) => {
           this.stats.courses = enrollments.length;
           this.recentCourses = enrollments.slice(0, 6).map((e: any) => ({
-            ...e.course, progress: parseFloat(e.progress || 0)
+            ...e.course, progress: this.capProgress(e.progress)
           }));
-          this.stats.completed = enrollments.filter((e: any) => parseFloat(e.progress) === 100).length;
+          this.stats.completed = enrollments.filter((e: any) => this.capProgress(e.progress) === 100).length;
         },
         error: () => {}
       });
@@ -634,6 +634,10 @@ export class DashboardComponent implements OnInit {
         error: () => {}
       });
     }
+  }
+
+  capProgress(progress: number | string | null): number {
+    return Math.min(100, Math.max(0, Math.round(Number(progress) || 0)));
   }
 
   getInitials(name: string): string {
