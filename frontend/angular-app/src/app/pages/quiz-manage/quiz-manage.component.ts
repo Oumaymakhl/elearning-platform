@@ -588,6 +588,10 @@ export class QuizManageComponent implements OnInit {
      IA — Modal & source
   ══════════════════════════════════════ */
   openAiModal(): void {
+    if (this.quizzes.length > 0) {
+      this.showErrorPopup("Ce chapitre a déjà un quiz. Supprimez-le avant d'en créer un nouveau.");
+      return;
+    }
     this.showAiModal = true;
     this.aiStep = 'source';
     this.aiSourceMode = '';
@@ -653,6 +657,20 @@ export class QuizManageComponent implements OnInit {
 
   private callGenerateApi(): void {
     this.aiGenerating = true;
+    this.http.get<any[]>(`${this.QUIZ_API}/chapters/${this.chapterId}/quizzes`, { headers: this.headers() }).subscribe({
+      next: (existing) => {
+        if (existing && existing.length > 0) {
+          this.aiGenerating = false;
+          this.showErrorPopup("Ce chapitre a déjà un quiz. Supprimez-le avant d'en créer un nouveau.");
+          return;
+        }
+        this.requestAiGeneration();
+      },
+      error: () => this.requestAiGeneration()
+    });
+  }
+
+  private requestAiGeneration(): void {
     this.http.post<any>(this.AI_API, {
       content: this.aiConfig.content,
       chapter_title: this.chapterName,
@@ -668,7 +686,7 @@ export class QuizManageComponent implements OnInit {
       },
       error: (err) => {
         this.aiGenerating = false;
-        alert('❌ ' + (err.error?.error || 'Erreur — vérifiez GROQ_API_KEY dans chatbot-service/.env'));
+        this.showErrorPopup(err.error?.error || 'La génération IA a échoué. Réessayez dans quelques instants.');
       }
     });
   }

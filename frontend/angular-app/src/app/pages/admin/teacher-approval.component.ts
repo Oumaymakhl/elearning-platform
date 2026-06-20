@@ -41,10 +41,10 @@ import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
             </div>
 
             <div class="actions">
-              <a [href]="getCvUrl(t.id)" target="_blank" class="btn btn-cv" *ngIf="t.cv_path">
+              <a [href]="getCvUrl(t)" target="_blank" class="btn btn-cv" *ngIf="hasCv(t)">
                 📄 Voir le CV
               </a>
-              <span class="no-cv" *ngIf="!t.cv_path">⚠️ Pas de CV</span>
+              <span class="no-cv" *ngIf="!hasCv(t)">⚠️ Pas de CV</span>
 
               <div class="reason-group" *ngIf="selectedId === t.id">
                 <textarea [(ngModel)]="reason" placeholder="Raison du refus (optionnel)" rows="2"></textarea>
@@ -159,8 +159,14 @@ export class TeacherApprovalComponent implements OnInit {
     });
   }
 
-  getCvUrl(id: number) {
-    return `/storage/${this.teachers.find(t => t.id === id)?.cv_path}`;
+  hasCv(teacher: any): boolean {
+    const path = String(teacher?.cv_path || '').trim();
+    return !!(teacher?.cv_url || (path && path !== '0' && path.toLowerCase() !== 'false' && path.toLowerCase() !== 'null'));
+  }
+
+  getCvUrl(teacher: any) {
+    if (teacher?.cv_url) return teacher.cv_url;
+    return `/storage/${teacher.cv_path}`;
   }
 
   selectReject(id: number) {

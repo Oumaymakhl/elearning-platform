@@ -530,7 +530,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getUserHeader(): string {
-    const u = this.currentUser;
+    const u = this.currentUser || this.auth.getCurrentUser();
     if (!u) return '';
     return btoa(unescape(encodeURIComponent(JSON.stringify({
       id: u.auth_id || u.id, name: u.name, role: u.role, avatar_url: u.avatar_url || (u.avatar ? '/storage/' + u.avatar : null)
@@ -569,10 +569,16 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   loadConversations() {
+    const userHeader = this.getUserHeader();
+    if (!userHeader) {
+      this.loadingConvs = false;
+      this.conversationLoadError = 'Unable to load conversations.';
+      return;
+    }
     this.loadingConvs = this.conversations.length === 0;
     this.conversationLoadError = '';
     this.http.get<any[]>('/api/messaging/conversations', {
-      headers: { 'X-User-Data': this.getUserHeader() }
+      headers: { 'X-User-Data': userHeader }
     }).subscribe({
       next: (convs) => {
         this.loadingConvs = false;
@@ -688,23 +694,30 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.loadingAdmins = true;
     this.adminLoadError = '';
     this.http.get<any[]>('/api/internal/admins').subscribe({
-      next: (users) => {
-        const myId = this.currentUser?.auth_id || this.currentUser?.id;
-        this.loadingAdmins = false;
-        this.admins = users
-          .map((u: any) => ({
-            id: Number(u.auth_id || u.id),
-            name: u.name,
-            avatar_url: u.avatar_url || (u.avatar ? `/storage/${u.avatar}` : null)
-          }))
-          .filter((u: any) => Number(u.id) !== Number(myId));
-        this.filteredAdmins = [...this.admins];
-      },
-      error: (error) => {
-        this.loadingAdmins = false;
-        this.adminLoadError = error.error?.message || 'Unable to load admins.';
+      next: (users) => this.applyAdmins(users),
+      error: () => {
+        this.http.get<any[]>('/api/auth/internal/admins').subscribe({
+          next: (users) => this.applyAdmins(users),
+          error: (error) => {
+            this.loadingAdmins = false;
+            this.adminLoadError = error.error?.message || 'Unable to load admins.';
+          }
+        });
       }
     });
+  }
+
+  private applyAdmins(users: any[]) {
+    const myId = this.currentUser?.auth_id || this.currentUser?.id;
+    this.loadingAdmins = false;
+    this.admins = (users || [])
+      .map((u: any) => ({
+        id: Number(u.auth_id || u.id),
+        name: u.name,
+        avatar_url: u.avatar_url || (u.avatar ? `/storage/${u.avatar}` : null)
+      }))
+      .filter((u: any) => Number(u.id) !== Number(myId));
+    this.filteredAdmins = [...this.admins];
   }
 
   filterAdmins() {

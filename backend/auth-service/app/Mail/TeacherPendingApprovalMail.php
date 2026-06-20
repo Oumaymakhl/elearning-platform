@@ -4,6 +4,7 @@ namespace App\Mail;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Storage;
 
 class TeacherPendingApprovalMail extends Mailable
 {
@@ -14,8 +15,9 @@ class TeacherPendingApprovalMail extends Mailable
     public function build()
     {
         $frontendUrl = rtrim(config('app.frontend_url'), '/');
-        $cvUrl = $this->teacher->cv_path
-            ? $frontendUrl . '/storage/' . $this->teacher->cv_path
+        $cvPath = $this->normalizeCvPath($this->teacher->cv_path);
+        $cvUrl = $cvPath && Storage::disk('public')->exists($cvPath)
+            ? $frontendUrl . '/storage/' . $cvPath
             : null;
 
         $cvSection = $cvUrl
@@ -38,5 +40,14 @@ class TeacherPendingApprovalMail extends Mailable
                     </a>
                 </p>
             ");
+    }
+
+    private function normalizeCvPath($path): ?string
+    {
+        $path = trim((string) $path);
+        if ($path === '' || $path === '0' || strtolower($path) === 'false' || strtolower($path) === 'null') {
+            return null;
+        }
+        return $path;
     }
 }

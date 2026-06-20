@@ -85,7 +85,7 @@ export class CourseDetailComponent implements OnInit {
               } else if (_sub.is_lab && _sub.exercise_id && !this.isTeacher) {
                 this.router.navigate(["/exercise", _sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: _idx } });
               } else if (_sub.is_lab && this.isTeacher) {
-                this.router.navigate(['/courses', this.course.id, 'manage']);
+                alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
               } else {
                 this.activeSubChapter = _sub;
               }
@@ -124,7 +124,7 @@ export class CourseDetailComponent implements OnInit {
                         } else if (sub.is_lab && sub.exercise_id && !this.isTeacher) {
                           this.router.navigate(['/exercise', sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: idx } });
                         } else if (sub.is_lab && this.isTeacher) {
-                          this.router.navigate(['/courses', this.course.id, 'manage']);
+                          alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
                         } else {
                           this.activeSubChapter = sub;
                         }
@@ -279,11 +279,7 @@ export class CourseDetailComponent implements OnInit {
   }
 
   visibleSubChapters(chapter: any): any[] {
-    const subs = chapter?.sub_chapters || [];
-    if (this.isTeacher && !this.isAdmin) {
-      return subs.filter((sub: any) => !sub.is_lab);
-    }
-    return subs;
+    return chapter?.sub_chapters || [];
   }
 
   goToPrev() {
@@ -312,7 +308,7 @@ export class CourseDetailComponent implements OnInit {
 
   openSubChapterDirect(sub: any) {
     if (this.isTeacher && sub.is_lab) {
-      this.router.navigate(['/courses', this.course.id, 'manage']);
+      alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
       return;
     }
     // Si c'est un quiz, rediriger vers la page quiz
@@ -347,7 +343,7 @@ export class CourseDetailComponent implements OnInit {
 
   openSubChapter(sub: any, index: number, allSubs: any[]) {
     if (this.isTeacher && sub.is_lab) {
-      alert('Les TD sont accessibles aux enseignants depuis la page de gestion du cours.');
+      alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
       return;
     }
     if (!this.isUnlocked(sub, index, allSubs)) {

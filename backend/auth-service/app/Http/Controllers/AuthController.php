@@ -35,7 +35,11 @@ class AuthController extends Controller
 
         $cvPath = null;
         if ($request->hasFile('cv') && $request->role === 'teacher') {
+            Storage::disk('public')->makeDirectory('cvs');
             $cvPath = $request->file('cv')->store('cvs', 'public');
+            if (!$cvPath) {
+                return response()->json(['message' => 'CV could not be saved. Please try again.'], 500);
+            }
         }
 
         $verificationToken = Str::random(64);
@@ -250,7 +254,13 @@ class AuthController extends Controller
         $teachers = User::where('role', 'teacher')
             ->whereNull('is_approved')
             ->whereNotNull('email_verified_at')
-            ->get();
+            ->get()
+            ->map(function (User $teacher) {
+                $cvPath = $this->normalizeCvPath($teacher->cv_path);
+                $teacher->cv_path = $cvPath;
+                $teacher->cv_url = $this->cvUrl($cvPath);
+                return $teacher;
+            });
 
         return response()->json($teachers);
     }
@@ -263,13 +273,32 @@ class AuthController extends Controller
 
         $teacher = User::findOrFail($id);
 
-        if (!$teacher->cv_path) {
+        $cvUrl = $this->cvUrl($teacher->cv_path);
+        if (!$cvUrl) {
             return response()->json(['message' => 'No CV found'], 404);
         }
 
         return response()->json([
-            'cv_url' => rtrim(config('app.frontend_url'), '/') . '/storage/' . $teacher->cv_path
+            'cv_url' => $cvUrl,
         ]);
+    }
+
+    private function normalizeCvPath($path): ?string
+    {
+        $path = trim((string) $path);
+        if ($path === '' || $path === '0' || strtolower($path) === 'false' || strtolower($path) === 'null') {
+            return null;
+        }
+        return $path;
+    }
+
+    private function cvUrl($path): ?string
+    {
+        $path = $this->normalizeCvPath($path);
+        if (!$path || !Storage::disk('public')->exists($path)) {
+            return null;
+        }
+        return rtrim(config('app.frontend_url'), '/') . '/storage/' . $path;
     }
 
     public function internalToggleActive(Request $request)
