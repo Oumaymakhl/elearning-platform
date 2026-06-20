@@ -459,6 +459,7 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   adminSearch = '';
   loadingAdmins = false;
   adminLoadError = '';
+  private initializedForUser = false;
   conversationLoadError = '';
   pendingFile: any = null;
   showSearch = false;
@@ -490,14 +491,23 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
   ) {}
 
   ngOnInit() {
-    this.userSub = this.auth.currentUser$.subscribe(u => { if (u) { this.currentUser = u; this.currentUser.myId = u.auth_id || u.id; } });
+    this.userSub = this.auth.currentUser$.subscribe(u => {
+      if (!u) return;
 
-    this.loadConversations();
-    this.loadAdmins();
-    this.convPollInterval = setInterval(() => this.loadConversations(), 15000);
-    this.route.queryParams.subscribe(params => {
-      if (params['with'] && params['name']) {
-        this.startOrOpenConv(+params['with'], params['name'], params['avatar'] || null);
+      this.currentUser = u;
+      this.currentUser.myId = u.auth_id || u.id;
+
+      if (!this.initializedForUser) {
+        this.initializedForUser = true;
+        this.loadConversations();
+        this.loadAdmins();
+        this.convPollInterval = setInterval(() => this.loadConversations(), 15000);
+
+        this.route.queryParams.subscribe(params => {
+          if (params['with'] && params['name']) {
+            this.startOrOpenConv(+params['with'], params['name'], params['avatar'] || null);
+          }
+        });
       }
     });
   }

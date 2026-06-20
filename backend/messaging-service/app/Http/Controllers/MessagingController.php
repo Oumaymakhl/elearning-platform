@@ -4,14 +4,45 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MessagingController extends Controller
 {
     private function getUser(Request $request): ?array
     {
         $userData = $request->header('X-User-Data');
-        if (!$userData) return null;
-        return json_decode(base64_decode($userData), true);
+        if ($userData) {
+            $decoded = json_decode(base64_decode($userData), true);
+            if (is_array($decoded) && !empty($decoded['id'])) {
+                return $decoded;
+            }
+        }
+
+        $token = $request->bearerToken();
+        if (!$token) {
+            $authorization = $request->headers->get('Authorization')
+                ?: $request->server('HTTP_AUTHORIZATION')
+                ?: $request->server('REDIRECT_HTTP_AUTHORIZATION');
+            if (is_string($authorization) && preg_match('/Bearer\s+(.+)/i', $authorization, $matches)) {
+                $token = $matches[1];
+            }
+        }
+
+        if (!$token) return null;
+
+        try {
+            $payload = JWTAuth::setToken($token)->getPayload();
+            return [
+                'id' => (int) $payload->get('sub'),
+                'name' => $payload->get('name') ?: 'User #' . $payload->get('sub'),
+                'role' => $payload->get('role'),
+                'email' => $payload->get('email'),
+                'avatar_url' => null,
+            ];
+        } catch (JWTException $e) {
+            return null;
+        }
     }
 
     // GET /api/messaging/conversations
