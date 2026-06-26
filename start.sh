@@ -11,8 +11,8 @@ sudo chmod 777 /tmp/go-cache /tmp/gopath
 
 echo ""
 echo "✅ Tous les services sont démarrés !"
-echo "🌐 Frontend  : http://localhost:4200"
-echo "🔧 Backend   : http://localhost:8080"
-echo "💬 Forum     : http://localhost:8008"
-echo "✉️  Messages  : http://localhost:8009"
+echo "🌐 Frontend  : https://localhost:4200"
+echo "🔧 Backend   : https://localhost:8080"
+echo "💬 Forum     : https://localhost:8008"
+echo "✉️  Messages  : https://localhost:8009"
 echo ""

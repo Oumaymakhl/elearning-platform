@@ -31,7 +31,7 @@ import { FormsModule } from '@angular/forms';
             </a>
           </div>
           <div class="hero-illustration">
-            <svg viewBox="0 0 320 240" xmlns="http://www.w3.org/2000/svg">
+            <svg viewBox="0 0 320 240" xmlns="https://www.w3.org/2000/svg">
               <!-- Desk -->
               <rect x="40" y="170" width="240" height="12" rx="6" fill="rgba(255,255,255,0.15)"/>
               <!-- Monitor -->

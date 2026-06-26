@@ -26,7 +26,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth-service
     environment:
-      FRONTEND_URL: http://52.2.181.255:8080
+      FRONTEND_URL: https://52-2-181-255.sslip.io
     networks:
       - elearning-network
     depends_on:
@@ -449,8 +449,10 @@ services:
     container_name: gateway
     ports:
       - "8080:80"
+      - "443:443"
     volumes:
       - ../../frontend/angular-app/dist/learnspace/browser:/usr/share/nginx/html:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     networks:
       - elearning-network
     depends_on:
@@ -639,7 +641,7 @@ services:
       dockerfile: Dockerfile
     container_name: payment-service
     environment:
-      FRONTEND_URL: http://52.2.181.255:8080
+      FRONTEND_URL: https://52-2-181-255.sslip.io
     networks:
       - elearning-network
     depends_on:

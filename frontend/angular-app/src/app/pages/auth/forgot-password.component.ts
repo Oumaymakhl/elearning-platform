@@ -16,7 +16,7 @@ import { HttpClient } from '@angular/common/http';
       <div class="split">
         <div class="illus-side">
           <div class="illus-card">
-            <svg viewBox="0 0 340 280" xmlns="http://www.w3.org/2000/svg" class="illus-svg">
+            <svg viewBox="0 0 340 280" xmlns="https://www.w3.org/2000/svg" class="illus-svg">
               <circle cx="170" cy="140" r="110" fill="#4A90D9" opacity=".12"/>
               <circle cx="170" cy="140" r="75" fill="#4A90D9" opacity=".1"/>
               <rect x="110" y="100" width="120" height="90" rx="14" fill="white" opacity=".9"/>

@@ -53,7 +53,7 @@ class AuthController extends Controller
             'email_verified_at'  => null,
         ]);
 
-        $verificationUrl = 'http://localhost:4200/verify-email?token=' . $verificationToken;
+        $verificationUrl = 'https://localhost:4200/verify-email?token=' . $verificationToken;
         Mail::to($user->email)->send(new \App\Mail\VerificationEmail($verificationUrl, $user->name));
 
         $message = $isTeacher
@@ -204,7 +204,7 @@ class AuthController extends Controller
         }
 
         return response()->json([
-            'cv_url' => 'http://localhost:8000/storage/' . $teacher->cv_path
+            'cv_url' => 'https://localhost:8000/storage/' . $teacher->cv_path
         ]);
     }
 
@@ -268,7 +268,7 @@ class AuthController extends Controller
             ['email' => $request->email],
             ['token' => bcrypt($token), 'created_at' => now()]
         );
-        $resetUrl = env('FRONTEND_URL', 'http://localhost:4200') . '/reset-password?token=' . $token . '&email=' . urlencode($request->email);
+        $resetUrl = env('FRONTEND_URL', 'https://localhost:4200') . '/reset-password?token=' . $token . '&email=' . urlencode($request->email);
         Mail::send('emails.reset-password', ['url' => $resetUrl, 'user' => $user], function ($m) use ($user) {
             $m->to($user->email)->subject('Réinitialisation de votre mot de passe');
         });

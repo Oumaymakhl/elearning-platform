@@ -216,10 +216,10 @@ export class StarRatingComponent implements OnInit, OnChanges {
 
   fixUrl(url: string): string {
     if (!url) return '';
-    if (url.startsWith('/storage')) return 'http://52.2.181.255:8080' + url;
-    if (url.startsWith('avatars/')) return 'http://52.2.181.255:8080/storage/' + url;
+    if (url.startsWith('/storage')) return 'https://52-2-181-255.sslip.io' + url;
+    if (url.startsWith('avatars/')) return 'https://52-2-181-255.sslip.io/storage/' + url;
     // Remplacer les noms Docker internes par localhost
-    return url.replace('http://nginx-user', 'http://52.2.181.255:8080').replace('http://127.0.0.1', 'http://52.2.181.255:8080').replace('http://localhost:8001', 'http://52.2.181.255:8080')
+    return url.replace('https://nginx-user', 'https://52-2-181-255.sslip.io').replace('https://127.0.0.1', 'https://52-2-181-255.sslip.io').replace('https://localhost:8001', 'https://52-2-181-255.sslip.io')
               
   }
   getInitials(name: string): string {

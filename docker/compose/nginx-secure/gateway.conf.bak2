@@ -1,11 +1,11 @@
 server {
-    listen 80 default_server;
-    server_name 52-2-181-255.sslip.io 52.2.181.255 _;
-    return 301 https://52-2-181-255.sslip.io$request_uri;
+    listen 80;
+    server_name 52-2-181-255.sslip.io;
+    return 301 https://$host$request_uri;
 }
 
 server {
-    listen 443 ssl default_server;
+    listen 443 ssl;
     server_name 52-2-181-255.sslip.io;
 
     ssl_certificate     /etc/letsencrypt/live/52-2-181-255.sslip.io/fullchain.pem;

@@ -55,9 +55,9 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
+    'url' => env('APP_URL', 'https://localhost'),
 
-    'frontend_url' => env('FRONTEND_URL', 'http://52.2.181.255:8080'),
+    'frontend_url' => env('FRONTEND_URL', 'https://52-2-181-255.sslip.io'),
 
     'asset_url' => env('ASSET_URL'),
 

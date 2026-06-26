@@ -556,7 +556,7 @@ interface Conversation { id: number; title: string; messages: Message[]; }
         <div class="chat-topbar">
           <div class="topbar-left">
             <div class="bot-salut">
-              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="https://www.w3.org/2000/svg">
                 <!-- tête -->
                 <rect x="7" y="8" width="22" height="18" rx="9" fill="#6C63FF" stroke="#5A52E0" stroke-width="1.5"/>
                 <!-- yeux -->
@@ -618,7 +618,7 @@ interface Conversation { id: number; title: string; messages: Message[]; }
               <!-- Welcome state -->
               <div class="welcome" *ngIf="messages.length === 0">
                 <div class="welcome-illustration">
-            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="https://www.w3.org/2000/svg">
               <circle cx="60" cy="60" r="55" fill="#F0EDFF" stroke="#D8D3F8" stroke-width="2"/>
               <path d="M45 45V75" stroke="#6C63FF" stroke-width="4" stroke-linecap="round"/>
               <path d="M75 45V75" stroke="#6C63FF" stroke-width="4" stroke-linecap="round"/>

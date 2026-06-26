@@ -1,4 +1,33 @@
 
+<!-- TD Teacher Info Modal -->
+<div *ngIf="showTdTeacherModal"
+  class="overlay-modal"
+  (click)="showTdTeacherModal = false"
+  style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;animation:fade-in .15s ease">
+  <div (click)="$event.stopPropagation()"
+    style="background:#fff;border-radius:18px;padding:32px 28px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pop-in .2s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:36px;margin-bottom:12px">📋</div>
+    <div style="font-size:16px;font-weight:700;color:#1a202c;margin-bottom:6px">Accès restreint</div>
+    <div style="font-size:13px;color:#718096;line-height:1.55;margin-bottom:24px">Veuillez accéder à ce TD depuis l'espace de gestion des TD.</div>
+    <button (click)="showTdTeacherModal = false"
+      style="padding:9px 28px;border-radius:9px;border:none;background:#4361ee;color:#fff;font-size:13px;font-weight:600;cursor:pointer">OK</button>
+  </div>
+</div>
+
+<!-- TD Teacher Info Modal -->
+<div *ngIf="showTdTeacherModal"
+  (click)="showTdTeacherModal = false"
+  style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;animation:fade-in .15s ease">
+  <div (click)="$event.stopPropagation()"
+    style="background:#fff;border-radius:18px;padding:32px 28px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pop-in .2s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:36px;margin-bottom:12px">📋</div>
+    <div style="font-size:16px;font-weight:700;color:#1a202c;margin-bottom:6px">Accès restreint</div>
+    <div style="font-size:13px;color:#718096;line-height:1.55;margin-bottom:24px">Veuillez accéder à ce TD depuis l&apos;espace de gestion des TD.</div>
+    <button (click)="showTdTeacherModal = false"
+      style="padding:9px 28px;border-radius:9px;border:none;background:#4361ee;color:#fff;font-size:13px;font-weight:600;cursor:pointer">OK</button>
+  </div>
+</div>
+
 <!-- TD Bloqué Modal -->
 <div *ngIf="showLabBlockedModal"
   style="position:fixed; top:2rem; left:50%; transform:translateX(-50%); z-index:9999;

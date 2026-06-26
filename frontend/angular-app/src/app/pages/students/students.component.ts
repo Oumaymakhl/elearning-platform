@@ -188,7 +188,7 @@ interface StudentRow {
     .avatar { width:32px; height:32px; border-radius:10px; background:#F0EDFF; color:#6C63FF; border:1px solid #D8D3F8; display:flex; align-items:center; justify-content:center; font-size:.68rem; font-weight:700; flex-shrink:0; }
     .email { color:#9B97A8; font-size:.82rem; }
     .courses-cell { min-width:190px; }
-    .course-select { width:100%; padding:6px 28px 6px 10px; border-radius:8px; border:1.5px solid #e2e8f0; font-size:.78rem; color:#1A1A2E; background:#f8f9fa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239B97A8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; cursor:pointer; outline:none; transition:.2s; font-family:'DM Sans',sans-serif; }
+    .course-select { width:100%; padding:6px 28px 6px 10px; border-radius:8px; border:1.5px solid #e2e8f0; font-size:.78rem; color:#1A1A2E; background:#f8f9fa url("data:image/svg+xml,%3Csvg xmlns='https://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239B97A8' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center; appearance:none; cursor:pointer; outline:none; transition:.2s; font-family:'DM Sans',sans-serif; }
     .course-select:focus { border-color:#6C63FF; background-color:#fff; }
     .progress-cell { display:flex; align-items:center; gap:.55rem; }
     .progress-bar { flex:1; height:6px; background:#f0f0f5; border-radius:4px; max-width:90px; overflow:hidden; }

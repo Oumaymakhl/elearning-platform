@@ -85,7 +85,7 @@ export class CourseDetailComponent implements OnInit {
               } else if (_sub.is_lab && _sub.exercise_id && !this.isTeacher) {
                 this.router.navigate(["/exercise", _sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: _idx } });
               } else if (_sub.is_lab && this.isTeacher) {
-                alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
+                this.showTdTeacherModal = true;
               } else {
                 this.activeSubChapter = _sub;
               }
@@ -124,7 +124,7 @@ export class CourseDetailComponent implements OnInit {
                         } else if (sub.is_lab && sub.exercise_id && !this.isTeacher) {
                           this.router.navigate(['/exercise', sub.exercise_id], { queryParams: { course_id: this.course.id, sub_index: idx } });
                         } else if (sub.is_lab && this.isTeacher) {
-                          alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
+                          this.showTdTeacherModal = true;
                         } else {
                           this.activeSubChapter = sub;
                         }
@@ -168,6 +168,7 @@ export class CourseDetailComponent implements OnInit {
   visitedSubs: Set<number> = new Set();
   completedLabs: Set<number> = new Set();
   showLabBlockedModal = false;
+  showTdTeacherModal = false;
   activeSubIndex: number = -1;
   allSubChapters: any[] = []; // liste plate de tous les sous-chapitres
 
@@ -308,7 +309,7 @@ export class CourseDetailComponent implements OnInit {
 
   openSubChapterDirect(sub: any) {
     if (this.isTeacher && sub.is_lab) {
-      alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
+      this.showTdTeacherModal = true;
       return;
     }
     // Si c'est un quiz, rediriger vers la page quiz
@@ -343,7 +344,7 @@ export class CourseDetailComponent implements OnInit {
 
   openSubChapter(sub: any, index: number, allSubs: any[]) {
     if (this.isTeacher && sub.is_lab) {
-      alert('Les enseignants peuvent voir les TD ici, mais ils ne peuvent les ouvrir que depuis la gestion du cours.');
+      this.showTdTeacherModal = true;
       return;
     }
     if (!this.isUnlocked(sub, index, allSubs)) {
