@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { QuizService } from '../../services/quiz.service';
 import { HttpClient, HttpClientModule, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
+import { InfoService } from '../../services/info.service';
 import { CourseService } from '../../services/course.service';
 
 @Component({
@@ -37,6 +38,7 @@ export class QuizComponent implements OnInit {
   courseId: number | null = null;
   completedLabs: Set<number> = new Set();
   showLabBlockedModal = false;
+  quizScores: Record<number, number> = {};
   subId: number | null = null;
   subIndex: number = -1;
 
@@ -46,7 +48,8 @@ export class QuizComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private http: HttpClient,
-    private courseService: CourseService
+    private courseService: CourseService,
+    private infoSvc: InfoService
   ) {}
 
   ngOnInit() {
@@ -95,6 +98,18 @@ export class QuizComponent implements OnInit {
             error: () => {}
           });
         });
+        // Charger les scores quiz
+        allSubs.filter((s: any) => s.quiz_id).forEach((s: any) => {
+          this.http.get<any[]>(`/api/quizzes/${s.quiz_id}/attempts/mine`, { headers }).subscribe({
+            next: (attempts: any[]) => {
+              if (attempts && attempts.length > 0) {
+                const best = Math.max(...attempts.map((a: any) => Math.round((a.score / (a.max_score || 1)) * 100)));
+                this.quizScores = { ...this.quizScores, [s.quiz_id]: best };
+              }
+            },
+            error: () => {}
+          });
+        });
       },
       error: () => {}
     });
@@ -111,6 +126,21 @@ export class QuizComponent implements OnInit {
     if (!cid) return;
     const allSubs = this.chapters.flatMap((c: any) => c.sub_chapters || []);
     const idx = allSubs.findIndex((s: any) => s.id === sub.id);
+
+    // Vérifier si le sous-chapitre est déverrouillé (même logique que course-detail)
+    if (idx > 0) {
+      const prevSubs = allSubs.slice(0, idx);
+      const prevQuiz = [...prevSubs].reverse().find((s: any) => s.quiz_id);
+      if (prevQuiz) {
+        const score = this.quizScores[prevQuiz.quiz_id];
+        if (score === undefined || score < 70) {
+          // Afficher message verrouillé via infoSvc si disponible, sinon alert
+          this.infoSvc.open({ icon: '🔒', title: 'Chapitre verrouillé', message: 'Vous devez obtenir au moins 70% au quiz précédent pour débloquer ce chapitre.' });
+          return;
+        }
+      }
+    }
+
     if (sub.is_lab && sub.exercise_id) {
       if (this.completedLabs.has(sub.exercise_id)) {
         this.showLabBlockedModal = true;
@@ -121,6 +151,12 @@ export class QuizComponent implements OnInit {
         queryParams: { course_id: cid, sub_index: idx }
       });
     } else if (sub.quiz_id) {
+      // Bloquer si quiz déjà réussi
+      const quizScore = this.quizScores[sub.quiz_id];
+      if (quizScore !== undefined && quizScore >= 70) {
+        this.infoSvc.open({ icon: '🏆', title: 'Quiz déjà réussi', message: 'Vous avez déjà obtenu ≥ 70% à ce quiz. Vous l\'avez réussi avec succès !' });
+        return;
+      }
       this.router.navigate(['/quiz', sub.quiz_id], {
         queryParams: { course_id: cid, sub_id: sub.id, sub_index: idx }
       });

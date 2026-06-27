@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { CourseService } from '../../services/course.service';
 import { AuthService } from '../../services/auth.service';
 import { forkJoin, Subscription } from 'rxjs';
@@ -218,7 +219,7 @@ export class StudentsComponent implements OnInit, OnDestroy {
   currentUser: any;
   private userSub = new Subscription();
 
-  constructor(private courseService: CourseService, private auth: AuthService, private router: Router) {}
+  constructor(private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient) {}
 
   ngOnInit() {
     this.userSub = this.auth.currentUser$.subscribe(u => { if (u) this.currentUser = u; });
@@ -244,7 +245,30 @@ export class StudentsComponent implements OnInit, OnDestroy {
             });
             this.allStudentRows = Array.from(studentMap.values());
             this.filtered = [...this.allStudentRows];
-            this.loading = false;
+            // Enrichir avec les noms depuis user-service
+            const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : '';
+            const headers = { Authorization: 'Bearer ' + token };
+            const userIds = Array.from(studentMap.keys());
+            if (userIds.length > 0) {
+              this.http.get<any[]>('/api/students', { headers }).subscribe({
+                next: (users: any[]) => {
+                  users.forEach((u: any) => {
+                    const row = studentMap.get(u.auth_id) || studentMap.get(u.id);
+                    if (row) {
+                      row.name = u.name || u.first_name || '';
+                      row.email = u.email || row.email;
+                      row.avatar = u.avatar || u.profile_photo || '';
+                    }
+                  });
+                  this.allStudentRows = Array.from(studentMap.values());
+                  this.filtered = [...this.allStudentRows];
+                  this.loading = false;
+                },
+                error: () => { this.loading = false; }
+              });
+            } else {
+              this.loading = false;
+            }
           },
           error: () => { this.loading = false; }
         });

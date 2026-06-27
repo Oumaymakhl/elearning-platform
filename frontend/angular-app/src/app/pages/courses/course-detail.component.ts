@@ -1,4 +1,5 @@
 import { ConfirmService } from '../../services/confirm.service';
+import { InfoService } from '../../services/info.service';
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -59,7 +60,7 @@ export class CourseDetailComponent implements OnInit {
     ruby: '# Ruby\nputs "Hello, World!"'
   };
 
-  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService, private confirmSvc: ConfirmService, private paymentService: PaymentService) {}
+  constructor(private route: ActivatedRoute, private ratingService: RatingService, private chatService: ChatService, private courseService: CourseService, private auth: AuthService, private router: Router, private http: HttpClient, private quizService: QuizService, private confirmSvc: ConfirmService, private paymentService: PaymentService, private infoSvc: InfoService) {}
 
   ngOnInit() {
     const id = +this.route.snapshot.paramMap.get('id')!;
@@ -149,7 +150,7 @@ export class CourseDetailComponent implements OnInit {
     if (!ok) return;
     this.courseService.deleteCourse(this.course.id).subscribe({
       next: () => { this.router.navigate(['/courses']); },
-      error: (e) => { alert('Erreur : ' + (e.error?.message || 'Suppression échouée')); }
+      error: (e) => { this.infoSvc.open({ icon: '❌', title: 'Erreur', message: e.error?.message || 'Suppression échouée' }); }
     });
   }
 
@@ -348,7 +349,7 @@ export class CourseDetailComponent implements OnInit {
       return;
     }
     if (!this.isUnlocked(sub, index, allSubs)) {
-      alert('Vous devez obtenir au moins ' + (allSubs[index-1].passing_score || 70) + '% au quiz précédent pour débloquer ce chapitre.');
+      this.infoSvc.open({ icon: '🔒', title: 'Chapitre verrouillé', message: 'Vous devez obtenir au moins ' + (allSubs[index-1].passing_score || 70) + '% au quiz précédent pour débloquer ce chapitre.' });
       return;
     }
     // Ajouter ce sous-chapitre aux visités et recalculer
@@ -379,6 +380,12 @@ export class CourseDetailComponent implements OnInit {
     } else if (sub.quiz_id) {
       const allSubs = this.getAllSubs();
       const subIdx = allSubs.findIndex((s: any) => s.id === sub.id);
+      // Bloquer si quiz déjà réussi (>= 70%)
+      const quizScore = this.quizScores[sub.quiz_id];
+      if (quizScore !== undefined && quizScore >= 70) {
+        this.infoSvc.open({ icon: '🏆', title: 'Quiz déjà réussi', message: 'Vous avez déjà obtenu ≥ 70% à ce quiz. Vous l\'avez réussi avec succès !' });
+        return;
+      }
       this.router.navigate(['/quiz', sub.quiz_id], { queryParams: { course_id: this.course.id, sub_id: sub.id, sub_index: subIdx } });
       this.quizService.myAttempts(sub.quiz_id).subscribe({
         next: (attempts) => { this.activeQuizPastAttempts = attempts; },
@@ -404,7 +411,7 @@ export class CourseDetailComponent implements OnInit {
           error: () => {}
         });
       },
-      error: (e) => { alert(e.error?.message || 'Erreur inscription'); }
+      error: (e) => { this.infoSvc.open({ icon: '❌', title: 'Erreur', message: e.error?.message || 'Erreur inscription' }); }
     });
   }
 
@@ -809,7 +816,7 @@ export class CourseDetailComponent implements OnInit {
       },
       error: (e) => {
         this.paymentLoading = false;
-        alert('Erreur paiement : ' + (e.error?.message || 'Réessayez'));
+        this.infoSvc.open({ icon: '💳', title: 'Erreur paiement', message: e.error?.message || 'Réessayez' });
       }
     });
   }
