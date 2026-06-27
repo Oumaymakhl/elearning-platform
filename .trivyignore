@@ -1,0 +1,4 @@
+# Laravel framework advisories - require major version upgrade (10->11/12)
+# Breaking change - not feasible without full migration
+GHSA-crmm-hgp2-wgrp
+GHSA-5vg9-5847-vvmq
