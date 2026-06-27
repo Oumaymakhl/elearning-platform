@@ -9,6 +9,7 @@ RUN npm run build -- --configuration=production
 # ── Étape 2 : Serveur Nginx ──────────────────────────────────────
 FROM nginx:1.27-alpine
 RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
+RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
 RUN rm -rf /usr/share/nginx/html/*
 COPY --from=builder /app/dist/learnspace /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

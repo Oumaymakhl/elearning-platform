@@ -10,13 +10,18 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
-        "laravel/framework": "^13.0",
+        "guzzlehttp/guzzle": "^7.12.1",
+        "guzzlehttp/psr7": "^2.12.1",
+        "laravel/framework": "^13.12.0",
         "laravel/tinker": "^3.0",
+        "league/commonmark": "^2.8.2",
+        "psy/psysh": "^0.12.19",
         "stripe/stripe-php": "^20.0",
-        "symfony/mime": "^7.4.12",
+        "symfony/http-foundation": "^7.4.13",
+        "symfony/http-kernel": "^7.4.12",
         "symfony/mailer": "^7.4.12",
-        "symfony/routing": "^7.4.12",
-        "symfony/http-kernel": "^7.4.12"
+        "symfony/mime": "^7.4.12",
+        "symfony/routing": "^7.4.13"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
