@@ -767,7 +767,19 @@ export class MessagingComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   downloadFile(body: string) {
     const parts = body.replace("📎 ", "").split("||");
-    if (parts[1]) { const a = document.createElement("a"); a.href = parts[1]; a.target = "_blank"; a.rel = "noopener"; a.click(); }
+    const rawUrl = parts[1] ? parts[1].trim() : null;
+    if (!rawUrl || rawUrl === "null" || rawUrl === "undefined") {
+      alert("Fichier non disponible.");
+      return;
+    }
+    const url = rawUrl.startsWith("http") ? rawUrl : window.location.origin + rawUrl;
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   onFileSelected(event: any) {

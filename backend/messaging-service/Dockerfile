@@ -15,4 +15,5 @@ COPY .env.example .env
 RUN chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 RUN sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/etc/php-fpm.d/www.conf 2>/dev/null || true
+RUN echo "upload_max_filesize=50M\npost_max_size=50M\nmemory_limit=256M" > /usr/local/etc/php/conf.d/uploads.ini
 CMD ["php-fpm"]
