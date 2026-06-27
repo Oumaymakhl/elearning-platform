@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine3.21
+FROM php:8.3-fpm-alpine
 RUN apk update && apk upgrade --no-cache curl libcurl && rm -rf /var/cache/apk/*
 RUN apk add --no-cache --timeout 120 \
     git curl libpng-dev oniguruma-dev libxml2-dev zip unzip \

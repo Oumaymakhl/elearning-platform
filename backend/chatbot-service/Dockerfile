@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine3.21
+FROM php:8.4-fpm-alpine
 RUN apk add --no-cache \
     git curl libpng-dev oniguruma-dev libxml2-dev zip unzip nginx
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
