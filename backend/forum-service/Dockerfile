@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-alpine
+FROM php:8.3-fpm-alpine3.21
 
 RUN apk update && apk upgrade --no-cache curl libcurl && rm -rf /var/cache/apk/*
 
